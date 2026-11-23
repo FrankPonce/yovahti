@@ -52,6 +52,15 @@ class Forecaster:
     # log-space shift per quantile and horizon, learned on a calibration window (conformal)
     offsets: dict[float, np.ndarray] = field(default_factory=dict, repr=False)
     _dev: np.ndarray | None = field(default=None, repr=False)  # cache, reset per world
+    # F1 (FINDINGS E17): model each sector relative to its own last-7-days mean log level
+    level_norm: bool = False
+    _cy: np.ndarray | None = field(default=None, repr=False)   # cache: cumsum of y
+
+    def _recent_level(self, y: np.ndarray, issue: np.ndarray, s: np.ndarray) -> np.ndarray:
+        """Mean log1p volume over the week before ``issue`` (only past data)."""
+        if self._cy is None:
+            self._cy = np.vstack([np.zeros((1, y.shape[1])), np.cumsum(y, axis=0)])
+        return (self._cy[issue, s] - self._cy[issue - WEEK, s]) / WEEK
 
     # ---------------------------------------------------------------- features
     def _features(self, y: np.ndarray, slots: np.ndarray, hours: np.ndarray, dows: np.ndarray,
@@ -69,6 +78,9 @@ class Forecaster:
         cdev = np.vstack([np.zeros((1, y.shape[1])), np.cumsum(dev, axis=0)])
         day_dev = (cdev[issue, s] - cdev[issue - 96, s]) / 96
         week_dev = (cdev[issue, s] - cdev[issue - WEEK, s]) / WEEK
+        if self.level_norm:
+            lv = self._recent_level(y, issue, s)
+            last, mean4, lag1d, lag7d, prof = (a - lv for a in (last, mean4, lag1d, lag7d, prof))
         return np.column_stack([h, last, mean4, last_dev, lag1d, lag7d, prof, hours[tgt],
                                 dows[tgt], self.level[s], day_dev, week_dev]).astype(np.float32)
 
@@ -80,7 +92,8 @@ class Forecaster:
     # ---------------------------------------------------------------- fit
     @classmethod
     def fit(cls, world: WorldData, target: str, train_end: int, issue_every: int = 8,
-            horizons_per_issue: int = 8, seed: int = 0, rounds: int = 300) -> Forecaster:
+            horizons_per_issue: int = 8, seed: int = 0, rounds: int = 300,
+            level_norm: bool = False) -> Forecaster:
         """Fit on issue times before ``train_end`` (index into world.times), targets too."""
         y = target_series(world, target)
         slots, hours, dows = cls._calendar(world.times)
@@ -89,8 +102,9 @@ class Forecaster:
         for k in range(WEEK):
             m = slots[tr] == k
             prof[k] = y[tr][m].mean(axis=0) if m.any() else y[tr].mean(axis=0)
-        f = cls(target=target, profile=prof, level=y[tr].mean(axis=0))
+        f = cls(target=target, profile=prof, level=y[tr].mean(axis=0), level_norm=level_norm)
         f._dev = None
+        f._cy = None
         rng = np.random.default_rng(seed)
         issues = np.arange(WEEK + 4, train_end - HORIZON, issue_every)
         rows_i, rows_h, rows_s = [], [], []
@@ -103,6 +117,8 @@ class Forecaster:
         ii, hh, ss = (np.concatenate(a) for a in (rows_i, rows_h, rows_s))
         x = f._features(y, slots, hours, dows, ii, hh, ss)
         t = y[ii + hh - 1, ss]
+        if level_norm:
+            t = t - f._recent_level(y, ii, ss)
         params = {"learning_rate": 0.05, "num_leaves": 63, "min_data_in_leaf": 200,
                   "feature_fraction": 0.9, "bagging_fraction": 0.8, "bagging_freq": 1,
                   "verbose": -1, "seed": seed}
@@ -115,7 +131,11 @@ class Forecaster:
     # ---------------------------------------------------------------- predict
     def predict_issue(self, world: WorldData, issue: int) -> dict[float, np.ndarray]:
         """Forecasts issued before quarter-hour ``issue``: {q: [HORIZON, S] MB}, sorted per q."""
+        if self.level_norm:
+            out = self.predict_many(world, np.array([issue]))
+            return {q: v[0] for q, v in out.items()}
         self._dev = None
+        self._cy = None
         y = target_series(world, self.target)
         slots, hours, dows = self._calendar(world.times)
         h = np.repeat(np.arange(1, HORIZON + 1), world.S)
@@ -129,10 +149,37 @@ class Forecaster:
         hi = np.maximum(hi, mid)
         return {QUANTILES[0]: lo, QUANTILES[1]: mid, QUANTILES[2]: hi}
 
+    def predict_log(self, world: WorldData, issues: np.ndarray) -> dict[float, np.ndarray]:
+        """Uncalibrated log1p forecasts {q: [n_issues, HORIZON, S]} (absolute level)."""
+        self._dev = None
+        self._cy = None
+        y = target_series(world, self.target)
+        slots, hours, dows = self._calendar(world.times)
+        n = len(issues)
+        ii = np.repeat(issues, HORIZON * world.S)
+        hh = np.tile(np.repeat(np.arange(1, HORIZON + 1), world.S), n)
+        ss = np.tile(np.arange(world.S), HORIZON * n)
+        x = self._features(y, slots, hours, dows, ii, hh, ss)
+        add = self._recent_level(y, ii, ss) if self.level_norm else 0.0
+        return {q: (self.models[q].predict(x) + add).reshape(n, HORIZON, world.S)
+                for q in QUANTILES}
+
     def predict_many(self, world: WorldData, issues: np.ndarray,
                      calibrated: bool = True) -> dict[float, np.ndarray]:
         """{q: [n_issues, HORIZON, S]} in one batched call (fast)."""
+        if self.level_norm:
+            logs = self.predict_log(world, issues)
+            out = {}
+            for q in QUANTILES:
+                lp = logs[q]
+                if calibrated and q in self.offsets:
+                    lp = lp + self.offsets[q][None, :, None]
+                out[q] = np.expm1(lp).clip(min=0).astype(np.float32)
+            out[0.5] = np.maximum(out[0.5], out[0.1])
+            out[0.9] = np.maximum(out[0.9], out[0.5])
+            return out
         self._dev = None
+        self._cy = None
         y = target_series(world, self.target)
         slots, hours, dows = self._calendar(world.times)
         n = len(issues)

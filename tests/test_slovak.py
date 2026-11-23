@@ -28,6 +28,17 @@ def test_process_lte(tmp_path):
     assert df["rb_util_pct"].iloc[0] == pytest.approx(12.5)
     assert pd.isna(df["rb_util_pct"].iloc[1])  # blank stays missing
     assert str(df["time"].dt.tz) == "UTC"
+    # 00:00 local (summer time, UTC+2) is 22:00 UTC the day before
+    assert df["time"].iloc[0] == pd.Timestamp("2025-08-31 22:00", tz="UTC")
+
+
+def test_local_to_utc_across_dst():
+    from yovahti.data.slovak import local_to_utc
+    t = pd.Series(pd.to_datetime(["2025-10-25 07:00", "2025-10-27 07:00", "2025-10-26 02:15"]))
+    u = local_to_utc(t)
+    assert u.iloc[0] == pd.Timestamp("2025-10-25 05:00", tz="UTC")   # CEST, UTC+2
+    assert u.iloc[1] == pd.Timestamp("2025-10-27 06:00", tz="UTC")   # CET, UTC+1
+    assert u.iloc[2] == pd.Timestamp("2025-10-26 01:15", tz="UTC")   # ambiguous -> standard
 
 
 def test_gsm_and_nr_columns_map():

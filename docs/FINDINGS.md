@@ -239,3 +239,38 @@ Savings are a share of the energy of all three radios per sector (baseband exclu
 **What:** Weighting energy by quarter-hour price saves 16.1 % of € vs 16.4 % for the energy-weighted planner; CO₂ weighting is identical to energy weighting. Price weighting does reduce switching (6.6 vs 9.4 per sector-day) and congestion slightly.
 **Why it matters:** Sleep is worth taking whenever it is safe, so feasibility decides, not price (as E6 predicted). The D17 price target is not met by sleep alone. Price and CO₂ matter where energy can be *shifted* in time: site batteries (Elisa-style), not sleep.
 **Action:** Report as a negative result. If batteries are added (Tier 1), revisit.
+
+### G26 · 2026-11-24 · The "UTC" timestamps are local Slovak time, and that was most of the forecast error
+**What:** The data descriptor says timestamps are UTC. The data says otherwise: the weekday morning traffic ramp sits at 07:00 in the raw stamps in both fortnights around the end of daylight saving (26 Oct 2025); in true UTC it would have moved an hour. The stamps are Europe/Bratislava wall-clock time. Treating them as UTC shifted every "local hour" feature by 2 h in summer and 1 h in winter, so the model learned one alignment in training and met another in validation, starting exactly on the validation's first day. The error breakdown showed it: bias by hour of +350 MB at midnight and -300 MB at 07–08 (mid band), 40–53 % of outcomes above P90 at 07–08, identical at every horizon and on every day. It also misaligned the Slovak traffic with Finnish prices and CO₂ by 1–2 h.
+**Why it matters:** One wrong assumption, inherited from documentation, cost about 10 points of forecast skill. After re-stamping (local → UTC, ambiguous hour read as standard time): skill vs seasonal naive mid +14.7 % → **+25.6 %**, NR 3500 +13.7 % → **+25.0 %**, low +19.1 % → **+26.4 %**; P10–P90 coverage mid 78 %, low 81 % (targets met); above P90 mid 9.9 %, low 9.6 %. The energy model was unaffected (it doesn't use clock time).
+**Action:** `yovahti.data.slovak.local_to_utc` with a test across the DST switch; existing Parquet migrated (`--fix-timezone`). Worth telling the dataset authors. Lesson: check documented assumptions against the data's own behaviour.
+
+### E16 · 2026-11-24 · After the fix, three specific misses remain, and they have known causes
+**What:** (1) NR 3500 is under-forecast at every hour and day (bias -130 to -560 MB, 15.9 % above P90): its weekly traffic grew 34 % in 12 weeks (476 → 638 TB), 12 % in the last four, while mid- and low-band traffic fell from late October (users moving to 5G). (2) Low-band P90 under-covers at night (01–05: 14–23 % above P90) and over-covers by day: one calibration shift for all hours. (3) A mild mid-band under-forecast tied to the same migration.
+**Why it matters:** Each has a standard remedy. Literature check: LightGBM-type global models are the strongest family on real 5G traffic (KDMiLe 2025; Computer Communications 2024), while zero-shot time-series foundation models do worse than seasonal naive on comparable ops data (arXiv 2502.12944), so the model family is not the problem; drift and calibration are. Hour-conditional (Mondrian) conformal calibration around gradient boosting is used for the same pattern in energy forecasting (arXiv 2607.11470), with rolling windows under drift (arXiv 2611.24329).
+**Action:** F1 level-normalised targets (each sector relative to its last-7-day level), F2 Mondrian calibration by local hour, F3 daily rolling recalibration on realised outcomes only. Each must win on two windows (D29).
+
+### G27 · 2026-11-24 · Calibrating over sectors that don't have the carrier silently disabled NR 3500 calibration
+**What:** 61 % of sectors have no NR 3500. Their traffic is zero and is forecast as zero, so they flooded the calibration residuals with exact zeros and pinned the conformal shifts at (or near) zero. Symptom: "global" and "Mondrian" calibration gave *identical* NR 3500 results, and NR's P90 stayed at 15.9 % above (it had even got worse after the first calibration). Restricting calibration to sectors where the carrier exists: NR 3500 coverage 70.9 % → **79.2 %**, above P90 15.9 % → **11.3 %**.
+**Why it matters:** The "NR 3500 drift" miss was mostly this bug, not drift. Identical results from two methods that must differ are a red flag worth chasing.
+**Action:** `sectors=` mask in every calibration function; regression test with 60 % absent sectors.
+
+### E17 · 2026-11-24 · Fixing the misses one by one: what worked, what didn't
+**What:** Each candidate fix scored on an inner backtest (12–26 Oct) and validation (26 Oct–9 Nov) (`scripts/forecast_experiments.py`, `results/forecast/experiments.json`).
+
+| Fix | Result |
+|---|---|
+| G26 local-time stamps | +10 points skill on every layer; the morning-ramp bias disappeared |
+| G27 calibrate only where the carrier exists | NR 3500 coverage 71 → 79 %, above P90 16 → 11 % |
+| F1 level-normalised targets (DeepAR-style) | **Rejected**: worse skill and pinball on both windows for every layer (the existing drift features already carry it) |
+| F2 Mondrian calibration by local hour | Night under-coverage fixed on the inner window; mixed on validation for NR |
+| F3 daily rolling Mondrian on realised outcomes | **Adopted**: per-hour P90 error mid 3.6 → 0.3 pp (inner) / 1.1 → 0.4 pp (val); low 3.6 → 0.4 / 5.0 → 2.9; NR 5.0 → 0.5 / 1.45 → 1.48 (tie); worst hour above P90 ~20–25 % → 11–16 %; pinball equal or better except a ≤0.2 % tie |
+
+Final validation forecasts: skill vs seasonal naive mid **+25.6 %**, NR 3500 **+24.7 %**, low **+28.5 %** (target ≥ 20 % met); P10–P90 coverage 78.9 / 79.2 / 81.7 % (target 75–85 % met); above P90 10.0 / 11.3 / 8.9 %.
+**Why it matters:** Two of the three original "model limits" were data and code bugs. The model family (gradient boosting) was right, as the literature suggested; calibration under drift was the real lever.
+**Action:** Production config: no level normalisation, rolling Mondrian calibration (D30).
+
+### E18 · 2026-11-24 · Better forecasts cut the planner's congestion by a third at the same savings
+**What:** Same validation comparison as E14 with the fixed forecasts. B4 saves 17.7 % (was 17.8 %), congested quarter-hours 0.90 → **0.60** per sector-day, traffic pushed past capacity 2.2 → 1.8 TB, watchdog wake-ups 9 433 → 6 252. B4 now beats the O-RAN SC rApp on both axes at once (17.7 % vs 12.6 % saved; 0.60 vs 0.77 congestion) and has 8.4x less congestion than the published-method reconstruction (5.01) at slightly higher savings (17.1 %). Margin curve: 1.0 → 17.7 % / 0.60; 1.15 → 16.4 % / 0.34; 1.3 → 15.1 % / 0.22; 1.5 → 13.7 % / 0.14. Congestion is now spread evenly over the day (06–09 share 30 % → 21 %): what remains is the designed P90 tail, controlled by the margin.
+**Why it matters:** Forecast quality turns directly into network quality. At margin 1.5 B4 saves more than the O-RAN SC rApp with 5.7x less congestion.
+**Action:** Use the updated table and curve in results; G24 is resolved by G26, G27 and F3.

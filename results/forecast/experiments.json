@@ -1,0 +1,368 @@
+{
+ "mid": {
+  "base+global": {
+   "inner": {
+    "skill_pct": 17.566048744903707,
+    "mae": 418.88052657257475,
+    "coverage_pct": 79.55422724693067,
+    "above_p90_pct": 10.09342732205632,
+    "hourly_p90_err_pp": 3.592404630651811,
+    "worst_hour_above_p90_pct": 20.64532158165775,
+    "pinball": 139.0508796731683
+   },
+   "validation": {
+    "skill_pct": 25.557949003582337,
+    "mae": 369.2319891307732,
+    "coverage_pct": 78.32344246967415,
+    "above_p90_pct": 9.889516296958636,
+    "hourly_p90_err_pp": 1.0705792046961327,
+    "worst_hour_above_p90_pct": 13.299213766503486,
+    "pinball": 122.62528113966926
+   }
+  },
+  "base+mondrian": {
+   "inner": {
+    "skill_pct": 17.527095520188553,
+    "mae": 419.0784637942165,
+    "coverage_pct": 79.7242806922992,
+    "above_p90_pct": 9.600762280390164,
+    "hourly_p90_err_pp": 1.5974517501584171,
+    "worst_hour_above_p90_pct": 13.876077193834202,
+    "pinball": 138.27391817232856
+   },
+   "validation": {
+    "skill_pct": 25.347770920031564,
+    "mae": 370.2744707768643,
+    "coverage_pct": 77.5365318896143,
+    "above_p90_pct": 10.626727583771226,
+    "hourly_p90_err_pp": 1.8823664961819315,
+    "worst_hour_above_p90_pct": 13.402541588297778,
+    "pinball": 122.90766725611881
+   }
+  },
+  "base+rolling": {
+   "inner": {
+    "skill_pct": 16.97827653614944,
+    "mae": 421.8672368850019,
+    "coverage_pct": 79.71528807012817,
+    "above_p90_pct": 9.832202365641447,
+    "hourly_p90_err_pp": 0.3001957846582606,
+    "worst_hour_above_p90_pct": 10.572935631346846,
+    "pinball": 138.97206394480878
+   },
+   "validation": {
+    "skill_pct": 25.613002343269166,
+    "mae": 368.95892499768206,
+    "coverage_pct": 78.90834058050898,
+    "above_p90_pct": 10.042431703025033,
+    "hourly_p90_err_pp": 0.4349388165460614,
+    "worst_hour_above_p90_pct": 10.937622712636456,
+    "pinball": 122.43119608840131
+   }
+  },
+  "F1+global": {
+   "inner": {
+    "skill_pct": 16.39055107177658,
+    "mae": 424.85370967016263,
+    "coverage_pct": 79.68224707357005,
+    "above_p90_pct": 9.946421936690307,
+    "hourly_p90_err_pp": 3.470938513509689,
+    "worst_hour_above_p90_pct": 20.094469393534816,
+    "pinball": 140.80048570458482
+   },
+   "validation": {
+    "skill_pct": 25.2777775600311,
+    "mae": 370.621637293544,
+    "coverage_pct": 78.34531669136831,
+    "above_p90_pct": 10.051016033610564,
+    "hourly_p90_err_pp": 1.0071542168099397,
+    "worst_hour_above_p90_pct": 13.11699550017307,
+    "pinball": 122.72558362539395
+   }
+  },
+  "F1+mondrian": {
+   "inner": {
+    "skill_pct": 16.347246323645482,
+    "mae": 425.0737587570263,
+    "coverage_pct": 79.83569325869763,
+    "above_p90_pct": 9.484327727489864,
+    "hourly_p90_err_pp": 1.6136166520085216,
+    "worst_hour_above_p90_pct": 13.61487033216005,
+    "pinball": 140.13516531894024
+   },
+   "validation": {
+    "skill_pct": 25.088973601363275,
+    "mae": 371.55810344784214,
+    "coverage_pct": 77.68343520208391,
+    "above_p90_pct": 10.685552193954836,
+    "hourly_p90_err_pp": 1.8934375017784806,
+    "worst_hour_above_p90_pct": 13.40351612368803,
+    "pinball": 123.02123777503284
+   }
+  },
+  "F1+rolling": {
+   "inner": {
+    "skill_pct": 15.77905333107048,
+    "mae": 427.96097908676813,
+    "coverage_pct": 79.78920926168632,
+    "above_p90_pct": 9.749247722753681,
+    "hourly_p90_err_pp": 0.3448112920001873,
+    "worst_hour_above_p90_pct": 10.542592143059434,
+    "pinball": 140.84269509227363
+   },
+   "validation": {
+    "skill_pct": 25.33781245683252,
+    "mae": 370.32386467623235,
+    "coverage_pct": 78.97328956447537,
+    "above_p90_pct": 10.067990756278505,
+    "hourly_p90_err_pp": 0.45621107859808674,
+    "worst_hour_above_p90_pct": 11.052236315086784,
+    "pinball": 122.625786314352
+   }
+  }
+ },
+ "nr": {
+  "base+global": {
+   "inner": {
+    "skill_pct": 20.255808170028665,
+    "mae": 987.16674766866,
+    "coverage_pct": 79.34041305349588,
+    "above_p90_pct": 10.610940052783713,
+    "hourly_p90_err_pp": 4.991321486380162,
+    "worst_hour_above_p90_pct": 25.07209805335256,
+    "pinball": 329.7204439268313
+   },
+   "validation": {
+    "skill_pct": 24.854015602134204,
+    "mae": 909.4396072842392,
+    "coverage_pct": 79.5195791965146,
+    "above_p90_pct": 11.156371748146286,
+    "hourly_p90_err_pp": 1.4539043372160652,
+    "worst_hour_above_p90_pct": 13.422754946727549,
+    "pinball": 305.91055698101553
+   }
+  },
+  "base+mondrian": {
+   "inner": {
+    "skill_pct": 20.957724286169434,
+    "mae": 978.4776101452113,
+    "coverage_pct": 79.8087375895438,
+    "above_p90_pct": 9.8730939214947,
+    "hourly_p90_err_pp": 2.1267989986973364,
+    "worst_hour_above_p90_pct": 15.813745330012452,
+    "pinball": 323.4088871231732
+   },
+   "validation": {
+    "skill_pct": 22.74907577077746,
+    "mae": 934.9142306979209,
+    "coverage_pct": 77.69322609023502,
+    "above_p90_pct": 12.798400779188135,
+    "hourly_p90_err_pp": 4.106786680253303,
+    "worst_hour_above_p90_pct": 17.38201179882012,
+    "pinball": 313.4648134232279
+   }
+  },
+  "base+rolling": {
+   "inner": {
+    "skill_pct": 20.627657302309256,
+    "mae": 982.5635647895921,
+    "coverage_pct": 80.1672007875665,
+    "above_p90_pct": 9.782319550919526,
+    "hourly_p90_err_pp": 0.48309578075608206,
+    "worst_hour_above_p90_pct": 10.724756122872561,
+    "pinball": 325.17276981167544
+   },
+   "validation": {
+    "skill_pct": 24.735809158733836,
+    "mae": 910.8701776909735,
+    "coverage_pct": 79.15163797075951,
+    "above_p90_pct": 11.256990700012567,
+    "hourly_p90_err_pp": 1.4812233436607105,
+    "worst_hour_above_p90_pct": 13.208054194580543,
+    "pinball": 306.3929514365464
+   }
+  },
+  "F1+global": {
+   "inner": {
+    "skill_pct": 18.921800346495942,
+    "mae": 1003.6806546291718,
+    "coverage_pct": 79.34648736961167,
+    "above_p90_pct": 10.333773197603787,
+    "hourly_p90_err_pp": 5.112615916436846,
+    "worst_hour_above_p90_pct": 24.73091976516634,
+    "pinball": 334.2355975026789
+   },
+   "validation": {
+    "skill_pct": 24.627247190846692,
+    "mae": 912.1840277154611,
+    "coverage_pct": 79.52010284445562,
+    "above_p90_pct": 11.02312952955469,
+    "hourly_p90_err_pp": 1.4103747536995634,
+    "worst_hour_above_p90_pct": 13.904109589041097,
+    "pinball": 306.75207212673064
+   }
+  },
+  "F1+mondrian": {
+   "inner": {
+    "skill_pct": 19.64955651651016,
+    "mae": 994.6716387377007,
+    "coverage_pct": 79.77959658162625,
+    "above_p90_pct": 9.611112856604247,
+    "hourly_p90_err_pp": 2.238938660633098,
+    "worst_hour_above_p90_pct": 15.567922374429225,
+    "pinball": 328.0442539545994
+   },
+   "validation": {
+    "skill_pct": 22.585318974521396,
+    "mae": 936.896065358423,
+    "coverage_pct": 77.65845586695153,
+    "above_p90_pct": 12.786147417368355,
+    "hourly_p90_err_pp": 4.119120545715146,
+    "worst_hour_above_p90_pct": 17.266398360163983,
+    "pinball": 314.033838902643
+   }
+  },
+  "F1+rolling": {
+   "inner": {
+    "skill_pct": 19.58060591813493,
+    "mae": 995.5251897786719,
+    "coverage_pct": 80.07244669263962,
+    "above_p90_pct": 9.7091397511625,
+    "hourly_p90_err_pp": 0.5173536689039865,
+    "worst_hour_above_p90_pct": 10.64780926487504,
+    "pinball": 329.0525123525578
+   },
+   "validation": {
+    "skill_pct": 24.488033947554456,
+    "mae": 913.868828817249,
+    "coverage_pct": 79.19575530979012,
+    "above_p90_pct": 11.238793934062251,
+    "hourly_p90_err_pp": 1.4807413089694184,
+    "worst_hour_above_p90_pct": 13.160558944105588,
+    "pinball": 307.21465709207024
+   }
+  }
+ },
+ "low": {
+  "base+global": {
+   "inner": {
+    "skill_pct": 15.642982970949914,
+    "mae": 158.77302151193052,
+    "coverage_pct": 78.87289066359632,
+    "above_p90_pct": 10.347037640401268,
+    "hourly_p90_err_pp": 3.5807246146069978,
+    "worst_hour_above_p90_pct": 20.536153467781602,
+    "pinball": 53.469924142154575
+   },
+   "validation": {
+    "skill_pct": 26.419607088730313,
+    "mae": 134.98769372728668,
+    "coverage_pct": 80.5225724003054,
+    "above_p90_pct": 9.619074158000677,
+    "hourly_p90_err_pp": 5.039645289607542,
+    "worst_hour_above_p90_pct": 23.515062690103093,
+    "pinball": 44.59546580594476
+   }
+  },
+  "base+mondrian": {
+   "inner": {
+    "skill_pct": 15.458171997937487,
+    "mae": 159.1208644967487,
+    "coverage_pct": 78.80915634709685,
+    "above_p90_pct": 9.999632537573033,
+    "hourly_p90_err_pp": 1.696047739086878,
+    "worst_hour_above_p90_pct": 14.68650119351054,
+    "pinball": 53.30499498324925
+   },
+   "validation": {
+    "skill_pct": 28.046083897177464,
+    "mae": 132.00382337016643,
+    "coverage_pct": 81.26684713154746,
+    "above_p90_pct": 8.873401028078213,
+    "hourly_p90_err_pp": 2.3608389873454985,
+    "worst_hour_above_p90_pct": 13.513573653760568,
+    "pinball": 43.68198244315312
+   }
+  },
+  "base+rolling": {
+   "inner": {
+    "skill_pct": 15.3390256467273,
+    "mae": 159.34511645408438,
+    "coverage_pct": 79.24600792902258,
+    "above_p90_pct": 10.137481984133789,
+    "hourly_p90_err_pp": 0.3925213371980593,
+    "worst_hour_above_p90_pct": 11.362223422578706,
+    "pinball": 53.5339562122706
+   },
+   "validation": {
+    "skill_pct": 28.469781095417645,
+    "mae": 131.2265251611432,
+    "coverage_pct": 81.65849062766665,
+    "above_p90_pct": 8.854844175516387,
+    "hourly_p90_err_pp": 2.900028999403707,
+    "worst_hour_above_p90_pct": 15.857484164349458,
+    "pinball": 43.5140222340608
+   }
+  },
+  "F1+global": {
+   "inner": {
+    "skill_pct": 14.839537591722873,
+    "mae": 160.28523063183985,
+    "coverage_pct": 78.85056732115808,
+    "above_p90_pct": 10.294082221759492,
+    "hourly_p90_err_pp": 3.4868463284849986,
+    "worst_hour_above_p90_pct": 19.85652587288101,
+    "pinball": 54.05745162894016
+   },
+   "validation": {
+    "skill_pct": 26.139575089809174,
+    "mae": 135.50142941431665,
+    "coverage_pct": 80.45488786271603,
+    "above_p90_pct": 9.826721051105858,
+    "hourly_p90_err_pp": 5.175512840105158,
+    "worst_hour_above_p90_pct": 24.770370519088107,
+    "pinball": 44.78359710368349
+   }
+  },
+  "F1+mondrian": {
+   "inner": {
+    "skill_pct": 14.683715561708865,
+    "mae": 160.57851191885985,
+    "coverage_pct": 78.79947983652005,
+    "above_p90_pct": 9.961385823299567,
+    "hourly_p90_err_pp": 1.6565232541948207,
+    "worst_hour_above_p90_pct": 14.368400291297487,
+    "pinball": 53.90146157617922
+   },
+   "validation": {
+    "skill_pct": 27.66210034875243,
+    "mae": 132.70826447981938,
+    "coverage_pct": 81.1651519048844,
+    "above_p90_pct": 9.096481343116,
+    "hourly_p90_err_pp": 2.603071948040335,
+    "worst_hour_above_p90_pct": 14.840033625080354,
+    "pinball": 43.924869144121566
+   }
+  },
+  "F1+rolling": {
+   "inner": {
+    "skill_pct": 14.583895828167215,
+    "mae": 160.7663881769246,
+    "coverage_pct": 79.30318916557448,
+    "above_p90_pct": 10.069246252903973,
+    "hourly_p90_err_pp": 0.3476957809229645,
+    "worst_hour_above_p90_pct": 11.112526625831897,
+    "pinball": 54.14535705435956
+   },
+   "validation": {
+    "skill_pct": 28.15057896965788,
+    "mae": 131.81212082167627,
+    "coverage_pct": 81.62721549221592,
+    "above_p90_pct": 9.02229476202725,
+    "hourly_p90_err_pp": 3.065450726417996,
+    "worst_hour_above_p90_pct": 16.925073029703768,
+    "pinball": 43.73001235328328
+   }
+  }
+ }
+}

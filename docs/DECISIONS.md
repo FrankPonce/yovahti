@@ -94,3 +94,9 @@ Within a sector the problem is a shortest path over 4 states x 40 quarter-hours 
 
 ### D28 · Report trade-off curves, not single points · accepted
 Savings vs congestion over the planning margin (1.0–1.5) and the low-band limit (20–40 %), for every method where it applies. A single tuned point hides the trade-off the operator actually chooses.
+
+### D29 · Forecast changes must win on two windows · accepted
+Inner backtest (fit < 28 Sep, calibrate 28 Sep–12 Oct, score 12–26 Oct) and validation (fit < 12 Oct, calibrate 12–26 Oct, score 26 Oct–9 Nov). A change is kept only if it helps on both, so repeated tuning can't quietly overfit the validation weeks (Tasehinta's "must win both months").
+
+### D30 · Forecast configuration after the fix round · accepted
+No level normalisation (F1 lost on both windows); daily rolling Mondrian calibration by local hour of the target, from the last 14 days of realised outcomes, restricted to sectors where the layer exists. Decision rule applied (refines D29): keep a change that wins clearly on one window and ties (≤ 0.5 % pinball difference) on the other; reject anything that loses on either.

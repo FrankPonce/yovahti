@@ -1,12 +1,14 @@
-"""Fit the quantile forecasters on the training weeks; score them on validation issues.
+"""Fit the quantile forecasters and write calibrated validation forecasts for the planner.
 
-Run: uv run python scripts/fit_forecaster.py
-Saves models to results/forecast/<target>_q<q>.txt and validation forecasts (hourly issues)
-to data/processed/forecasts/validation_<target>.npz for the planner. Test weeks untouched.
+Run: uv run python scripts/fit_forecaster.py [--level-norm] [--calib global|mondrian|rolling]
+Fit on the first six training weeks, calibrate on the last two (and, for ``rolling``, on
+realised validation outcomes as they become known). Defaults follow the experiments that won
+on both windows (D29, FINDINGS E17). Test weeks untouched.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 
@@ -14,11 +16,13 @@ import numpy as np
 import pandas as pd
 
 from yovahti.energy.model import SPLITS
+from yovahti.forecast import calibration as cal
 from yovahti.forecast.quantile import (
+    HORIZON,
     QUANTILES,
     TARGETS,
+    TZ,
     Forecaster,
-    calibrate,
     persistence,
     pinball,
     seasonal_naive,
@@ -29,32 +33,48 @@ from yovahti.world.data import load_world
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--level-norm", action=argparse.BooleanOptionalAction, default=False)
+    ap.add_argument("--calib", choices=["global", "mondrian", "rolling"], default="rolling")
+    a = ap.parse_args()
     t0 = time.time()
     world = load_world("all")
     idx = {k: int(np.searchsorted(world.times, pd.Timestamp(v[0], tz="UTC")))
            for k, v in SPLITS.items() if k != "all"}
     train_end, val_end = idx["validation"], idx["test"]
-    # hourly issues in validation; the last issue's horizon must stay inside validation
-    issues = np.arange(train_end, val_end - 40 + 1, 4)
+    fit_end = train_end - 14 * 96
+    issues_all = np.arange(fit_end, val_end - HORIZON + 1, 4)
+    evm = issues_all >= train_end
+    calm = issues_all + HORIZON <= train_end
+    issues = issues_all[evm]
+    hour = world.times.tz_convert(TZ).hour.to_numpy()[issues_all[:, None]
+                                                       + np.arange(HORIZON)[None, :]]
     print(f"world all: {world.T} x {world.S}, loaded {time.time() - t0:.0f}s; "
-          f"{len(issues)} validation issues")
-    report = {}
+          f"{len(issues)} validation issues; level_norm={a.level_norm}, calib={a.calib}")
+    report = {"config": {"level_norm": a.level_norm, "calib": a.calib}}
     out_dir = PROCESSED / "forecasts"
     out_dir.mkdir(parents=True, exist_ok=True)
     for target in TARGETS:
         t0 = time.time()
-        # fit on the first 6 training weeks, calibrate on the last 2 (Tasehinta's discipline)
-        calib_start = train_end - 14 * 96
-        f = Forecaster.fit(world, target, calib_start)
-        calibrate(f, world, calib_start, train_end)
+        f = Forecaster.fit(world, target, fit_end, level_norm=a.level_norm)
         for q, m in f.models.items():
             (RESULTS / "forecast").mkdir(parents=True, exist_ok=True)
             m.save_model(str(RESULTS / "forecast" / f"{target}_q{int(q * 100)}.txt"))
-        pred = f.predict_many(world, issues)
+        mask = world.present["NR_3500"] if target == "nr" else np.ones(world.S, dtype=bool)
+        logp = f.predict_log(world, issues_all)
+        ylog = np.log1p(truth(world, target, issues_all))
+        if a.calib == "global":
+            lp = cal.apply_global(logp, cal.global_offsets(
+                {q: v[calm] for q, v in logp.items()}, ylog[calm], mask))
+        elif a.calib == "mondrian":
+            lp = cal.apply_mondrian(logp, cal.mondrian_offsets(
+                {q: v[calm] for q, v in logp.items()}, ylog[calm], hour[calm], mask), hour)
+        else:
+            lp = cal.rolling_mondrian(logp, ylog, hour, issues_all, evm, fit_end,
+                                       sectors=mask)
+        pred = {q: v[evm] for q, v in cal.to_mb(lp).items()}
+
         y = truth(world, target, issues)
-        mask = np.ones(world.S, dtype=bool)
-        if target == "nr":
-            mask = world.present["NR_3500"]
         yy = y[:, :, mask]
         sn = seasonal_naive(world, target, issues)[:, :, mask]
         pe = persistence(world, target, issues)[:, :, mask]
@@ -76,12 +96,10 @@ def main() -> None:
         report[target] = r
         np.savez_compressed(out_dir / f"validation_{target}.npz", issues=issues,
                             **{f"q{int(q * 100)}": pred[q] for q in QUANTILES})
-        print(f"{target:4s} fit+predict {time.time() - t0:.0f}s | MAE {mae:.1f} MB "
-              f"(seasonal naive {r['mae_seasonal_naive_mb']:.1f}, persistence "
-              f"{r['mae_persistence_mb']:.1f}) skill {r['skill_vs_seasonal_naive_pct']:+.1f}% | "
-              f"P10-P90 coverage {r['coverage_p10_p90_pct']:.1f}% | above P90 "
-              f"{r['above_p90_pct']:.1f}% | MAE by horizon 1/4/16/40: "
-              + "/".join(f"{v:.0f}" for v in r["mae_by_horizon"]))
+        print(f"{target:4s} {time.time() - t0:.0f}s | MAE {mae:.1f} MB (seasonal naive "
+              f"{r['mae_seasonal_naive_mb']:.1f}) skill {r['skill_vs_seasonal_naive_pct']:+.1f}% |"
+              f" P10-P90 coverage {r['coverage_p10_p90_pct']:.1f}% | above P90 "
+              f"{r['above_p90_pct']:.1f}%")
     (RESULTS / "forecast" / "validation_report.json").write_text(json.dumps(report, indent=1))
 
 

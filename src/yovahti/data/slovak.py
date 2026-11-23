@@ -82,6 +82,36 @@ def rename_columns(columns: list[str]) -> dict[str, str]:
     return out
 
 
+SOURCE_TZ = "Europe/Bratislava"
+
+
+def local_to_utc(t: pd.Series) -> pd.Series:
+    """The published timestamps are local wall-clock time, not UTC (FINDINGS G26).
+
+    Proof: the weekday morning traffic ramp stays at 07:00 in the raw stamps before and after
+    daylight saving ended on 26 Oct 2025; in UTC it would have moved by an hour. The data has
+    no repeated quarter-hours in the ambiguous hour, so that hour is read as standard time,
+    leaving a one-hour gap in UTC that the world fills like any other gap.
+    """
+    naive = t.dt.tz_localize(None) if t.dt.tz is not None else t
+    return naive.dt.tz_localize(SOURCE_TZ, ambiguous=False,
+                                nonexistent="shift_forward").dt.tz_convert("UTC")
+
+
+def migrate_timezone(root: Path = OUT) -> None:
+    """Fix Parquet files written before G26 (stored stamps were local time labelled UTC)."""
+    marker = root / ".tz_local_fixed"
+    if marker.exists():
+        print("time zone already fixed")
+        return
+    for f in sorted(root.glob("*.parquet")):
+        df = pd.read_parquet(f)
+        df["time"] = local_to_utc(df["time"])
+        df.to_parquet(f, index=False, compression="zstd")
+        print(f"{f.name}: re-stamped {len(df):,} rows", flush=True)
+    marker.write_text("timestamps converted from local time to UTC (G26)" + chr(10))
+
+
 def process_file(path: Path) -> pd.DataFrame:
     m = _FILE.search(path.name)
     if not m:
@@ -89,7 +119,7 @@ def process_file(path: Path) -> pd.DataFrame:
     dataset, tech, band = m.group(1), m.group(2), int(m.group(3))
     df = pd.read_csv(path, engine="pyarrow")
     df = df.rename(columns=rename_columns(list(df.columns)))
-    df["time"] = pd.to_datetime(df["time"], utc=True)
+    df["time"] = local_to_utc(pd.to_datetime(df["time"]))
     for c in df.columns:
         if c not in ("site", "sector", "time"):
             df[c] = pd.to_numeric(df[c], errors="coerce").astype("float32")
@@ -109,7 +139,12 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument("--delete-raw", action="store_true",
                    help="delete the CSVs and zips after a successful conversion")
+    p.add_argument("--fix-timezone", action="store_true",
+                   help="re-stamp Parquet files written before the G26 fix, then exit")
     a = p.parse_args(argv)
+    if a.fix_timezone:
+        migrate_timezone()
+        return 0
     files = sorted(SRC.rglob("*.csv"))
     if not files:
         print(f"No CSVs under {SRC}; run: uv run python -m yovahti.data.download slovak")
@@ -122,6 +157,7 @@ def main(argv: list[str] | None = None) -> int:
             continue
         df = process_file(f)
         df.to_parquet(out, index=False, compression="zstd")
+        (OUT / ".tz_local_fixed").write_text("written with local-time handling (G26)" + chr(10))
         print(f"{f.name}: {len(df):,} rows, {df['site'].nunique()} sites, "
               f"{out.stat().st_size / 1e6:.0f} MB", flush=True)
     if a.delete_raw:
