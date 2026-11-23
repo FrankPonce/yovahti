@@ -1,0 +1,53 @@
+{
+ "B0 always-on": {
+  "kwh": 153829.69471815394,
+  "eur": 5896.318391185525,
+  "kg_co2": 3244.8478352138864,
+  "sleep_share_mid": 0.0,
+  "sleep_share_nr": 0.0,
+  "congested_qh": 0,
+  "congested_qh_per_sector_day": 0.0,
+  "unserved_gb": 0.0,
+  "watchdog_wakes": 0,
+  "toggles_per_sector_day": 0.0,
+  "kwh_saved_pct": 0.0,
+  "eur_saved_pct": 0.0,
+  "co2_saved_pct": 0.0,
+  "kwh_saved_per_sector_day": 0.0,
+  "capacity_radio_saved_pct": 0.0
+ },
+ "B1 static thresholds": {
+  "kwh": 125873.51510141033,
+  "eur": 4928.141208479389,
+  "kg_co2": 2657.5521353904746,
+  "sleep_share_mid": 0.6411320324500768,
+  "sleep_share_nr": 0.40110558828342335,
+  "congested_qh": 37897,
+  "congested_qh_per_sector_day": 3.6383448540706604,
+  "unserved_gb": 6126.103952599876,
+  "watchdog_wakes": 37897,
+  "toggles_per_sector_day": 13.441820276497696,
+  "kwh_saved_pct": 18.173461026471394,
+  "eur_saved_pct": 16.42002888028359,
+  "co2_saved_pct": 18.099329449286785,
+  "kwh_saved_per_sector_day": 2.6839650169684743,
+  "capacity_radio_saved_pct": 47.525888919167095
+ },
+ "Oracle (perfect foresight)": {
+  "kwh": 119009.79543993341,
+  "eur": 4661.4151241141,
+  "kg_co2": 2512.376097723672,
+  "sleep_share_mid": 0.6273501504096262,
+  "sleep_share_nr": 0.8737752618229422,
+  "congested_qh": 0,
+  "congested_qh_per_sector_day": 0.0,
+  "unserved_gb": 0.0,
+  "watchdog_wakes": 0,
+  "toggles_per_sector_day": 10.352534562211982,
+  "kwh_saved_pct": 22.63535615930161,
+  "eur_saved_pct": 20.94363270676659,
+  "co2_saved_pct": 22.573377079234692,
+  "kwh_saved_per_sector_day": 3.3429242778629544,
+  "capacity_radio_saved_pct": 55.380123328243315
+ }
+}

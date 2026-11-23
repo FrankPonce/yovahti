@@ -19,6 +19,7 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | I7 | Milan is ODbL (share-alike for derived databases) | Publish derived per-cell series under ODbL with attribution, separate from code licence | Sun 29 |
 | I24 | Energy-Charts prices are for internal use only (G10) | Switch to ENTSO-E (free token) before publishing € results; check reuse terms | Sat 28 |
 | I25 | Turku Linked Events API doesn't resolve (G15) | Find the current endpoint or hand-write events from public schedules | Thu 26 |
+| I29 | Per-user throughput proxy for moved users (G22) | Capacity per active user before vs after moving; report alongside congestion | S5 |
 | I28 | Slovak public holidays Sep–Nov 2025 (some may have changed in 2025) | Check an official calendar before building holiday features (G20) | S4 |
 
 ## Baselines and fairness

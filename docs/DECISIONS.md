@@ -82,3 +82,9 @@ Train 31 Aug – 25 Oct 2025, validation 26 Oct – 8 Nov 2025, test 9 – 22 No
 
 ### D24 · Sleep is modelled per radio unit · accepted
 The data shows energy per radio unit shared by its carriers (E10). The planner chooses a state for each **mid-band radio** (LTE 1800 + NR 2100) and each **NR 3500 radio**; the low-band radio (GSM/LTE 700/800) is the coverage layer and never sleeps.
+
+### D25 · The world runs at the data's 15-minute resolution · accepted
+The data is 15-minute; anything finer would be invented. Intra-interval peaks are a stated peak margin (1.25), varied in sensitivity runs. The watchdog acts with a one-interval delay and holds a wake-up for an hour.
+
+### D26 · Quality = congestion on the layer that receives moved traffic · accepted
+Congested when average load x peak margin exceeds rho_max on a layer that received moved traffic; traffic pushed beyond the layer's ceiling counts as unserved. rho_max is reported as a curve (G22), not a single tuned point.

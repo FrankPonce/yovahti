@@ -179,3 +179,33 @@ With the TR 38.864 ratios, deep sleep removes 98 % (Category 1) or 80 % (Categor
 **What:** Low-band validation bias is +4.8 Wh (over-predicts by ~6 %), against +0.7 (mid) and +0.3 (NR 3500). The GSM time-slot utilisation slope is -0.13, which is physically odd.
 **Why it matters:** Likely a seasonal effect (colder weather from late October, which can change radio and cooling efficiency) and GSM time-slot use reflecting signalling more than traffic. It doesn't affect sleep savings directly (the low band never sleeps), but it would bias the cost of moving traffic onto it.
 **Action:** Phase 2: add a time-varying baseline (week or temperature term) and check whether the drift disappears; report the low-band bias next to any result that depends on it.
+
+### E12 · 2026-11-24 · How much traffic each band carries, measured; burstiness isn't
+**What:** On the training weeks, median downlink MB per (% utilisation x MHz), over quarter-hours above 5 % load: LTE 700 3.03, LTE 800 3.18, LTE 1800 2.55, NR 2100 4.42, NR 3500 4.28. The low band (LTE 700/800) never exceeds 49 % utilisation in the data (p99 ~35 %); LTE 1800 reaches 99 %. The "max active users" counter is often *below* the average (median ratio 0.9 for LTE 1800), so it can't serve as an intra-interval peak factor.
+**Why it matters:** The world converts moved traffic into extra load on the receiving layer with measured, not assumed, efficiencies. The low band's practical ceiling sets how much can be moved. Intra-interval peaks have to be a stated assumption.
+**Action:** Efficiencies in `yovahti.world.data.EFFICIENCY`; low-band ceiling 50 %; a peak margin of 1.25 on 15-minute averages, varied in sensitivity runs.
+
+### E13 · 2026-11-24 · First numbers: an oracle saves 22.6 % of radio energy; static thresholds pay for theirs with quality
+**What:** Validation weeks (26 Oct – 8 Nov 2025), 744 real sectors (291 with NR 3500), TR 38.864 deep sleep, coverage limit 40 % low-band load with a 1.25 peak margin, watchdog on.
+
+| Method | kWh saved | Capacity-radio energy saved | € saved | CO₂ saved | Mid radio asleep | Congested QH per sector-day | Pushed beyond capacity | Watchdog wake-ups | Switches per sector-day |
+|---|---|---|---|---|---|---|---|---|---|
+| B0 always on | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| B1 static thresholds (Cat 1) | 18.2 % | 47.5 % | 16.4 % | 18.1 % | 64 % | 3.64 | 6.1 TB | 37 897 | 13.4 |
+| Oracle, perfect foresight (Cat 1) | 22.6 % | 55.4 % | 20.9 % | 22.6 % | 63 % | 0 | 0 | 0 | 10.4 |
+| B1 (Cat 2, conservative sleep) | 14.4 % | 40.3 % | 12.9 % | 14.3 % | | | | | |
+| Oracle (Cat 2) | 17.6 % | 45.7 % | 16.1 % | 17.5 % | | | | | |
+
+Savings are a share of the energy of all three radios per sector (baseband excluded). The oracle saves 3.3 kWh per sector per day.
+**Why it matters:** There is real room (the oracle), and the naive way to take it (B1) costs congestion, thousands of emergency wake-ups and constant switching. A forecasting planner's job is to get close to the oracle's savings with close to the oracle's quality. € savings trail kWh savings, as E6 predicted.
+**Action:** These are validation numbers for development; the test weeks stay untouched (D23). Next: forecaster, planner, B2 and B3 on the same table.
+
+### G22 · 2026-11-24 · "No congestion" isn't "no quality loss": moved users get a smaller pipe
+**What:** The oracle keeps the low band under 40 % load, but users moved from 2 x 20 MHz (and NR) onto 2 x 10 MHz of LTE get lower peak rates even without congestion. The world doesn't model per-user throughput yet. The B0 low-band energy is also 10 % above measured in these weeks (the drift of G21).
+**Why it matters:** The coverage limit (rho_max) is the knob between energy and experience; 40 % is permissive compared with industry practice (capacity cells usually sleep only below ~10–20 % load).
+**Action:** Report savings as a curve over rho_max rather than one point; add a per-user throughput proxy (capacity per active user before vs after moving) (ISSUES I29).
+
+### G23 · 2026-11-24 · LTE 700 load is missing 60 % of the time even where it exists
+**What:** Among sectors where LTE 700 is configured, 60 % of its utilisation values are missing (other carriers 4–6 %).
+**Why it matters:** Its load is mostly imputed, which affects the low band's energy and capacity estimate.
+**Action:** Sensitivity run treating LTE 700 as absent; check whether the gaps follow a pattern (night only, some sites only).

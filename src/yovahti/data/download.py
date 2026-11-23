@@ -50,6 +50,7 @@ LICENCES = {
     "grid": "ODbL 1.0 (Telecom Italia Big Data Challenge, Harvard Dataverse)",
     "itu": "Not stated in the mirror; ITU AI/ML in 5G Challenge data, research only (ISSUES I4)",
     "slovak": "CC BY 4.0 (Lehoczky et al., Sci Data 2026; Zenodo 10.5281/zenodo.17815388)",
+    "co2": "CC BY 4.0 (Fingrid open data, dataset 265)",
     "prices": "Energy-Charts: private and internal use only; do not publish (FINDINGS G10)",
 }
 
@@ -267,9 +268,50 @@ def download_prices(start: date, end: date) -> None:
     print(f"prices: {len(df):,} rows {df['time'].min()} .. {df['time'].max()}, steps {step}")
 
 
+FINGRID_API = "https://data.fingrid.fi/api/datasets/{id}/data"
+FINGRID_CO2_CONSUMED = 265  # emission factor of electricity consumed in Finland, gCO2/kWh, 3 min
+
+
+def download_co2(start: date, end: date) -> None:
+    """Fingrid dataset 265, averaged to 15 minutes. CC BY 4.0. Needs FINGRID_API_KEY in .env."""
+    key = _env().get("FINGRID_API_KEY")
+    if not key:
+        raise SystemExit("Set FINGRID_API_KEY in .env")
+    rows, page = [], 1
+    with _client() as c:
+        while True:
+            for attempt in range(6):
+                r = c.get(FINGRID_API.format(id=FINGRID_CO2_CONSUMED), headers={"x-api-key": key},
+                          params={"startTime": f"{start}T00:00:00Z", "endTime": f"{end}T23:59:59Z",
+                                  "pageSize": 20000, "page": page, "sortOrder": "asc"})
+                if r.status_code != 429:
+                    break
+                time.sleep(5 * 2**attempt)
+            r.raise_for_status()
+            j = r.json()
+            batch = j.get("data", [])
+            rows += batch
+            # the API gives no "next page" field: a short (or empty) page is the last one
+            if len(batch) < 20000:
+                break
+            page += 1
+            time.sleep(2)  # be polite to the API
+    df = pd.DataFrame(rows)
+    df["time"] = pd.to_datetime(df["startTime"], utc=True)
+    q = (df.set_index("time")["value"].astype(float).resample("15min").mean()
+         .rename("g_co2_kwh").reset_index())
+    out = PROCESSED / "co2" / "fi_consumed_15min.parquet"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    q.to_parquet(out, index=False)
+    _record("co2", {"url": FINGRID_API.format(id=FINGRID_CO2_CONSUMED),
+                    "params": {"start": str(start), "end": str(end)}, "rows_3min": len(df)})
+    print(f"co2: {len(df):,} 3-min values -> {len(q):,} quarter-hours, "
+          f"median {q['g_co2_kwh'].median():.1f} gCO2/kWh, missing {q['g_co2_kwh'].isna().sum()}")
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    p.add_argument("dataset", choices=["itu", "grid", "milan", "prices", "slovak", "all"])
+    p.add_argument("dataset", choices=["itu", "grid", "milan", "prices", "co2", "slovak", "all"])
     p.add_argument("--days", type=int, help="milan: only the first N days")
     p.add_argument("--start", type=date.fromisoformat, default=date(2025, 10, 1))
     p.add_argument("--end", type=date.fromisoformat, default=date(2026, 11, 22))
@@ -280,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
         download_grid()
     if a.dataset in ("prices", "all"):
         download_prices(a.start, a.end)
+    if a.dataset in ("co2", "all"):
+        download_co2(a.start, a.end)
     if a.dataset in ("slovak", "all"):
         download_slovak()
     if a.dataset in ("milan", "all"):
