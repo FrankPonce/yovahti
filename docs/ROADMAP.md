@@ -15,8 +15,8 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | # | Step | Done when | Status |
 |---|---|---|---|
 | S0 | Foundation | Repo, uv/Python 3.12, CI, downloader with manifest, keys tested | done |
-| S1 | Data | Slovak, ITU, Milan, prices, CO₂ processed to Parquet; data descriptor read; quality report; splits locked | in progress |
-| S2 | Energy model | Radio-unit power model fitted on Slovak energy (per carrier load terms), sleep states from 3GPP TR 38.864, mode effects from ITU; error documented | |
+| S1 | Data | Slovak, ITU, Milan, prices, CO₂ processed to Parquet; data descriptor read; quality report; splits locked | done (Milan still downloading; CO₂ fetch pending) |
+| S2 | Energy model | Radio-unit power model fitted on Slovak energy (per carrier load terms), sleep states from 3GPP TR 38.864, mode effects from ITU; error documented | done (ITU mode effects pending) |
 | S3 | World | Turku topology on real layering; demand from Slovak sectors; steering, events, faults, local CSM logic; a simulated week in under a minute; B0/B1 results | |
 | S4 | Forecaster + twin | Quantile forecaster beats seasonal naive on validation; calibrated intervals; twin predicts plan outcome and risk | |
 | S5 | Planner + baselines | CP-SAT planner; B2 (reconstruction), B3 (SMaRT-5G logic), B4; first savings vs quality table on validation | |

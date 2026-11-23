@@ -161,3 +161,21 @@ Format: ID · date · title, then **What**, **Why it matters**, **Action**.
 **What:** LTE 700 utilisation is missing in 35.6 % of rows (likely not configured on every sector); GSM 9.8 %, LTE 1800 5.5 %, NR 2100 3.0 %. Radio-unit energy is missing in 2.5 % (mid-band) to 4.5 % (NR 3500) of rows and is never zero. Dataset_03 has 7 968 intervals (31 Aug – 22 Nov 2025, 83 days). EU daylight saving ended on **26 Oct 2025**, the first day of validation. Slovak public holidays in the window (1 Sep, 15 Sep, 1 Nov, 17 Nov) need checking, since 2025 austerity measures may have changed some.
 **Why it matters:** Missing carrier data must not read as "zero load" (that would invite unsafe sleep). Local-hour features break across the DST switch if computed naively.
 **Action:** Treat a carrier with no utilisation on a sector as absent, not idle; compute local time with tz conversion, never fixed offsets; holiday flags from a checked calendar (ISSUES I28).
+
+### E11 · 2026-11-23 · Most of a capacity radio's energy doesn't depend on load
+**What:** Energy model per radio unit (`yovahti.energy.model`, `scripts/fit_energy_model.py`), fitted on the training weeks, scored on validation (never seen in fitting). Energy = own idle fingerprint + shared slopes x carrier load.
+
+| Radio unit | Units | Idle median | Slopes (Wh/15 min per % load) | Validation MAE | Validation R² | Idle share of mean energy |
+|---|---|---|---|---|---|---|
+| Mid-band (LTE 1800 + NR 2100) | 725 | 37.2 Wh/15 min (~149 W) | LTE 1800 +0.76, NR 2100 +1.04 | 3.0 Wh (6.6 %) | 0.917 | 0.72 |
+| NR 3500 (massive MIMO) | 280 | 62.8 Wh/15 min (~251 W) | +1.17 | 2.1 Wh (2.8 %) | 0.962 | 0.88 |
+| Low-band (GSM 900 + LTE 700/800) | 741 | 69.8 Wh/15 min (~279 W) | GSM -0.13, LTE 700 +0.78, LTE 800 +0.72 | 5.7 Wh (8.7 %) | 0.840 | 0.99 |
+
+With the TR 38.864 ratios, deep sleep removes 98 % (Category 1) or 80 % (Category 2) of that idle draw.
+**Why it matters:** On real hardware, 72 % (mid-band) and 88 % (NR 3500) of capacity-radio energy is spent just being on. That is the pool sleep can reach, and it is measured, not assumed. The low-band slopes tell the planner what it costs to push moved traffic onto the coverage layer.
+**Action:** Use these models in the world and twin. Report savings under both 3GPP categories.
+
+### G21 · 2026-11-23 · The low-band model drifts in validation, and GSM gets a negative slope
+**What:** Low-band validation bias is +4.8 Wh (over-predicts by ~6 %), against +0.7 (mid) and +0.3 (NR 3500). The GSM time-slot utilisation slope is -0.13, which is physically odd.
+**Why it matters:** Likely a seasonal effect (colder weather from late October, which can change radio and cooling efficiency) and GSM time-slot use reflecting signalling more than traffic. It doesn't affect sleep savings directly (the low band never sleeps), but it would bias the cost of moving traffic onto it.
+**Action:** Phase 2: add a time-varying baseline (week or temperature term) and check whether the drift disappears; report the low-band bias next to any result that depends on it.
