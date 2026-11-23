@@ -76,3 +76,9 @@ Frank approved on 23 Nov. Entries are public and permanent: they contain the att
 
 ### D22 · Public GitHub repo from the start · accepted
 Repo `FrankPonce/yovahti`, public, so the commit history shows the work as it happens. `.env`, keys and data stay git-ignored.
+
+### D23 · Splits locked · accepted
+Train 31 Aug – 25 Oct 2025, validation 26 Oct – 8 Nov 2025, test 9 – 22 Nov 2025 (Slovak Dataset_03), boundaries at 00:00 UTC; generalisation on Dataset_02 and Milan. Decided after the quality pass (E10, G20) and before any model was fitted. Changes from here on are logged here with the reason.
+
+### D24 · Sleep is modelled per radio unit · accepted
+The data shows energy per radio unit shared by its carriers (E10). The planner chooses a state for each **mid-band radio** (LTE 1800 + NR 2100) and each **NR 3500 radio**; the low-band radio (GSM/LTE 700/800) is the coverage layer and never sleeps.

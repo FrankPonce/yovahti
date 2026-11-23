@@ -7,6 +7,8 @@ Collected 23 Nov 2026. Add new sources here with the date and what they were use
 - Research Summer Interns: Compute and Software Research, Jorvas, req 794859: https://jobs.ericsson.com/careers/job/563121777633381
 
 ## Ericsson: energy
+- Net Zero targets (SBTi-approved, Jan 2024): https://www.ericsson.com/en/press-releases/2024/1/ericssons-second-round-of-climate-targets-toward-net-zero-approved-by-science-based-target-initiative · climate action: https://www.ericsson.com/en/about-us/sustainability-and-corporate-responsibility/environment/climate-action
+- Slovak dataset descriptor, open full text: https://europepmc.org/article/PMC/PMC13696700
 - rApp directory (4G Energy Optimizer, Energy Performance Orchestrator, RAN Energy Cockpit, PCEM): https://www.ericsson.com/en/portfolio/cross-portfolio/rapp-directory/a-z-directory
 - AI in RAN (14 % energy savings, MIMO sleep): https://www.ericsson.com/en/ai/ran · launch news June 2026: https://www.ericsson.com/en/news/2026/6/the-ran-gets-smarter-ericsson-puts-ai-where-it-matters
 - Vodafone UK trial press release: https://www.ericsson.com/en/press-releases/3/2025/vodafone-uk-and-ericsson-trial-ai-solutions-for-improved-5g-energy-efficiency · coverage: https://www.verdict.co.uk/vodafone-ericsson-5g-power-saving/ · https://www.telecoms.com/5g-6g/vodafone-and-ericsson-use-ai-to-cut-5g-power-use-by-a-third
@@ -46,6 +48,8 @@ Collected 23 Nov 2026. Add new sources here with the date and what they were use
 - RAN energy efficiency survey (sleep modes, ML): https://arxiv.org/pdf/2101.11246
 
 ## Open-source energy saving
+- **O-RAN SC energy-saving demo rApp** (baseline B3): https://github.com/o-ran-sc/nonrtric-plt-rappmanager/tree/master/sample-rapp-generator/es-demo-rapp · SMO install flavours: https://github.com/o-ran-sc/it-dep/blob/master/smo-install/README.md
+- Rimedo traffic-steering xApp (SMaRT-5G phase 1): https://github.com/onosproject/rimedo-ts · SMaRT-5G white paper: https://opennetworking.org/wp-content/uploads/2023/07/ONF-SMaRT-5G-White-Paper-v11.pdf
 - ONF SMaRT-5G demo: https://opennetworking.org/news-and-events/press-releases/onf-demonstrates-smart-5g-open-source-energy-savings-platform-at-fyuz/ · slides: https://opennetworking.org/wp-content/uploads/2023/10/Fyuz-Webinar-Slides.pdf
 - Aether SMaRT-5G (2025): https://aetherproject.org/blog/2025/10/lightweight-innovation-in-open-ran-how-aether-smart-5g-is-driving-real-world-energy-and-traffic-optimization-without-e2-a1-interfaces/
 - O-RAN SC RIC Testing as a Platform (energy saving use case): https://o-ran-sc.org/blog/2025/02/06/title-ric-testing-as-a-platform-ric-taap-advancing-xapp-rapp-design-and-testing-towards-digital-twin-network-a-case-study-with-orange-and-o-ran-software-community-sc/
@@ -53,7 +57,7 @@ Collected 23 Nov 2026. Add new sources here with the date and what they were use
 
 ## Data
 - **Primary:** Lehoczký et al., "Performance Management Counters from Live 5G, 4G and 2G Radio Access Network", *Scientific Data* (2026): https://www.nature.com/articles/s41597-026-07723-0 · dataset (CC BY 4.0): https://doi.org/10.5281/zenodo.17815388
-- 3GPP TR 38.864, Study on network energy savings for NR (Rel-18), sleep-state power model. Summaries: Nokia, "Reducing energy use with 5G-Advanced": https://www.nokia.com/asset/f/213599/ · arXiv 2402.11993: https://arxiv.org/pdf/2402.11993
+- 3GPP TR 38.864 V18.1.0, Study on network energy savings for NR (Rel-18), from the 3GPP archive: https://www.3gpp.org/ftp/Specs/archive/38_series/38.864/38864-i10.zip (tables encoded in `yovahti.energy.tr38864`). Summaries: Nokia, "Reducing energy use with 5G-Advanced": https://www.nokia.com/asset/f/213599/ · arXiv 2402.11993: https://arxiv.org/pdf/2402.11993
 - Fingrid open data (CC BY 4.0): emission factor of consumed electricity, dataset 265: https://data.fingrid.fi/en/datasets/265 · production emission factor, dataset 266: https://data.fingrid.fi/en/datasets/266
 - OpenCelliD (CC BY-SA 4.0): https://wiki.opencellid.org/docs/attribution · per-country mirror: https://github.com/NorthveilSystems/treadstone-celldata
 - Turku Linked Events (CC BY 4.0; endpoint unreachable, G15): https://www.lounaistieto.fi/linked-events-tapahtumarajapinta/?lang=en

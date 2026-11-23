@@ -21,7 +21,7 @@ Status: design, 23 Nov 2026. This file is the contract for what counts as a resu
 | B0 | Always on | No sleep at all | Reference |
 | B1 | Static thresholds | Base-station logic: sleep the capacity cell when its load stays below *x* for *y* minutes; wake when the coverage cell exceeds *z*. Industry-default values | Common practice |
 | B2 | Published Ericsson method, reconstructed | Thresholds re-chosen every 15 min (or daily) per cell to maximise forecast energy gain, with the patent's validity check (no sleep if forecast energy with sleep ≥ without). Built only from WO2024028883A1 and Ericsson's 2023 blog | **"Reconstruction from public sources, not Ericsson's software"** |
-| B3 | SMaRT-5G phase-1 logic | Load-threshold rApp that steers traffic off the capacity cell, then switches it off | Port of the open-source demo logic (or of its published description if the code can't be run) |
+| B3 | O-RAN SC energy-saving demo rApp | Predicted load per cell; lock the cell when all predictions < 0.04, unlock otherwise (E9) | Faithful port of the open-source logic, same forecaster input as ours |
 | B4 | Yövahti planner, no LLM | CP-SAT, P90, cluster constraints, price-aware | Ours |
 | A1–A3 | Agents on top of the planner | Energy, coverage, sloppy agents through MCP | Ours, per model |
 
@@ -29,7 +29,7 @@ All baselines run in the **same world**, with the same demand, events, faults an
 
 ## Data splits (locked on Tue 24)
 
-Primary data: Slovak Dataset_03, 31 Aug – 22 Nov 2025 (12 weeks), the same months as the Finnish prices (D19). **Proposed; locked on Tue 24 after a data-quality pass.**
+Primary data: Slovak Dataset_03, 31 Aug – 22 Nov 2025 (83 days, all 7 968 intervals present), the same months as the Finnish prices (D19). **Locked 23 Nov 2026 after the data-quality pass (D23).** Boundaries are at 00:00 UTC.
 
 | Split | Dates | Use |
 |---|---|---|

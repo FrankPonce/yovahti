@@ -66,7 +66,7 @@ The ground truth that agents never see directly.
 
 ### 7. Baselines (`yovahti.baselines`) (see [EVALUATION.md](EVALUATION.md))
 
-B0 always-on · B1 static thresholds · B2 reconstruction of Ericsson's published method (patent WO2024028883A1 + 2023 blog), labelled as a reconstruction · B3 SMaRT-5G phase-1 logic · B4 Yövahti planner without any LLM.
+B0 always-on · B1 static thresholds · B2 reconstruction of Ericsson's published method (patent WO2024028883A1 + 2023 blog), labelled as a reconstruction · B3 O-RAN SC energy-saving demo rApp logic (E9) · B4 Yövahti planner without any LLM.
 
 ### 8. MCP server (`yovahti.mcp_server`)
 

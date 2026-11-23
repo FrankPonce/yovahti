@@ -19,15 +19,13 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | I7 | Milan is ODbL (share-alike for derived databases) | Publish derived per-cell series under ODbL with attribution, separate from code licence | Sun 29 |
 | I24 | Energy-Charts prices are for internal use only (G10) | Switch to ENTSO-E (free token) before publishing € results; check reuse terms | Sat 28 |
 | I25 | Turku Linked Events API doesn't resolve (G15) | Find the current endpoint or hand-write events from public schedules | Thu 26 |
-| I26 | Slovak data descriptor: field units, carrier bandwidths, energy units (G14) | Read the *Sci Data* methods and field dictionary | Tue 24 |
-| I27 | Disk: Slovak CSVs are 3.8 GB unzipped plus 0.77 GB zips (45 GB free) | Convert to Parquet on Day 2, then delete CSVs and zips | Tue 24 |
-| I13 | Absolute power calibration source (G1) | Pick a cited model (e.g. EARTH-style parameters per RU class) and state it | Tue 24 |
+| I28 | Slovak public holidays Sep–Nov 2025 (some may have changed in 2025) | Check an official calendar before building holiday features (G20) | S4 |
 
 ## Baselines and fairness
 
 | ID | Issue | Plan | When |
 |---|---|---|---|
-| I3 | Find the SMaRT-5G phase-1 code (LinkedIn short link only) | Search ONF / onosproject / Rimedo GitHub; else implement from the published description and label it | Thu 26 |
+| I3 | B3 baseline source | Now the O-RAN SC energy-saving demo rApp (E9); SMaRT-5G only as a reference (its TS-xApp is `onosproject/rimedo-ts`) | S5 |
 | I14 | **B2 must be a fair reconstruction**, not a strawman | Implement the patent's steps faithfully, tune it on validation with the same budget as B4, and write down every assumption | Wed 25 |
 | I15 | Patented method used in a research prototype | Not distributed as a product; clearly labelled as a research reconstruction from public documents | Ongoing |
 
@@ -35,7 +33,7 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 
 | ID | Issue | Plan | When |
 |---|---|---|---|
-| I16 | Open-source RAN stacks lack a standard O1 interface for switching cells | Spike decides: srsRAN (restart or reconfigure), OAI, or ns-3; say exactly how the switch is done | Wed 25 |
+| I16 | Open-source RAN stacks lack a standard O1 interface for switching cells | First candidate: O-RAN SC SMO flavour `ranpm-pynts-es-rapp` with DU simulators and NCMP `administrativeState` (E9); then srsRAN / OAI / ns-3 | S6 |
 | I17 | A full O-RAN SC Non-RT RIC deployment may not fit 16 GB RAM next to the RAN stack | Deploy only the pieces needed, or emulate the rApp interface and say so | Thu 26 |
 | I18 | Small models may fail the agent loop for format reasons, not trust reasons | Separate "couldn't use tools" (`error`/`inconclusive`) from "unsafe" (`fail`) | Fri 27 |
 | I19 | Judge panel cost and availability | Two cheap models; cache verdicts by run hash | Fri 27 |
@@ -50,6 +48,11 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 - Could Elisa-style battery participation in Fingrid reserves be a scenario family (S7)? Tier 1 if time allows.
 
 ## Closed
+
+- **I27** (Slovak disk use) · closed 23 Nov: converted to Parquet, 3.8 GB → ~485 MB.
+
+- **I26** (Slovak units) · closed 23 Nov: Wh per 15 min per radio unit and baseband (G18).
+- **I13** (absolute power calibration) · closed 23 Nov: real Slovak Wh for the load term, TR 38.864 for sleep states (G18, G19).
 
 - **I1** (LLM access and budget) · closed 23 Nov: Otari (EU) and Featherless keys set and tested; caps €6 and ~€10 (D20).
 - **I2** (Rekor production) · closed 23 Nov: approved (D21).
