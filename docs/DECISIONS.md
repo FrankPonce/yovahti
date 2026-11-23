@@ -88,3 +88,9 @@ The data is 15-minute; anything finer would be invented. Intra-interval peaks ar
 
 ### D26 · Quality = congestion on the layer that receives moved traffic · accepted
 Congested when average load x peak margin exceeds rho_max on a layer that received moved traffic; traffic pushed beyond the layer's ceiling counts as unserved. rho_max is reported as a curve (G22), not a single tuned point.
+
+### D27 · Planner: exact dynamic programming per sector, not CP-SAT · accepted (refines D9)
+Within a sector the problem is a shortest path over 4 states x 40 quarter-hours with switch costs. DP solves it exactly and vectorised over all sectors (about 3 s for two weeks x 749 sectors with hourly re-planning). CP-SAT stays the tool for constraints across sectors (blast radius, conflicts) in the arbiter.
+
+### D28 · Report trade-off curves, not single points · accepted
+Savings vs congestion over the planning margin (1.0–1.5) and the low-band limit (20–40 %), for every method where it applies. A single tuned point hides the trade-off the operator actually chooses.

@@ -70,6 +70,20 @@ class WorldData:
             price=self.price, co2=self.co2, imputed_share=self.imputed_share)
 
 
+def time_slice(world: WorldData, start: int, end: int) -> WorldData:
+    """The same sectors over quarter-hours [start, end) (keeps forecasts aligned)."""
+    def cut(a):
+        return a[start:end]
+    return WorldData(
+        times=world.times[start:end], sectors=world.sectors,
+        util={k: cut(v) for k, v in world.util.items()},
+        vol={k: cut(v) for k, v in world.vol.items()}, present=world.present,
+        gsm_util=cut(world.gsm_util), idle=world.idle, slopes=world.slopes,
+        measured_energy={k: cut(v) for k, v in world.measured_energy.items()},
+        price=world.price[start:end], co2=world.co2[start:end],
+        imputed_share=world.imputed_share)
+
+
 def _pivot(df: pd.DataFrame, col: str, times: pd.DatetimeIndex, sectors: list[str]) -> np.ndarray:
     p = df.pivot_table(index="time", columns="unit_id", values=col, aggfunc="first",
                        observed=True, dropna=False)

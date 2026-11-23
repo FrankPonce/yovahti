@@ -209,3 +209,33 @@ Savings are a share of the energy of all three radios per sector (baseband exclu
 **What:** Among sectors where LTE 700 is configured, 60 % of its utilisation values are missing (other carriers 4–6 %).
 **Why it matters:** Its load is mostly imputed, which affects the low band's energy and capacity estimate.
 **Action:** Sensitivity run treating LTE 700 as absent; check whether the gaps follow a pattern (night only, some sites only).
+
+### E14 · 2026-11-24 · Same energy as the published method, a fifth of the congestion
+**What:** Validation weeks, 749 real sectors, TR 38.864 Category 1, low-band limit 40 %, everyone using the same forecasts and the same watchdog (`scripts/compare_methods.py`).
+
+| Method | kWh saved | € saved | Congested QH per sector-day | Pushed beyond capacity | Watchdog wake-ups | Switches per sector-day |
+|---|---|---|---|---|---|---|
+| B1 static thresholds | 18.1 % | 16.4 % | 3.67 | 6.2 TB | 38 470 | 13.5 |
+| B2 published method (reconstruction) | 17.1 % | 15.3 % | 5.03 | 38.5 TB | 52 755 | 18.6 |
+| B3 O-RAN SC demo rApp | 12.6 % | 10.7 % | 0.88 | 1.8 TB | 9 192 | 7.3 |
+| **B4 Yövahti (P90)** | **17.8 %** | **16.4 %** | **0.90** | **2.2 TB** | **9 433** | **9.4** |
+| B4 with margin 1.5 | 14.1 % | | 0.23 | 1.1 TB | 2 363 | |
+| Oracle (perfect foresight) | 22.6 % | 20.9 % | 0 | 0 | 0 | 10.3 |
+
+**Why it matters:** B4 matches the published method's savings with 5.6x fewer congested quarter-hours, 17x less traffic pushed past capacity and half the switching; it saves 42 % more than the O-RAN SC rApp at the same congestion. Raising the margin traces a curve (17.8 % / 0.90 → 14.1 % / 0.23) on which every point beats every baseline: B4 dominates the savings-quality trade-off. The low-band limit curve (20–40 %) shows the same: B4 congestion stays ~0.84–0.90 while B2's is 5–7.
+**Action:** Report the curve, not one point. Validation only; the test weeks run once at the end (D23).
+
+### E15 · 2026-11-24 · Risk-awareness is what buys the quality
+**What:** The same planner on P50 instead of P90 saves 19.7 % (vs 17.8 %) but congests 3.30 QH per sector-day (vs 0.90) and pushes 6.0 TB past capacity (vs 2.2). Switch cost barely changes savings (17.83 % with or without) but cuts switching from 10.8 to 9.4 per sector-day.
+**Why it matters:** Confirms D16 with numbers: the published method's expected-energy criterion is exactly the P50 trap.
+**Action:** Keep P90 + margin as the default; show the P50 ablation in the results.
+
+### G24 · 2026-11-24 · The forecaster misses its target, and the morning ramp is where it hurts
+**What:** Skill vs seasonal naive (MAE): mid band +14.7 %, NR 3500 +13.7 %, low band +19.1 % (target ≥ 20 %). After conformal calibration on the last two training weeks, P10–P90 coverage is 73 % (mid), 64 % (NR 3500), 77 % (low); 11.5–19.7 % of outcomes land above P90 (ideal 10 %). Calibration traded some accuracy for honest intervals. Drift features (recent level vs weekly profile) helped little. 30 % of B4's congestion falls between 06:00 and 09:00 local, when traffic ramps up. Assumption: forecasts use each layer's real demand history even while a radio slept (operators can estimate it from per-user counters on the coverage cell).
+**Why it matters:** The planner is only as safe as P90. The remaining congestion is mostly forecast misses on the ramp, not a planning flaw.
+**Action:** Phase 2: time-of-day-specific calibration, a ramp feature, NR 3500 drift. Meanwhile the margin curve and the watchdog handle it; the misses are reported, not hidden.
+
+### G25 · 2026-11-24 · Price-weighting doesn't change sleep decisions
+**What:** Weighting energy by quarter-hour price saves 16.1 % of € vs 16.4 % for the energy-weighted planner; CO₂ weighting is identical to energy weighting. Price weighting does reduce switching (6.6 vs 9.4 per sector-day) and congestion slightly.
+**Why it matters:** Sleep is worth taking whenever it is safe, so feasibility decides, not price (as E6 predicted). The D17 price target is not met by sleep alone. Price and CO₂ matter where energy can be *shifted* in time: site batteries (Elisa-style), not sleep.
+**Action:** Report as a negative result. If batteries are added (Tier 1), revisit.

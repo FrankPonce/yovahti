@@ -1,0 +1,145 @@
+"""Risk-, price- and switch-aware sleep planner (B4): exact dynamic programming per sector.
+
+Every hour, for each sector, choose a state for each of the next 40 quarter-hours from
+{both awake, NR 3500 asleep, mid asleep, both asleep}, minimising
+
+    sum_t  weight_t * expected_energy(state_t)  +  switch_cost * [state_t != state_{t-1}]
+
+subject to: the layer that receives moved traffic stays under its limit at the **risk
+quantile** of the forecast (P90 by default, D16). Infeasible states get infinite cost.
+
+Within a sector this is a shortest path over 4 states x 40 steps, solved exactly and
+vectorised over all sectors at once (D27). Constraints that span sectors (blast radius) are
+left to the arbiter.
+
+The planner's energy model is the twin's (the fitted model with averaged per-MB slopes), so it
+is deliberately not identical to the world (D5).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+from yovahti.energy import tr38864
+from yovahti.forecast.quantile import HORIZON
+from yovahti.world.data import BANDWIDTH, EFFICIENCY, LOW, WorldData
+from yovahti.world.sim import ASLEEP, AWAKE, Observation, WorldConfig
+
+# state index -> (mid, nr)
+STATES = np.array([[AWAKE, AWAKE], [AWAKE, ASLEEP], [ASLEEP, AWAKE], [ASLEEP, ASLEEP]])
+
+
+@dataclass
+class PlannerConfig:
+    risk_q: float = 0.9          # forecast quantile that must respect the limits
+    weight: str = "energy"       # "energy" | "price" | "co2"
+    switch_cost_wh: float = 8.0  # discourages flapping (hardware wear, signalling)
+    replan_every: int = 4        # quarter-hours between plans (hourly)
+    margin: float = 1.0          # extra multiplier on the risk quantile
+
+
+class DPPlanner:
+    """Policy for the world: re-plans hourly from forecasts issued at that time."""
+
+    def __init__(self, world: WorldData, forecasts: dict[str, dict], cfg: PlannerConfig,
+                 world_cfg: WorldConfig, issue_offset: int = 0):
+        """``forecasts[target]`` = {"issues": [n], 0.1/0.5/0.9: [n, H, S]} indexed in the
+        world this planner runs on (``issue_offset`` maps world index -> issue index)."""
+        self.w, self.f, self.c, self.wc = world, forecasts, cfg, world_cfg
+        self.issue_pos = {int(i) - issue_offset: k
+                          for k, i in enumerate(forecasts["mid"]["issues"])}
+        self.cap_low = sum(world.present[c] * EFFICIENCY[c] * BANDWIDTH[c] for c in LOW)
+        self.cap_mid = sum(world.present[c] * EFFICIENCY[c] * BANDWIDTH[c]
+                           for c in ("LTE_1800", "NR_2100"))
+        sl = world.slopes
+        # Wh per MB on each radio (planner's simplified view of the energy model)
+        self.k_low = sum(sl["low"][c] * world.present[c] for c in LOW) / np.where(
+            self.cap_low > 0, self.cap_low, np.inf)
+        self.k_mid = 0.5 * (sl["mid"]["LTE_1800"] / (EFFICIENCY["LTE_1800"] * 20)
+                            + sl["mid"]["NR_2100"] / (EFFICIENCY["NR_2100"] * 20))
+        self.k_nr = sl["nr3500"]["NR_3500"] / (EFFICIENCY["NR_3500"] * 100)
+        cat = world_cfg.category
+        self.r_mid = (tr38864.power(world_cfg.sleep_state, cat, 2)
+                      / tr38864.power("micro_sleep", cat, 2))
+        self.r_nr = (tr38864.power(world_cfg.sleep_state, cat, 1)
+                     / tr38864.power("micro_sleep", cat, 1))
+        self.plan: np.ndarray | None = None   # [H, S] state index
+        self.plan_t0 = 0
+        self.last_state = np.zeros(world.S, dtype=np.int64)
+
+    def _weights(self, t0: int) -> np.ndarray:
+        idx = np.clip(np.arange(t0, t0 + HORIZON), 0, self.w.T - 1)
+        if self.c.weight == "price":
+            p = np.maximum(self.w.price[idx], 0.0)
+            return p / max(np.nanmean(self.w.price), 1e-9)
+        if self.c.weight == "co2":
+            return self.w.co2[idx] / np.nanmean(self.w.co2)
+        return np.ones(HORIZON)
+
+    def costs(self, k: int) -> np.ndarray:
+        """[H, S, 4] expected Wh per state, inf where infeasible at the risk quantile."""
+        w, c, wc = self.w, self.c, self.wc
+        p50 = {t: self.f[t][0.5][k].astype(float) for t in ("mid", "nr", "low")}
+        risk = {t: self.f[t][c.risk_q][k].astype(float) * c.margin for t in ("mid", "nr", "low")}
+        idle_m, idle_n = w.idle["mid"][None], w.idle["nr3500"][None]
+        has_nr = w.present["NR_3500"][None]
+        nr_mb = np.where(has_nr, p50["nr"], 0.0)
+
+        on_mid = idle_m + self.k_mid * p50["mid"]
+        on_nr = np.where(has_nr, idle_n + self.k_nr * nr_mb, 0.0)
+        off_mid = idle_m * self.r_mid
+        off_nr = np.where(has_nr, idle_n * self.r_nr, 0.0)
+        kl = self.k_low[None]
+        cost = np.empty(p50["mid"].shape + (4,))
+        cost[..., 0] = on_mid + on_nr
+        cost[..., 1] = on_mid + self.k_mid * nr_mb + off_nr
+        cost[..., 2] = off_mid + on_nr + kl * p50["mid"]
+        cost[..., 3] = off_mid + off_nr + kl * (p50["mid"] + nr_mb)
+
+        def util(mb, cap):
+            return np.divide(mb, cap[None], out=np.full_like(mb, np.inf), where=cap[None] > 0)
+
+        r_nr = np.where(has_nr, risk["nr"], 0.0)
+        ok1 = util(risk["mid"] + r_nr, self.cap_mid) * wc.peak_margin <= wc.rho_max_mid
+        ok2 = util(risk["low"] + risk["mid"], self.cap_low) * wc.peak_margin <= wc.rho_max_low
+        ok3 = util(risk["low"] + risk["mid"] + r_nr, self.cap_low) * wc.peak_margin \
+            <= wc.rho_max_low
+        cost[..., 1] = np.where(ok1 & has_nr, cost[..., 1], np.inf)
+        cost[..., 2] = np.where(ok2, cost[..., 2], np.inf)
+        cost[..., 3] = np.where(ok3 & has_nr, cost[..., 3], np.inf)
+        return cost * self._weights(self.issue_t(k))[:, None, None]
+
+    def issue_t(self, k: int) -> int:
+        return int(self.f["mid"]["issues"][k])
+
+    def solve(self, cost: np.ndarray, start: np.ndarray) -> np.ndarray:
+        """Exact shortest path over [H, S, 4] costs from each sector's current state."""
+        H, S, N = cost.shape  # noqa: N806
+        sw = self.c.switch_cost_wh * (1 - np.eye(N))          # [4,4] from->to
+        acc = cost[0] + sw[start]                              # [S,4]
+        back = np.zeros((H, S, N), dtype=np.int8)
+        for h in range(1, H):
+            tot = acc[:, :, None] + sw[None]                   # [S, from, to]
+            back[h] = np.argmin(tot, axis=1)
+            acc = np.min(tot, axis=1) + cost[h]
+        path = np.zeros((H, S), dtype=np.int64)
+        path[-1] = np.argmin(acc, axis=1)
+        for h in range(H - 1, 0, -1):
+            path[h - 1] = back[h, np.arange(S), path[h]]
+        return path
+
+    def __call__(self, obs: Observation) -> tuple[np.ndarray, np.ndarray]:
+        t = obs.t
+        cur = np.where(obs.mid_state == ASLEEP, 2, 0) + np.where(obs.nr_state == ASLEEP, 1, 0)
+        if t in self.issue_pos and (self.plan is None or t - self.plan_t0 >= self.c.replan_every
+                                    or obs.forced_awake.any()):
+            k = self.issue_pos[t]
+            self.plan = self.solve(self.costs(k), cur)
+            self.plan_t0 = t
+        if self.plan is None or t - self.plan_t0 >= HORIZON:
+            z = np.zeros_like(obs.mid_state)
+            return z, z
+        s = self.plan[t - self.plan_t0]
+        return STATES[s, 0].astype(np.int8), STATES[s, 1].astype(np.int8)

@@ -43,6 +43,7 @@ SPLITS = {  # D23, UTC, end exclusive
     "train": ("2025-08-31", "2025-10-26"),
     "validation": ("2025-10-26", "2025-11-09"),
     "test": ("2025-11-09", "2025-11-23"),
+    "all": ("2025-08-31", "2025-11-23"),  # whole period, for building lags; never for scoring
 }
 KEY = ["site", "sector", "time"]
 ABSENT_IF_MISSING = 0.9  # a carrier with >90 % missing load on a unit is treated as absent
