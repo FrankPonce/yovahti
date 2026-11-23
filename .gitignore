@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+
+# Data (raw downloads and processed tables are reproducible from scripts)
+data/raw/
+data/processed/
+data/*.log
+
+# Secrets and keys
+.env
+*.private.jwk.json
+trust/keys/
+
+# Node
+node_modules/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Personal notes: pitch strategy, conversation notes (never public)
+private/

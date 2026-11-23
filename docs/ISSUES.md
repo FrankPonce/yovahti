@@ -1,0 +1,60 @@
+# Open issues, risks and questions
+
+Things to address later. Each says when it must be settled. Close an issue by moving it to the bottom with the date and the outcome; don't delete it.
+
+## Needs Frank's input or action
+
+| ID | Issue | Why it matters | When |
+|---|---|---|---|
+| I8 | **Disk space for Tier 2.** ~20 GB more free space would make the real stack comfortable | 50 GB free now; Docker WSL disk grows and doesn't shrink | Before Wed 25 |
+| I11 | **Azure / cloud credits** for the enclave moonshot (confidential VM, AMD SEV-SNP or Intel TDX) | Tier 3 needs hardware we don't have locally | Phase 2 |
+
+## Data
+
+| ID | Issue | Plan | When |
+|---|---|---|---|
+| I4 | ITU dataset licence is not stated in the mirror repo | Check the ITU challenge terms; until then, use it for research only and don't redistribute the raw files | Tue 24 |
+| I5 | Milan (2013) + prices (2025–26) are different years | Align by weekday and quarter-hour; label results as a synthetic composition (G9) | Tue 24 |
+| I6 | Milan "internet activity" is a relative activity index, not Mbps or PRBs | Scale per square to a target busy-hour utilisation per cell type; document the mapping and test sensitivity to it | Tue 24 |
+| I7 | Milan is ODbL (share-alike for derived databases) | Publish derived per-cell series under ODbL with attribution, separate from code licence | Sun 29 |
+| I24 | Energy-Charts prices are for internal use only (G10) | Switch to ENTSO-E (free token) before publishing € results; check reuse terms | Sat 28 |
+| I25 | Turku Linked Events API doesn't resolve (G15) | Find the current endpoint or hand-write events from public schedules | Thu 26 |
+| I26 | Slovak data descriptor: field units, carrier bandwidths, energy units (G14) | Read the *Sci Data* methods and field dictionary | Tue 24 |
+| I27 | Disk: Slovak CSVs are 3.8 GB unzipped plus 0.77 GB zips (45 GB free) | Convert to Parquet on Day 2, then delete CSVs and zips | Tue 24 |
+| I13 | Absolute power calibration source (G1) | Pick a cited model (e.g. EARTH-style parameters per RU class) and state it | Tue 24 |
+
+## Baselines and fairness
+
+| ID | Issue | Plan | When |
+|---|---|---|---|
+| I3 | Find the SMaRT-5G phase-1 code (LinkedIn short link only) | Search ONF / onosproject / Rimedo GitHub; else implement from the published description and label it | Thu 26 |
+| I14 | **B2 must be a fair reconstruction**, not a strawman | Implement the patent's steps faithfully, tune it on validation with the same budget as B4, and write down every assumption | Wed 25 |
+| I15 | Patented method used in a research prototype | Not distributed as a product; clearly labelled as a research reconstruction from public documents | Ongoing |
+
+## Technical risks
+
+| ID | Issue | Plan | When |
+|---|---|---|---|
+| I16 | Open-source RAN stacks lack a standard O1 interface for switching cells | Spike decides: srsRAN (restart or reconfigure), OAI, or ns-3; say exactly how the switch is done | Wed 25 |
+| I17 | A full O-RAN SC Non-RT RIC deployment may not fit 16 GB RAM next to the RAN stack | Deploy only the pieces needed, or emulate the rApp interface and say so | Thu 26 |
+| I18 | Small models may fail the agent loop for format reasons, not trust reasons | Separate "couldn't use tools" (`error`/`inconclusive`) from "unsafe" (`fail`) | Fri 27 |
+| I19 | Judge panel cost and availability | Two cheap models; cache verdicts by run hash | Fri 27 |
+| I20 | MCP identity: the MCP spec's auth is OAuth-based, not agent-identity-based | Signed Agent Card + RFC 9421 request signatures on Streamable HTTP; document it as an extension | Thu 26 |
+| I21 | Hosted-model energy can't be measured | Token-based estimate with a published per-token figure, labelled as an estimate | Sat 28 |
+| I22 | Windows + WSL quirks (paths, Docker networking, line endings) | Run Tier 2 inside WSL Ubuntu; keep core cross-platform | Ongoing |
+
+## Questions to revisit
+
+- Should the arbiter's limits come from the operator's intent (TM Forum-style intents) rather than config? Phase 2.
+- Is there value in an energy-aware **IMS** angle (IMS gateway workloads scaled by traffic) to speak to the IMS GW team directly? Probably not this week; note for the interview.
+- Could Elisa-style battery participation in Fingrid reserves be a scenario family (S7)? Tier 1 if time allows.
+
+## Closed
+
+- **I1** (LLM access and budget) · closed 23 Nov: Otari (EU) and Featherless keys set and tested; caps €6 and ~€10 (D20).
+- **I2** (Rekor production) · closed 23 Nov: approved (D21).
+- **I9** · closed 23 Nov: resolved privately.
+- **I23** (Milan guestbook) · closed 23 Nov: Frank approved sending his details via the API; details live only in the git-ignored .env.
+- **I10** (repo visibility and name) · closed 23 Nov: public `FrankPonce/yovahti` (D22).
+
+- **I12** (Milan download size) · closed 23 Nov: 62 files, 20.8 GB; handled by day-by-day processing (D18).
