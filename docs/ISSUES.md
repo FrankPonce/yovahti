@@ -44,16 +44,12 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | I30 | MCP view shows measured (un-slept) traffic: scheduled sleep doesn't yet re-route load or trigger the watchdog | Close the loop with `world.sim` per quarter-hour when agents run (S7) | S7 |
 | I31 | MCP clusters are placeholder groups of ten site ids, not real neighbourhoods | Replace with the Turku layout / neighbour relations (S3) | S3 |
 | I32 | Arbiter covers I1, I2, I3, I5, and I6 via `AttestedAdmission` (D34); approval tier is reported but not enforced; receipts are hashed, not signed | I4 dwell, I7 DSSE-signed receipts, I8 recorded approval, I9 conflicts in S8 | S8 |
-| I34 | Publishing NetCrash attestations to Sigstore Rekor production is public and permanent | Ask Frank before the first publish, even though D21 recorded approval earlier | S9 |
 | I33 | Change status `unknown` is never produced yet | Needs fault injection (delayed actuation, lost acks) in the world (S3) and NetCrash N-tests | S9 |
 
 ## Opened 24 Nov (session 5)
 
 | # | Issue | Plan | When |
 |---|---|---|---|
-| I35 | **Real RAN in the loop** (Tier 2): the O-RAN SC energy-saving rApp with DU simulators needs several GB of container images from the O-RAN SC registry and a kind/helm cluster | Needs Frank's OK for the downloads and disk | After applications |
-| I36 | **Local model energy** on the RTX 4050 needs a local runtime (llama.cpp or Ollama) and model weights (GBs) | Needs Frank's OK for the download; E30 is an estimate until then | After applications |
-| I37 | The server exposes tools that are not in the agent's card (N9 shows agents can call them) | Filter tools per verified identity's card (needs signed mode, D39) | Next |
 | I38 | Site, README and paper say "7–8x less congestion than the published method" | Qualify: vs the plain reconstruction; vs B2+ about +1.6 points at matched congestion (E26) | Done in README, site, paper, video script (24 Nov); live site needs a redeploy |
 | I39 | Real-model runs of N22 (twin gaming), N23 (coverage agent) and an hourly night | Run after the v2 matrix, within the caps | Next |
 
@@ -65,6 +61,10 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 
 ## Closed
 
+- **I34** (Rekor) · closed 24 Nov: v1 scorecards in production, verified (E34, D44).
+- **I35** (real RAN) · closed 24 Nov as a spike: srsRAN 4G in the loop (E33, D43); O-RAN SC interfaces are the next step.
+- **I36** (local model energy) · closed 24 Nov: measured 7.6 Wh per agent night on the RTX 4050, 0.035 % of savings (E36).
+- **I37** (tool scope) · closed 24 Nov: calls outside the bound card are refused (E35).
 - **I14** (fair B2) · 24 Nov: B2+ with predictive wake reported next to B2 (E26, D41).
 - **I19** (judge panel) · closed 24 Nov: Gemma + Llama, both must agree, cached (D40).
 - **I20** (MCP identity) · closed 24 Nov: RFC 9421 signatures + operator key bindings (D39).

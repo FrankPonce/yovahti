@@ -23,7 +23,7 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | done: 14 tools over Streamable HTTP incl. `simulate_plan` and `get_energy_report`, closed loop (D37), stand-in mode, RFC 9421 signed identity with operator key bindings (D39) |
 | S7 | Agents | Energy, coverage and sloppy agents complete a night end to end on several models; budget guard | done in code: energy, sloppy and coverage agents, hourly protocol (`run_agent_night.py --hourly`), budget guard; open: real-model runs of coverage agent and hourly night (I39) |
 | S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | done: Agent Cards, `admit()` checked against agent-trust-kit, arbiter I1–I9 (D38) with unit and Hypothesis property tests, Z3 proof of I1 (E28), signed receipts, watchdog |
-| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | v2 (23 tests, judge panel, applied actions recorded, D40) built and tested; matrix running; open: Rekor publishing (needs Frank's OK) |
+| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | v2 (23 tests, judge panel, applied actions recorded, D40) built and tested; matrix running; v1 scorecards in Rekor (E34); v2 after the matrix |
 | S10 | Results | Locked test runs for every method and agent; NetCrash matrix; FINDINGS; result tables | done: locked test weeks run once (E24, D36) |
 | S11 | Showcase | Dashboard (Turku map, replay, attestation check), README, 3-minute video, short paper | |
 | S12 | Applications | Applications submitted; outreach done | |
@@ -35,8 +35,8 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | 1 | Dashboard with Turku map and replay | S10 |
 | 1 | Live Finnish prices and CO₂ mode | S3 |
 | 1 | Nightly CI publishing signed results | S9 |
-| 2 | Real open-source RAN in the loop on Kubernetes (srsRAN / OAI / ns-3, chosen by a spike) | S6 · needs download OK (I35) |
-| 2 | Net savings after the AI's own energy (local model measured on the RTX 4050) | S7 · estimate done (E30); measurement I36 |
+| 2 | Real open-source RAN in the loop on Kubernetes (srsRAN / OAI / ns-3, chosen by a spike) | Spike done: srsRAN 4G over ZMQ, 24/24 quarter-hours followed, wake 2.5 s (E33, D43); Kubernetes / O-RAN SC next |
+| 2 | Net savings after the AI's own energy (local model measured on the RTX 4050) | S7 · estimate (E30) and measurement on the RTX 4050 (E36): 0.035 % of savings |
 | 2 | Formally checked arbiter invariants (Z3) | S8 · done for I1 (E28) |
 | 2 | NetCrash as an MCP server (query, compare, rerun tests) | S9 · done |
 | 3 | Arbiter in a hardware enclave with remote attestation | S8 |

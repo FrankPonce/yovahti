@@ -1,0 +1,35 @@
+{
+ "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU, [N/A]",
+ "model": "ollama:qwen3:4b",
+ "hourly": false,
+ "night": "2025-10-27_C01_ollama-qwen3-4b",
+ "outcome": "answered",
+ "seconds": 366.9,
+ "samples": 3369,
+ "idle_w": 1.93,
+ "mean_w": 74.22,
+ "load_wh": 0.0013,
+ "gpu_wh_gross": 7.562,
+ "gpu_wh_above_idle": 7.3651,
+ "llm_calls": 6,
+ "tokens": 58558,
+ "gpu_wh_per_1k_tokens": 0.1291,
+ "gpu_wh_per_call": 1.2603,
+ "changes": {
+  "chg-1419d50c94c8": {
+   "status": "applied",
+   "reasons": [],
+   "n_actions": 22
+  }
+ },
+ "agent_saved_kwh": 21.32,
+ "night_saved_kwh": 21.32,
+ "savings_basis": "agent",
+ "share_of_savings_pct": {
+  "gpu_gross": 0.0355,
+  "gpu_above_idle": 0.0345,
+  "system_2x_gross": 0.0709
+ },
+ "scope": "GPU board power from nvidia-smi only; CPU, RAM, screen, PSU not measured",
+ "note": "the night itself (simulator, MCP server, replay) runs in the same window on the CPU; only the GPU is attributed to the model"
+}

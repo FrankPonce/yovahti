@@ -136,3 +136,10 @@ B2+ (predictive wake, six variants) is our extension, labelled as such, and eval
 
 ### D42 · The conformal margin is how the dial is explained · accepted
 The planning margin is presented as a guarantee level alpha (calibrated on held-out weeks, E29), with the realised congestion next to it. The default stays margin 1.0 (D36); the dial is reported, not re-tuned on test.
+
+### D43 · srsRAN 4G over ZeroMQ for the real-RAN spike, not the O-RAN SC stack · accepted (I35)
+The O-RAN SC energy-saving rApp needs a kind/helm cluster and several GB of images; the laptop has 24 GB of disk left. srsRAN 4G builds from source in WSL in minutes, runs a full EPC/eNB/UE with a virtual radio, and is enough to test what the spike asked: does a real stack follow the arbiter's schedule, and how long does a wake take. The O-RAN SC route stays the next step for the A1/O1 interfaces.
+
+### D44 · Rekor production for final scorecards; staging for everything else · accepted (D21, I34)
+Frank confirmed on 24 Nov. Final, full-suite scorecards are published; development runs use staging. Entries hold hashes, the signature and the tester's public key: nothing personal.
+

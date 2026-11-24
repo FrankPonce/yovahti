@@ -103,7 +103,8 @@ flowchart LR
 | Network layout | **Real** operator sectors (coverage + capacity layers on the same sites), grouped into placeholder clusters; a Turku map layout is planned |
 | Baseline "B2" | A **reconstruction from public sources** (patent WO2024028883A1 and a 2023 Ericsson blog), **not** Ericsson's software |
 | Traffic moved by sleeping cells | **Simulated**: re-routed to the coverage layer with measured per-band efficiency; congestion uses a stated 1.25 peak margin |
-| Real RAN in the loop | Planned (open-source RAN on Kubernetes) |
+| Real RAN in the loop | Spike: srsRAN 4G (EPC, eNB, UE) follows the arbiter's schedule; wake to traffic 2.5 s (E33) |
+| The AI's own energy | **Measured** on a local model (qwen3:4b, RTX 4050): 7.6 Wh GPU per agent night, 0.035 % of what the night saved (E36); hosted models estimated (E30) |
 
 Every result table says which parts are real.
 

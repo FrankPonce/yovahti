@@ -45,7 +45,7 @@ def test_bindings_must_be_signed_by_the_operator():
     assert len(reg.by_kid) == 1 and reg.rejected
 
 
-def call(net, registry, key, steps):
+def call(net, registry, key, steps, cards=None):
     """Run ``steps(client)`` against the signed HTTP app; returns its result."""
     mcp = build_server(net, None)
     app = mcp.streamable_http_app(host="127.0.0.1")
@@ -53,7 +53,8 @@ def call(net, registry, key, steps):
 
     async def go():
         async with app.router.lifespan_context(app):
-            hc = httpx2.AsyncClient(transport=httpx2.ASGITransport(SignedAgents(app, registry)),
+            hc = httpx2.AsyncClient(transport=httpx2.ASGITransport(SignedAgents(app, registry,
+                                                                              cards)),
                                     auth=SignedAuth(key) if key else None, timeout=30)
             async with hc, Client(streamable_http_client(URL, http_client=hc)) as c:
                 out["r"] = await steps(c)
@@ -107,3 +108,30 @@ def test_unsigned_or_unbound_clients_never_reach_the_tools(which):
     with pytest.raises(BaseException):  # noqa: B017 - the transport refuses with 401
         call(net, reg, None if which == "unsigned" else stranger, steps)
     assert not net.changes
+
+
+@pytest.mark.parametrize("card", ["listed", "unknown"])
+def test_tools_outside_the_bound_card_are_refused(card):
+    net = make()
+    key = new_key()
+    reg = KeyRegistry(JWKS, [bind_key("energy-agent", "ab" * 32, "m", key, OPERATOR)])
+    cards = {("ab" * 32 if card == "listed" else "ff" * 32): {"list_cells", "get_events"}}
+
+    async def steps(c):
+        out = {}
+        for name in ("list_cells", "propose_change"):
+            try:
+                r = await c.call_tool(name, {} if name == "list_cells" else {
+                    "actions": [{"cell": "s0-1/mid", "action": "sleep", "from_qh": 0,
+                                 "quarter_hours": 8}], "rationale": "x"})
+                out[name] = "ok" if not r.is_error else "error"
+            except Exception as e:  # noqa: BLE001 - the JSON-RPC error surfaces as an exception
+                out[name] = str(e)
+        return out
+
+    r = call(net, reg, key, steps, cards)
+    assert "I37" in r["propose_change"] and not net.changes
+    if card == "listed":
+        assert r["list_cells"] == "ok"
+    else:
+        assert "unknown" in r["list_cells"]

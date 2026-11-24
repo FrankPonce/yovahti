@@ -205,7 +205,12 @@ def main() -> None:
     bindings = [p.read_text(encoding="utf-8").strip()
                 for p in sorted((ROOT / "trust" / "bindings").glob("*.jws"))]
     reg = KeyRegistry(jwks, bindings)
+    from yovahti.agents.cards import card_sha256
+    cards = {}
+    for f in sorted((ROOT / "agents" / "cards").glob("*.json")):
+        card = json.loads(f.read_text(encoding="utf-8"))
+        cards[card_sha256(card)] = set(card["allowed_tools"])
     print(f"signed mode: {len(reg.by_kid)} bound agent keys, {len(reg.rejected)} rejected",
           flush=True)
-    app = SignedAgents(build_server(net, None).streamable_http_app(host=a.host), reg)
+    app = SignedAgents(build_server(net, None).streamable_http_app(host=a.host), reg, cards)
     uvicorn.run(app, host=a.host, port=a.port)

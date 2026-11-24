@@ -358,7 +358,7 @@ Final validation forecasts: skill vs seasonal naive mid **+25.6 %**, NR 3500 **+
 ### E30 · 2026-11-24 · The agent's own energy is a rounding error (estimate)
 **What:** `scripts/ai_energy_net.py`: one agent night on a cluster is 15 LLM calls (460 k tokens). Priced at published per-response figures (0.24 Wh median Gemini prompt, Google 2025; 1.86 Wh Llama 3.1 405B response, ML.ENERGY), that is 3.6–28 Wh against 74 kWh saved per cluster-night: **0.005–0.04 %**, 0.4 % with a 10x long-context stress factor. All LLM use of the project so far (4 334 calls incl. NetCrash) is 1–8 kWh, paid back by about 0.1 cluster-nights.
 **Why it matters:** Answers "does the AI eat the savings?": no, by three orders of magnitude.
-**Action:** Labelled an estimate; a local RTX 4050 measurement needs a local model runtime (I36).
+**Action:** Labelled an estimate; measured on a local model in E36 (0.035 %).
 
 ### E31 · 2026-11-24 · Traffic-rhythm clusters are only slightly more coherent than id order
 **What:** `world/layout.py`: 27 clusters of sites with alike weekly rhythm (PCA angle, balanced groups of 10, training weeks only). Mean within-cluster rhythm correlation 0.941 vs 0.894 for the id-order placeholder.
@@ -369,3 +369,34 @@ Final validation forecasts: skill vs seasonal naive mid **+25.6 %**, NR 3500 **+
 **What:** `scripts/milan_generalisation.py`: Telecom Italia internet activity, 800 random grid squares, 10-min slots resampled to quarter-hours, same features, model and conformal calibration, no tuning; fit before 27 Nov 2013 (26 days), calibrate to 4 Dec. Normal weeks (4–18 Dec): P50 skill vs seasonal naive **+11.2 %** (+22.1 % with level normalisation), P10–P90 coverage 79.6 / 80.4 %, above P90 10.2 / 10.4 %. Holidays (18 Dec–1 Jan): skill +25.2 / +39.1 % (last week is a poor guess over Christmas), coverage drops to 72–73 % but **above P90 stays at 10.3–10.7 %**.
 **Why it matters:** The method is not fitted to one Slovak operator: with three and a half weeks of history in another city, it beats the standard baseline and keeps the upper quantile honest even through holidays, the side the arbiter's guarantee depends on (E28). Activity is a relative index (G13), so this is about the forecaster, not about energy.
 **Action:** Paper: one-paragraph generalisation result; level normalisation helps more where history is short.
+
+### E33 · 2026-11-24 · On a real LTE stack, a slept cell carries traffic again in 2.5 s
+**What:** `scripts/ran_spike.py` (I35) runs srsRAN 4G (EPC, eNB, UE; release 23.11, built from source) over a ZeroMQ virtual radio in WSL. Ten sleep/wake cycles (cell down 10 s): the eNB is ready after **1.02 s** and user-plane packets reach the UE after **2.42 s median, 2.56 s worst**, 10 of 10 without retries: **0.3 %** of the quarter-hour the simulator and arbiter allow for a wake. In the loop, one cell of a validation night (`s4-1/mid`, 22:00–04:00) was driven by the stepped world after the planner's changes passed the arbiter (I1–I9, simulated operator for I8): the real eNB matched the schedule in **24 of 24** quarter-hours, and its one real wake carried traffic after 2.75 s. Downlink over the ZMQ link: 28–30 Mbit/s before and after.
+**Why it matters:** The control path (agent, MCP, arbiter, actuation, observed state) now ends in a real protocol stack, not only the simulator, and the wake-time assumption has margin of two orders of magnitude on the software side. Not measured: radio hardware (power-amplifier warm-up, real RF) and power draw, which need a radio unit.
+**Action:** Three stack artefacts are recorded, not hidden: the ZMQ radio cannot reconnect, so a wake restarts the UE too (a full attach: an upper bound on a real UE's return); after many re-attaches srsEPC stops reaching an idle UE by paging, so the night starts from a fresh stack; a paged first ping takes about 0.7 s, so the readback waits 3 s.
+
+### G33 · 2026-11-24 · WSL kills background processes when the `wsl` call that started them ends
+**What:** The first srsRAN runs lost every process between calls. Fix: daemons start with `setsid`, and a keeper session (`wsl ... sleep`) holds the VM up for the run.
+**Why it matters:** Without it, a "sleeping" cell looked asleep because everything had died.
+**Action:** `scripts/ran/ran.sh` uses `setsid`; the spike's docstring says to keep a session open.
+
+### E34 · 2026-11-24 · NetCrash v1 scorecards are in the public Sigstore log
+**What:** `scripts/publish_rekor.py` logged the eight v1 attestations (4 models x 2 agents) as Rekor `dsse` entries with the tester's Ed25519 key (Rekor checks the signature before logging): production log indexes 4083706861–4083707361. Each entry's inclusion proof (RFC 9162) and signed entry timestamp were verified, and the logged payload hash matches the local envelope; `results/netcrash/rekor/` keeps the entries and the log key, and `tests/test_rekor.py` re-checks them offline and shows a tampered body or timestamp fails.
+**Why it matters:** Anyone can confirm that a scorecard existed at a time and has not changed since, without trusting this repo.
+**Action:** v2 scorecards go to Rekor the same way once the v2 matrix is final (full-suite cards only, G29).
+
+### E35 · 2026-11-24 · Tools outside the agent's card are refused at the door
+**What:** In signed mode the middleware knows which card a key was bound to (D39), so a `tools/call` for a tool not in that card's `allowed_tools` gets a JSON-RPC error before the MCP server sees it; a binding whose card the server doesn't know may call nothing (`tests/test_identity.py`).
+**Why it matters:** N9 showed agents will call an out-of-scope tool if it is offered (I37); now the scope in the card is enforced, not just declared.
+**Action:** Listing is not filtered yet (the agent still sees the tool names); the call is what matters for safety.
+
+### E36 · 2026-11-24 · Measured: a local agent night costs 7.6 Wh of GPU energy, 0.035 % of what it saves
+**What:** `scripts/local_model_energy.py` (I36): the energy agent ran one validation night (C01, 27 Oct 22:00) on qwen3:4b in Ollama, fully on the RTX 4050 Laptop GPU (16k context, 8-bit KV cache), while `nvidia-smi` sampled board power every 100 ms (3 369 samples). The agent used optimise_plan, alarms, events, simulate_plan, then proposed and applied a 22-action change the arbiter accepted, saving **21.3 kWh** (11.5 % of 185 kWh) in the replay. GPU energy over the 367 s run: **7.56 Wh** (mean 74 W, idle 1.9 W), 58.6 k tokens, **0.13 Wh per 1 k tokens**: **0.035 %** of the night's savings, 0.07 % with a 2x factor for the rest of the laptop.
+**Why it matters:** Replaces E30's estimate with a measurement, and it lands at the top of E30's range: the AI's own energy is still three orders of magnitude below what it saves. A small local model does the job here; in an earlier run with the same setup it proposed all 40 capacity cells at once and the arbiter refused it (I3 blast radius), so it applied nothing that night.
+**Action:** Scope stated in the result: GPU board power only, no wall meter. Ollama's default 4k context silently truncated the agent's prompt in a first attempt (G34).
+
+### G34 · 2026-11-24 · Ollama's default context is 4 096 tokens, and a bigger one spills off the GPU
+**What:** The first local runs used n_ctx 4096 (an agent night needs 10-15 k); 16 k with the default KV cache put 7 of 37 layers on the CPU, where nvidia-smi cannot see the energy.
+**Why it matters:** Either would have made the measurement wrong without an error.
+**Action:** Serve with `OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_FLASH_ATTENTION=1 OLLAMA_KV_CACHE_TYPE=q8_0` and check `ollama ps` shows 100 % GPU before measuring.
+

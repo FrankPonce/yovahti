@@ -1,0 +1,278 @@
+{
+ "stack": "srsRAN 4G release_23_11, ZeroMQ virtual radio, WSL2 Ubuntu 26.04",
+ "baseline": {
+  "attach_s_incl_epc_enb": 6.8,
+  "zmq_downlink_mbps": 28.49,
+  "state": {
+   "enb": "1",
+   "ue_ip": "172.16.0.2",
+   "ping_ms": "34.0"
+  }
+ },
+ "wake": {
+  "trials": [
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.023995527,
+    "traffic_s": 2.542497458,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.021420787,
+    "traffic_s": 2.327844609,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.019989012,
+    "traffic_s": 2.405731227,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.026078045,
+    "traffic_s": 2.512104347,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.011036142,
+    "traffic_s": 2.335212374,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.01074652,
+    "traffic_s": 2.325068738,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.015173145,
+    "traffic_s": 2.563302721,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.017594396,
+    "traffic_s": 2.485716372,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.016506476,
+    "traffic_s": 2.429256512,
+    "ue_retries": 0.0
+   },
+   {
+    "off_s": 10.0,
+    "enb_ready_s": 1.013464374,
+    "traffic_s": 2.403099439,
+    "ue_retries": 0.0
+   }
+  ],
+  "off_s": 10.0,
+  "reattached": 10,
+  "of": 10,
+  "traffic_s_median": 2.42,
+  "traffic_s_max": 2.56,
+  "enb_ready_s_median": 1.02,
+  "share_of_quarter_hour_max_pct": 0.28,
+  "ue_retries": 0
+ },
+ "loop": {
+  "fresh_up": {
+   "ue_ip": "172.16.0.2",
+   "ue_retries": "0"
+  },
+  "cell": "s4-1/mid",
+  "layer": "mid",
+  "from": "2025-10-27T22:00:00+01:00",
+  "quarter_hours": 24,
+  "tick_s": 15.0,
+  "changes": {
+   "chg-5a49b3b6a96f": "applied",
+   "chg-c4a667b706f2": "awaiting_approval"
+  },
+  "transitions": 2,
+  "wake_to_traffic_s": [
+   {
+    "traffic_s": 2.747459097,
+    "ue_retries": 0.0
+   }
+  ],
+  "mismatched_quarter_hours": 0,
+  "log": [
+   {
+    "t": "2025-10-27T22:00:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 25.5
+   },
+   {
+    "t": "2025-10-27T22:15:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 40.4
+   },
+   {
+    "t": "2025-10-27T22:30:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 28.7
+   },
+   {
+    "t": "2025-10-27T22:45:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 33.7
+   },
+   {
+    "t": "2025-10-27T23:00:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 22.2
+   },
+   {
+    "t": "2025-10-27T23:15:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 27.5
+   },
+   {
+    "t": "2025-10-27T23:30:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 30.1
+   },
+   {
+    "t": "2025-10-27T23:45:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 41.6
+   },
+   {
+    "t": "2025-10-28T00:00:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 40.2
+   },
+   {
+    "t": "2025-10-28T00:15:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 39.3
+   },
+   {
+    "t": "2025-10-28T00:30:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 39.3
+   },
+   {
+    "t": "2025-10-28T00:45:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 22.1
+   },
+   {
+    "t": "2025-10-28T01:00:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 30.3
+   },
+   {
+    "t": "2025-10-28T01:15:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.2",
+    "ping_ms": 40.5
+   },
+   {
+    "t": "2025-10-28T01:30:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T01:45:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T02:00:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T02:15:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T02:30:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T02:45:00+01:00",
+    "commanded": "asleep",
+    "real": "asleep",
+    "ue_ip": "none",
+    "ping_ms": null
+   },
+   {
+    "t": "2025-10-28T03:00:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.3",
+    "ping_ms": 40.3
+   },
+   {
+    "t": "2025-10-28T03:15:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.3",
+    "ping_ms": 28.9
+   },
+   {
+    "t": "2025-10-28T03:30:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.3",
+    "ping_ms": 30.8
+   },
+   {
+    "t": "2025-10-28T03:45:00+01:00",
+    "commanded": "awake",
+    "real": "awake",
+    "ue_ip": "172.16.0.3",
+    "ping_ms": 30.5
+   }
+  ]
+ },
+ "after_wake_zmq_downlink_mbps": 29.37
+}

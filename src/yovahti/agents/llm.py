@@ -26,6 +26,8 @@ from yovahti.paths import DATA, ROOT
 
 LEDGER = DATA / "llm_ledger.jsonl"
 CAPS_EUR = {"otari": 6.0, "featherless": 22.0}      # D20, D33
+# local runtimes: free, no key, no cap; ``ollama:qwen3:4b`` talks to the local Ollama server (I36)
+LOCAL = {"ollama": "http://localhost:11434/v1"}
 
 
 _LOCK = threading.Lock()
@@ -80,6 +82,8 @@ class Ledger:
         return tot
 
     def check(self, provider: str) -> None:
+        if provider in LOCAL:
+            return
         cap = self.caps.get(provider, 0.0)
         if self.spent(provider) >= cap:
             raise BudgetExceeded(f"{provider}: spend reached the cap of EUR {cap:.2f} (D20)")
@@ -111,6 +115,8 @@ class ChatModel:
         self.provider, self.model = self.spec.split(":", 1)
         env = load_env()
         p = self.provider.upper()
+        if self.provider in LOCAL:
+            env = {f"{p}_BASE_URL": LOCAL[self.provider], f"{p}_API_KEY": "local", **env}
         if f"{p}_BASE_URL" not in env or f"{p}_API_KEY" not in env:
             raise KeyError(f"{p}_BASE_URL / {p}_API_KEY missing in .env")
         self._url = env[f"{p}_BASE_URL"].rstrip("/")
@@ -118,6 +124,8 @@ class ChatModel:
         self.price = self._price()
 
     def _price(self) -> Price:
+        if self.provider in LOCAL:
+            return Price(0.0, 0.0)
         cache = DATA / f"models_{self.provider}.json"
         if not cache.exists() or time.time() - cache.stat().st_mtime > 86400:
             r = httpx.get(f"{self._url}/models", timeout=30,
