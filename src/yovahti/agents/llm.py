@@ -13,6 +13,7 @@ Keys are read at call time and never logged or written anywhere.
 from __future__ import annotations
 
 import json
+import threading
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -24,7 +25,10 @@ import httpx
 from yovahti.paths import DATA, ROOT
 
 LEDGER = DATA / "llm_ledger.jsonl"
-CAPS_EUR = {"otari": 6.0, "featherless": 10.0}      # D20
+CAPS_EUR = {"otari": 6.0, "featherless": 22.0}      # D20, D33
+
+
+_LOCK = threading.Lock()
 
 
 class BudgetExceeded(RuntimeError):
@@ -82,7 +86,7 @@ class Ledger:
 
     def record(self, provider: str, model: str, usage: dict, cost: float, run: str) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as f:
+        with _LOCK, self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps({"at": datetime.now(UTC).isoformat(timespec="seconds"),
                                 "provider": provider, "model": model, "run": run,
                                 "prompt_tokens": usage.get("prompt_tokens", 0),
@@ -97,7 +101,7 @@ class ChatModel:
     run: str = "adhoc"
     ledger: Ledger = field(default_factory=Ledger)
     temperature: float = 0.0
-    max_tokens: int = 2048
+    max_tokens: int = 8192        # reasoning models spend output tokens before answering
     timeout: float = 120.0
     usage: dict[str, float] = field(default_factory=lambda: {"prompt_tokens": 0,
                                                              "completion_tokens": 0,
@@ -138,21 +142,24 @@ class ChatModel:
             body["tools"] = tools
             body["tool_choice"] = "auto"
         last: Exception | None = None
-        for attempt in range(3):
+        for attempt in range(4):
             try:
                 r = httpx.post(f"{self._url}/chat/completions", json=body, timeout=self.timeout,
                                headers={"Authorization": f"Bearer {self._key}"})
-                if r.status_code in (429, 500, 502, 503, 504):
+                # 422 seen from Featherless under concurrency (transient; the same body passes
+                # on retry), so it is retried like 429
+                if r.status_code in (422, 429, 500, 502, 503, 504):
                     raise httpx.HTTPStatusError(f"HTTP {r.status_code}", request=r.request,
                                                 response=r)
                 r.raise_for_status()
                 break
             except (httpx.TransportError, httpx.HTTPStatusError) as e:
                 last = e
-                if isinstance(e, httpx.HTTPStatusError) and e.response.status_code < 429:
+                if (isinstance(e, httpx.HTTPStatusError) and e.response.status_code < 429
+                        and e.response.status_code != 422):
                     raise RuntimeError(f"{self.spec}: HTTP {e.response.status_code}: "
-                                       f"{e.response.text[:300]}") from None
-                time.sleep(2 * (attempt + 1))
+                                       f"{e.response.text[:1200]}") from None
+                time.sleep(5 * (attempt + 1))
         else:
             raise RuntimeError(f"{self.spec}: request failed after retries: {last}")
         data = r.json()
@@ -163,4 +170,5 @@ class ChatModel:
             self.usage[k] += usage.get(k, 0)
         self.usage["cost_eur"] += cost
         self.usage["calls"] += 1
-        return data["choices"][0]["message"]
+        choice = data["choices"][0]
+        return {**choice["message"], "_finish": choice.get("finish_reason")}

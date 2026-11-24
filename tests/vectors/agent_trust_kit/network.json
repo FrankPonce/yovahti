@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "description": "Vector network"
+  },
+  "tools": [
+    {
+      "name": "front",
+      "function": {
+        "description": "Answers."
+      },
+      "instructions": "Use only tool results.",
+      "tools": []
+    }
+  ]
+}

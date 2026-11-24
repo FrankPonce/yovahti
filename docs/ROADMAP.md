@@ -22,8 +22,8 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | S5 | Planner + baselines | DP planner (D27); B2 (reconstruction), B3 (O-RAN SC rApp), B4; first savings vs quality table on validation | done (E14, E15) |
 | S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | in progress: 12 tools over Streamable HTTP on real validation data, admission + arbiter (I1/I2/I3/I5) gate, receipts, 14 tests (D32); open: stand-in mode, signed identity (I20), `simulate_plan` |
 | S7 | Agents | Energy, coverage and sloppy agents complete a night end to end on several models; budget guard | in progress: own loop over MCP, OpenAI-compatible client with priced budget guard and ledger (D20), night replay in the simulator; energy agent ran one night on DeepSeek V4 Flash for EUR 0.04 (E20); open: coverage + sloppy agents, hourly re-planning, more models |
-| S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | |
-| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | |
+| S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | in progress: Agent Cards (prompt hash, tools, scope; JCS hash); `admit()` ported and checked against the kit (vectors byte for byte, kit verifies our attestations, D34); arbiter I1/I2/I3/I5/I6; open: RFC 9421 identity, I4/I7/I8/I9, property tests |
+| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | in progress: v0 with 11 tests on stand-in networks, crash-test scoring, agent-trust-kit-compatible scorecards; first matrix running; open: judge panel, signing + Rekor, remaining tests |
 | S10 | Results | Locked test runs for every method and agent; NetCrash matrix; FINDINGS; result tables | |
 | S11 | Showcase | Dashboard (Turku map, replay, attestation check), README, 3-minute video, short paper | |
 | S12 | Applications | Applications submitted; outreach done | |

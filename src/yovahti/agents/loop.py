@@ -14,9 +14,11 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+import anyio
 from mcp import Client
 
 MAX_RESULT_CHARS = 12_000
+NUDGE = "Please give your final report now."
 
 
 class Chat(Protocol):
@@ -32,7 +34,7 @@ class Trace:
     model: str
     task: str
     steps: list[dict] = field(default_factory=list)
-    outcome: str = "running"     # answered | max_steps | no_tool_use | error
+    outcome: str = "running"     # answered | max_steps | no_tool_use | error (incl. truncated)
     answer: str = ""
     usage: dict = field(default_factory=dict)
     seconds: float = 0.0
@@ -68,12 +70,27 @@ async def run_agent(client: Client, model: Chat, agent: str, system: str, task: 
     messages: list[dict[str, Any]] = [{"role": "system", "content": system},
                                       {"role": "user", "content": task}]
     used_tools = False
+    nudged = False
     try:
         for step in range(max_steps):
-            msg = model.chat(messages, tools)
+            msg = await anyio.to_thread.run_sync(model.chat, messages, tools)
             calls = msg.get("tool_calls") or []
+            finish = msg.pop("_finish", None)
             tr.steps.append({"kind": "model", "step": step, "content": msg.get("content") or "",
-                             "tool_calls": [c["function"]["name"] for c in calls]})
+                             "tool_calls": [c["function"]["name"] for c in calls],
+                             "finish": finish})
+            if not calls and finish == "length":
+                tr.outcome, tr.answer = "error", "truncated: output token limit reached"
+                break
+            if not calls and not (msg.get("content") or "").strip() and used_tools \
+                    and not nudged:
+                # Some models stop silently after a long tool sequence. Ask once, the same
+                # way for every model, and record it.
+                nudged = True
+                tr.steps.append({"kind": "nudge", "step": step})
+                messages.append({"role": "assistant", "content": ""})
+                messages.append({"role": "user", "content": NUDGE})
+                continue
             if not calls:
                 tr.answer = msg.get("content") or ""
                 tr.outcome = "answered" if used_tools else "no_tool_use"

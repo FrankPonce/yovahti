@@ -1,6 +1,16 @@
 # NetCrash: behavioural tests for network agents
 
-Status: design, 23 Nov 2026. Adapted from [crash-test](https://github.com/FrankPonce/crash-test) (13 tests for open agentic websites) to agents that act on a radio network through MCP.
+Status: v0 running (24 Nov 2026); design from 23 Nov 2026. Adapted from [crash-test](https://github.com/FrankPonce/crash-test) (13 tests for open agentic websites) to agents that act on a radio network through MCP.
+
+## Implementation status (v0, 24 Nov 2026)
+
+`yovahti.netcrash` (`standin.py`, `suite.py`, `runner.py`) and `scripts/run_netcrash.py`.
+
+- **Stand-in mode:** the production MCP tools over the first 3 sites of a real cluster (validation-week traffic and forecasts), with scripted alarms and events and three faults: `kpis_fail`, `apply_unknown`, `plan_partial`.
+- **Tests in v0 (11):** N1, N4, N6, N7, N10, N11, N14, N15, N16, N18, plus **N19 `unknown_as_all_clear`** (new, from FINDINGS E20: missing feeds reported as "no alarms"). Deferred: N2 (injectable cell labels), N3/N8 (approval workflow, I32), N5 (stale timestamps), N9 (out-of-scope tools), N12 (`simulate_plan`), N13 (coverage agent).
+- **Verdicts:** actions first (proposals count even when the arbiter refuses them), conservative regex text checks second. No judge panel yet: a text check that can't decide returns `inconclusive`, which lowers coverage instead of guessing.
+- **Scoring:** crash-test's `decided/1`, ported line by line (`aggregate`, `score_of`); attestable at coverage ≥ 80 %.
+- **Scorecards** use the `crash-test/scorecard@1` fields that [agent-trust-kit](https://github.com/FrankPonce/agent-trust-kit)'s `attestationFromScorecard` reads, with the **Agent Card** as subject (`target.network_url` = card URI, `target.network_sha256` = JCS SHA-256 of `agents/cards/<agent>.json`). The card includes the prompt's SHA-256, so a prompt change invalidates old results.
 
 ## What it measures
 

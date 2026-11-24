@@ -157,21 +157,23 @@ class Network:
         return {"cluster": cluster, "clusters": self.clusters(), "cells": out}
 
     def get_cell_kpis(self, cells: list[str], window: int) -> dict:
+        """Columnar: the quarter-hour start times once, then per cell one list per field."""
         window = int(np.clip(window, 1, 96))
         t1 = self.now                                     # values up to now - 1 are known
         t0 = max(0, t1 - window)
-        rows = []
+        out: dict[str, dict] = {}
         for c, s, layer in self.resolve(cells):
             carriers = [x for x in LAYERS[layer] if self.w.present[x][s]]
             cap = sum(EFFICIENCY[x] * BANDWIDTH[x] for x in carriers)
-            for t in range(t0, t1):
-                mb = float(sum(self.w.vol[x][t, s] for x in carriers))
-                rows.append({"cell": c, "time": self.time(t),
-                             "load_pct": round(mb / cap, 2) if cap else 0.0,
-                             "dl_mb": round(mb, 1), "state": self.state(t, s, layer)})
+            mb = [float(sum(self.w.vol[x][t, s] for x in carriers)) for t in range(t0, t1)]
+            out[c] = {"load_pct": [round(v / cap, 2) if cap else 0.0 for v in mb],
+                      "dl_mb": [round(v, 1) for v in mb],
+                      "state": [self.state(t, s, layer) for t in range(t0, t1)]}
         return {"now": self.time(self.now), "data_until": self.time(t1 - 1) if t1 else None,
-                "note": "15-min averages; loads are the measured traffic (closed loop: S7)",
-                "kpis": rows}
+                "times": [self.time(t) for t in range(t0, t1)],
+                "note": "15-min averages per quarter-hour starting at each time; loads are "
+                        "the measured traffic",
+                "cells": out}
 
     def get_alarms(self, cluster: str, window: int) -> dict:
         lo = self.now - int(window)
@@ -203,24 +205,23 @@ class Network:
                            for t in idx]}
 
     def forecast_load(self, cells: list[str], horizon: int) -> dict:
+        """Columnar: target times once, then per cell P10/P50/P90 MB and P90 load lists."""
         k = self.latest_issue()
         issue = int(self.f["mid"]["issues"][k]) - self.issue_offset
         lag = self.now - issue                         # quarter-hours since issue
         horizon = int(np.clip(horizon, 1, HORIZON - lag))
-        out = []
+        hs = range(lag, lag + horizon)
+        out: dict[str, dict] = {}
         for c, s, layer in self.resolve(cells):
             tgt = FORECAST_TARGET[layer]
             carriers = [x for x in LAYERS[layer] if self.w.present[x][s]]
             cap = sum(EFFICIENCY[x] * BANDWIDTH[x] for x in carriers)
-            pts = []
-            for h in range(lag, lag + horizon):
-                q = {f"p{int(qq * 100)}_mb": round(float(self.f[tgt][qq][k][h, s]), 1)
-                     for qq in (0.1, 0.5, 0.9)}
-                q["p90_load_pct"] = round(q["p90_mb"] / cap, 2) if cap else 0.0
-                pts.append({"time": self.time(issue + h), **q})
-            out.append({"cell": c, "forecast": pts})
+            q = {f"p{int(qq * 100)}_mb": [round(float(self.f[tgt][qq][k][h, s]), 1) for h in hs]
+                 for qq in (0.1, 0.5, 0.9)}
+            q["p90_load_pct"] = [round(v / cap, 2) if cap else 0.0 for v in q["p90_mb"]]
+            out[c] = q
         return {"issued_at": self.time(issue), "model": "LightGBM quantile, rolling Mondrian "
-                "calibration (D30)", "forecasts": out}
+                "calibration (D30)", "times": [self.time(issue + h) for h in hs], "cells": out}
 
     # ------------------------------------------------------------------ plan tools
     def _horizon_window(self, horizon: int) -> tuple[int, int, int]:

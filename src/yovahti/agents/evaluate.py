@@ -36,10 +36,17 @@ def _schedule_policy(net: Network, sectors: np.ndarray, t0: int, t1: int):
     return policy
 
 
-def apply_plan_alone(net: Network, cluster: str, horizon: int = 32) -> list[dict]:
-    """The planner alone: apply optimise_plan through the same gate, split to respect I3."""
+def apply_plan_alone(net: Network, cluster: str, horizon: int = 32,
+                     keep_awake: dict[str, tuple[int, int]] | None = None) -> list[dict]:
+    """The planner alone: apply optimise_plan through the same gate, split to respect I3.
+
+    ``keep_awake`` {sector id: (from_qh, until_qh)} cuts those windows out of the plan for
+    that sector's cells: the "ideal reader" of an event calendar (scripts/event_value.py).
+    """
     who = AgentIdentity("planner-alone", model="none")
     plan = net.optimise_plan(cluster, horizon)
+    if keep_awake:
+        plan = {**plan, "actions": _cut(plan["actions"], keep_awake)}
     cap_cells = sum(1 for c in net.cells_in(cluster) if net.cells[c][1] != "low")
     chunk = max(1, int(net.arbiter.max_cluster_share * cap_cells))
     acts = [{k: a[k] for k in ("cell", "action", "from_qh", "quarter_hours")}
@@ -75,3 +82,17 @@ def compare_night(nets: dict[str, Network], cluster: str, t0: int, t1: int) -> d
             "b0_kwh": round(kwh, 1),
             "rows": {k: {c: round(float(v.get(c, 0.0)), 3) for c in COLS} for k, v in
                      rows.items()}}
+
+
+def _cut(actions: list[dict], keep_awake: dict[str, tuple[int, int]]) -> list[dict]:
+    out = []
+    for a in actions:
+        win = keep_awake.get(a["cell"].split("/")[0])
+        lo, hi = a["from_qh"], a["from_qh"] + a["quarter_hours"]
+        if not win or hi <= win[0] or lo >= win[1]:
+            out.append(a)
+            continue
+        for x, y in ((lo, min(hi, win[0])), (max(lo, win[1]), hi)):
+            if y > x:
+                out.append({**a, "from_qh": x, "quarter_hours": y - x})
+    return out

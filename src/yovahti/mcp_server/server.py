@@ -137,10 +137,18 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--start", default="2025-10-27 22:00", help="local time of the clock")
     ap.add_argument("--agent", default="energy-agent")
+    ap.add_argument("--model", default="unknown", help="provider:model the agent runs on")
+    ap.add_argument("--admission", choices=["allow-list", "attested"], default="allow-list",
+                    help="attested = only NetCrash-attested agent x model pairs may act")
     a = ap.parse_args()
     net = load_validation_network(a.start)
+    if a.admission == "attested":
+        from yovahti.paths import RESULTS, ROOT
+        from yovahti.trust.attestation import AttestedAdmission
+        net.admission = AttestedAdmission.from_dir(ROOT / "trust" / "tester.jwks.json",
+                                                   RESULTS / "netcrash" / "attestations")
     print(f"network ready: {len(net.cells)} cells, {len(net.clusters())} clusters, "
           f"now {net.time(net.now)}; serving http://{a.host}:{a.port}/mcp", flush=True)
     import anyio
-    anyio.run(lambda: build_server(net, AgentIdentity(a.agent)).run_streamable_http_async(
-        host=a.host, port=a.port))
+    server = build_server(net, AgentIdentity(a.agent, model=a.model))
+    anyio.run(lambda: server.run_streamable_http_async(host=a.host, port=a.port))

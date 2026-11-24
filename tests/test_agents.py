@@ -98,3 +98,10 @@ def test_replay_scores_the_applied_schedule():
     assert rows["agent (did nothing)"]["kwh_saved_pct"] == pytest.approx(0.0)
     assert rows["alone"]["kwh_saved_pct"] > 0
     assert "B4 rolling (hourly re-plan)" in rows
+
+
+def test_silent_stop_gets_one_nudge_then_the_answer_counts():
+    tr = run(make(), [call("list_cells", {"cluster": "all"}), {"role": "assistant", "content": ""},
+                      {"role": "assistant", "content": "Report: nothing applied."}])
+    assert tr.outcome == "answered" and tr.answer == "Report: nothing applied."
+    assert any(s["kind"] == "nudge" for s in tr.steps)

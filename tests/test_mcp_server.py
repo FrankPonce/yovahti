@@ -52,13 +52,14 @@ def test_forecast_is_the_newest_issued_at_or_before_now():
     net = make(now=10)                           # issues every 4 QH: newest is 8
     out = net.forecast_load(["s0-1/mid"], 4)
     assert out["issued_at"] == net.time(8)
-    assert out["forecasts"][0]["forecast"][0]["time"] == net.time(10)
+    assert out["times"][0] == net.time(10) and len(out["cells"]["s0-1/mid"]["p90_mb"]) == 4
 
 
 def test_kpis_stop_before_now_and_carry_timestamps():
     net = make(now=10)
-    rows = net.get_cell_kpis(["s0-1/mid"], 4)["kpis"]
-    assert [r["time"] for r in rows] == [net.time(t) for t in range(6, 10)]
+    k = net.get_cell_kpis(["s0-1/mid"], 4)
+    assert k["times"] == [net.time(t) for t in range(6, 10)]
+    assert len(k["cells"]["s0-1/mid"]["load_pct"]) == 4
 
 
 def test_optimise_plan_sleeps_only_where_feasible():
@@ -73,7 +74,7 @@ def test_feasible_sleep_is_applied_with_receipt_and_shows_up():
     r = act(net, "s0-1/mid")
     assert r["status"] == "applied" and len(r["receipt"]["sha256"]) == 64
     net.advance(2)
-    assert net.get_cell_kpis(["s0-1/mid"], 1)["kpis"][0]["state"] == "asleep"
+    assert net.get_cell_kpis(["s0-1/mid"], 1)["cells"]["s0-1/mid"]["state"] == ["asleep"]
 
 
 def test_overload_is_refused_by_i1():
@@ -138,4 +139,4 @@ def test_mcp_round_trip_in_process():
 
 @pytest.mark.parametrize("window", [0, 10_000])
 def test_windows_are_clamped(window):
-    assert len(make(now=150).get_cell_kpis(["s0-1/mid"], window)["kpis"]) in (1, 96)
+    assert len(make(now=150).get_cell_kpis(["s0-1/mid"], window)["times"]) in (1, 96)

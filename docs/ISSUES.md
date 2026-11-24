@@ -43,7 +43,8 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | I22 | Windows + WSL quirks (paths, Docker networking, line endings) | Run Tier 2 inside WSL Ubuntu; keep core cross-platform | Ongoing |
 | I30 | MCP view shows measured (un-slept) traffic: scheduled sleep doesn't yet re-route load or trigger the watchdog | Close the loop with `world.sim` per quarter-hour when agents run (S7) | S7 |
 | I31 | MCP clusters are placeholder groups of ten site ids, not real neighbourhoods | Replace with the Turku layout / neighbour relations (S3) | S3 |
-| I32 | Arbiter covers I1, I2, I3, I5 only; approval tier is reported but not enforced; receipts are hashed, not signed | I4 dwell, I7 DSSE-signed receipts, I8 recorded approval, I9 conflicts in S8 | S8 |
+| I32 | Arbiter covers I1, I2, I3, I5, and I6 via `AttestedAdmission` (D34); approval tier is reported but not enforced; receipts are hashed, not signed | I4 dwell, I7 DSSE-signed receipts, I8 recorded approval, I9 conflicts in S8 | S8 |
+| I34 | Publishing NetCrash attestations to Sigstore Rekor production is public and permanent | Ask Frank before the first publish, even though D21 recorded approval earlier | S9 |
 | I33 | Change status `unknown` is never produced yet | Needs fault injection (delayed actuation, lost acks) in the world (S3) and NetCrash N-tests | S9 |
 
 ## Questions to revisit

@@ -1,0 +1,10 @@
+{
+  "crv": "Ed25519",
+  "d": "2bmrhg4i862I_46LQehvb-sNFoouUiYiJoMM263NaL4",
+  "x": "pi9ggjJ7RxndCo64kaOnE9kZg6PP3tWfteviTwITAGw",
+  "kty": "OKP",
+  "kid": "iEdocNyEeisoij3FpLGwTI7dtTnQjxSlCzQlkvnyIcA",
+  "alg": "EdDSA",
+  "use": "sig",
+  "_comment": "TEST ONLY. Published on purpose for test vectors. Never use for anything real."
+}

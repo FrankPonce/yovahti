@@ -1,0 +1,1 @@
+Test vectors copied unchanged from [agent-trust-kit](https://github.com/FrankPonce/agent-trust-kit) `test/vectors/` (MIT). The key is the kit's published **test** key (renamed so the repo's `*.private.jwk.json` ignore rule doesn't hide it); it signs nothing real.

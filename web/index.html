@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yövahti · energy-saving network agents that earn the right to act</title>
+<meta name="description" content="Risk-aware cell sleep on real operator data, exposed to AI agents through MCP, with per-model behavioural tests (NetCrash) and attested admission.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="viz-root">
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Yövahti · Finnish for “night watch”</p>
+    <h1>Energy-saving network agents that have to earn the right to act</h1>
+    <p class="lede">A risk-aware planner puts capacity radios to sleep at night on <strong>real live-network data</strong>. AI agents reach it through <strong>MCP</strong>. Every agent is behaviour-tested on the exact model it runs on (<strong>NetCrash</strong>), and the network only admits agents with a signed attestation, behind hard limits no model can talk its way past.</p>
+    <nav class="toc">
+      <a href="#results">Results</a><a href="#events">Why an agent</a><a href="#replay">A night</a><a href="#netcrash">NetCrash</a><a href="#trust">Attestation</a><a href="#real">What is real</a>
+      <a class="repo" href="https://github.com/FrankPonce/yovahti">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="results">
+    <div class="tiles" id="tiles"></div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Savings vs network quality, every method on the same data</h2>
+          <p class="sub" id="tradeoff-sub"></p>
+        </div>
+        <button class="ghost" data-table="tradeoff">Table view</button>
+      </div>
+      <div class="chart" id="tradeoff"></div>
+      <div class="table-view" id="tradeoff-table" hidden></div>
+      <p class="note">B4 plans on the P90 forecast; its margin is a dial (1.0 → 1.5), shown as a curve. B2 is a <em>reconstruction from public sources</em> (patent WO2024028883A1), not Ericsson’s software.</p>
+    </div>
+  </section>
+
+  <section id="events">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Why an agent at all: reading the event calendar</h2>
+          <p class="sub" id="events-sub"></p>
+        </div>
+        <button class="ghost" data-table="events">Table view</button>
+      </div>
+      <div class="pair">
+        <div><h3>Congested quarter-hours (sum over episodes)</h3><div class="chart" id="ev-cong"></div></div>
+        <div><h3>Radio energy saved (mean)</h3><div class="chart" id="ev-save"></div></div>
+      </div>
+      <div class="table-view" id="events-table" hidden></div>
+      <p class="note"><span class="badge synth">synthetic</span> Event surges are injected into real traffic; forecasts don’t know them, only the calendar does. The same calendar field is then used for an injection attack (NetCrash N20).</p>
+    </div>
+  </section>
+
+  <section id="replay">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>One night, quarter by quarter</h2>
+          <p class="sub" id="replay-sub"></p>
+        </div>
+        <div class="seg" id="arm-switch" role="tablist"></div>
+      </div>
+      <div class="tiles small" id="replay-tiles"></div>
+      <div class="legend" id="replay-legend"></div>
+      <div class="chart heat" id="heat"></div>
+      <div class="split">
+        <div>
+          <h3>What the agent did (MCP tool calls)</h3>
+          <ol class="calls" id="calls"></ol>
+        </div>
+        <div>
+          <h3>The agent’s report</h3>
+          <pre class="answer" id="answer"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="netcrash">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>NetCrash: can this agent be trusted, on this model?</h2>
+          <p class="sub">Hostile nights on stand-in networks (real traffic, scripted faults and injected text). Three runs per test; verdicts from actions first. Score = pass rate over decided runs; coverage = decided ÷ applicable.</p>
+        </div>
+      </div>
+      <div class="legend" id="nc-legend"></div>
+      <div class="matrix" id="matrix"></div>
+      <p class="note" id="nc-tests"></p>
+    </div>
+  </section>
+
+  <section id="trust">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>The attestation <code>admit()</code> checks</h2>
+          <p class="sub">An in-toto Test Result statement in a DSSE envelope, signed with Ed25519. Its subject is the agent’s Agent Card hash, which covers the exact prompt; change one word and the attestation no longer applies. Compatible with <a href="https://github.com/FrankPonce/agent-trust-kit">agent-trust-kit</a>.</p>
+        </div>
+        <button id="verify" class="primary">Verify in this browser</button>
+      </div>
+      <div id="att"></div>
+    </div>
+  </section>
+
+  <section id="real">
+    <div class="card">
+      <h2>What is real and what is not</h2>
+      <table class="plain">
+        <tr><th>Cell load and radio energy</th><td><span class="badge real">real</span> 15-minute PM counters from a live 2G/4G/5G network (Lehoczký et al., <em>Scientific Data</em> 2026), 749 sectors</td></tr>
+        <tr><th>Sleep-state power</th><td>3GPP TR 38.864 power model</td></tr>
+        <tr><th>Traffic moved by sleeping cells</th><td><span class="badge synth">simulated</span> re-routed to the coverage layer with measured per-band efficiency; stated 1.25 peak margin</td></tr>
+        <tr><th>Event surges</th><td><span class="badge synth">synthetic</span> injected on top of real traffic, labelled in every result</td></tr>
+        <tr><th>Agents</th><td><span class="badge real">real</span> hosted LLMs through an MCP server, every call logged and priced</td></tr>
+        <tr><th>Baseline B2</th><td>reconstruction from public sources, not Ericsson’s software</td></tr>
+      </table>
+      <p class="note">Validation weeks only. The locked test weeks are run once, at the end. Every finding, including what went wrong, is in <a href="https://github.com/FrankPonce/yovahti/blob/main/docs/FINDINGS.md">FINDINGS.md</a>.</p>
+    </div>
+  </section>
+</main>
+<footer class="wrap foot">Built by <a href="https://frankponce.dev">Frank Ponce</a> · <a href="https://github.com/FrankPonce/yovahti">source</a> · static page, no tracking</footer>
+<div id="tip" class="tip" hidden></div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
