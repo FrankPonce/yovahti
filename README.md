@@ -12,7 +12,7 @@
 ![Data](https://img.shields.io/badge/data-real%20operator%20RAN%20%2B%20energy-0B3C6A)
 ![License](https://img.shields.io/badge/license-MIT-7D7D7D)
 
-[**The story (PDF)**](Yovahti_story.pdf) · [**Why**](#why) · [**Results**](#results-so-far) · [**How it works**](#how-it-works) · [**What is real**](#what-is-real-and-what-is-not) · [**Status**](#status) · [**Run it**](#run-it) · [**Docs**](#documentation) · [**Data credits**](#data-and-credits)
+[**🌙 Live story**](https://yovahti.vercel.app) · [**📄 Report**](https://yovahti.vercel.app/report.html) · [**The story (PDF)**](Yovahti_story.pdf) · [**Why**](#why) · [**Results**](#results-so-far) · [**How it works**](#how-it-works) · [**What is real**](#what-is-real-and-what-is-not) · [**Status**](#status) · [**Run it**](#run-it) · [**Docs**](#documentation) · [**Data credits**](#data-and-credits)
 
 </div>
 
@@ -44,6 +44,7 @@ Validation weeks (26 Oct – 8 Nov 2025), **749 real sectors** of a live operato
 - **How 18.1 % comes about:** capacity radios are 52 % of radio energy; sleeping them when it is safe cuts *their* energy by 40 %, the coverage radios work 6 % harder carrying the moved users, net **−18.1 %** of all radio energy: **28 MWh** and **588 kg CO₂** in two weeks across 749 sectors.
 - **Energy and congestion are one trade-off**, so compare at equal damage. Against the published-method reconstruction: at the default setting, **the same energy with 8x fewer congested quarter-hours**; turned towards savings (planning on the median), **2.8 points more energy (20.0 vs 17.2 %) while still causing less congestion** (3.16 vs 4.89).
 - **Same savings as the simple baselines, a fraction of the damage.** At equal or higher savings B4 has **6x less congestion** than static thresholds and **8x less** than the published-method reconstruction, which also pushes **20x more** traffic past capacity.
+- **Against a fairer published method the gap is small, and still ours.** Most of the reconstruction's congestion comes from waking a quarter-hour late. Give it a predictive wake (B2+, our extension, not in the patent) and it reaches 16.5 % at 0.62 congested ¼-hours per sector-day; B4 saves **1.6 points more at the same congestion** (18.1 % at 0.59). The "8x" figures above are against the plain reconstruction (FINDINGS E26).
 - **Beats the O-RAN SC rApp on both axes at once**, and at margin 1.5 still saves more (14.1 vs 12.9 %) with **6x less congestion**.
 - **80 % of the oracle's savings** without hindsight. Capacity radios alone use **40 % less** energy.
 - **Risk-awareness is what buys the quality:** planning on the median instead of P90 saves 2 points more but causes 5x the congestion.
@@ -115,7 +116,7 @@ Every result table says which parts are real.
 | Agents (energy, sloppy) with priced budget guard, night replay, event experiments | ✅ (coverage agent to come) |
 | Trust: Agent Cards, `admit()` compatible with agent-trust-kit, arbiter I1/I2/I3/I5 | ✅ (I4/I7/I8/I9 to come) |
 | NetCrash v0: 11 tests + calendar injection, full matrix on 4 models, attestations | ✅ (judge panel, suite v2 to come) |
-| Story site (`web/`), report, PDF, paper draft | ✅ draft |
+| Story site (`web/`, live at [yovahti.vercel.app](https://yovahti.vercel.app)), report, PDF, paper draft | ✅ draft |
 | Locked test weeks (9–22 Nov, run once with the frozen method) | ✅ held: 18.8 % saved at 0.69 congested ¼-h/sector-day; 7x less congestion than the published method; +3.0 pt over it at less congestion (E24) |
 
 The full plan is in [docs/ROADMAP.md](docs/ROADMAP.md). What we learn along the way, including the things that went wrong, is logged in [docs/FINDINGS.md](docs/FINDINGS.md).

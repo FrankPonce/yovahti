@@ -118,3 +118,21 @@ Every model gets the same loop: 14 steps, 8 192 output tokens, temperature 0. A 
 
 ### D36 · Method frozen; locked test weeks run once · accepted
 Frozen on 24 Nov 2026 before touching the test split (9–22 Nov 2025): forecaster (D30/D31: weekly re-fit, rolling Mondrian calibration, fit ends two weeks before the split), planner (B4 P90, margin 1.0, switch cost 8 Wh), baselines B1–B3, world settings (Category 1 and 2, low-band limit 40 %, peak margin 1.25). `fit_forecaster.py --split test` and `compare_methods.py --split test`, each run once; results are reported as they come, whatever they show. No method change is allowed after this; any later change gets a new decision and is reported against validation only.
+
+### D37 · Closed loop and control-plane faults in the MCP network · accepted (closes I30, I33)
+The MCP `Network` now drives `world.sim.Stepper` quarter-hour by quarter-hour as the clock moves (the simulator was split into a stepper; `run()` is a loop over it and reproduces every earlier number exactly). KPIs show traffic as carried, actual radio states (with `scheduled` when they differ), and watchdog wake-ups raise alarms and are noted on the change that caused them. `world.faults.Faults` adds actuation delay, stuck radios, lost acknowledgements (status `unknown`, resolved to `applied` or `failed` once observable; re-applying an unknown change is refused) and KPI lag and gaps. New read tool `get_energy_report` (measured vs always-on).
+
+### D38 · Arbiter I4, I7, I8, I9 · accepted (closes I32)
+I4: sleeps of at least 4 quarter-hours, at least 4 awake between sleeps (ping-pong), at most 8 switches per cell per 24 h; wakes are never blocked. I7: every receipt is a DSSE envelope over its JCS body, signed with the network's Ed25519 key (`verify_receipt`); rollback restores only the change's own cells and times. I8: changes above tier 1 (more than 5 cells, counted over the agent's changes of the last 2 h, G31) wait for a recorded approval (`approve()`, never an agent tool); evaluation and NetCrash use a *simulated* operator that approves only the planner's current risk-checked plan, and every approval record says so. I9: a coverage agent's wake is a hold that overrides energy sleeps and refuses new ones; the watchdog's hold is honoured too. Checked by unit tests, Hypothesis property tests, and Z3 for I1 (E28).
+
+### D39 · Signed agent identity: RFC 9421 profile and operator key bindings · accepted (closes I20)
+Requests carry an RFC 9421 signature (components `@method @authority @path content-digest`, Ed25519, tag `yovahti-mcp`, nonce, 5-minute window) with RFC 9530 Content-Digest. The server maps the key to an agent through an operator-signed binding (agent, card hash, model, key, role, scope, expiry), kept apart from the Agent Card so key rotation never changes the card hash. `--signed` on the MCP server requires it; tools then act as the proven agent.
+
+### D40 · NetCrash suite v2 · accepted (refines D35)
+Suite version 2: 23 tests (v1's 11 plus N2, N3, N5, N8, N9, N12, N13, N17, N20, N21, N22 twin gaming, N23 coverage agent). Energy prompt 2026-11-24.2 (approval-aware) and new cards with `simulate_plan` and `get_energy_report`, so all agents are re-tested. Judge panel: Gemma 4 31B and Llama 3.3 70B (families not under test), temperature 0, both must agree, only for inconclusive text verdicts with a non-empty report; prompt hash in the scorecard. Every run records each change's actions and receipt outcomes. v1 and v2 scores are never compared as one table. DeepSeek V4 Flash sits this matrix out (Otari budget).
+
+### D41 · B2+ reported next to B2; validation only · accepted (refines I14)
+B2+ (predictive wake, six variants) is our extension, labelled as such, and evaluated on validation only: the test weeks stay closed (D36). Claims about the published method name which version they compare with.
+
+### D42 · The conformal margin is how the dial is explained · accepted
+The planning margin is presented as a guarantee level alpha (calibrated on held-out weeks, E29), with the realised congestion next to it. The default stays margin 1.0 (D36); the dial is reported, not re-tuned on test.

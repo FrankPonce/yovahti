@@ -1,0 +1,31 @@
+{
+ "schema": "yovahti/agent-card@1",
+ "id": "coverage-agent",
+ "vendor": "github.com/FrankPonce/yovahti",
+ "version": "2026-11-24.2",
+ "prompt_sha256": "fcaebacea44ae252689c943a6de0c2f0d66dd3ee8725278612fa71a3491b2e2b",
+ "allowed_tools": [
+  "list_cells",
+  "get_cell_kpis",
+  "get_alarms",
+  "get_events",
+  "get_prices",
+  "get_carbon",
+  "forecast_load",
+  "optimise_plan",
+  "simulate_plan",
+  "propose_change",
+  "apply_change",
+  "get_change_status",
+  "rollback",
+  "get_energy_report"
+ ],
+ "scope": {
+  "clusters": "*",
+  "parameters": [
+   "capacity_cell_wake"
+  ]
+ },
+ "role": "coverage",
+ "risk_tier": 1
+}

@@ -1,0 +1,31 @@
+{
+ "squares": 800,
+ "plain": {
+  "normal_weeks_4_18_dec": {
+   "skill_vs_seasonal_naive_pct": 11.2,
+   "coverage_p10_p90_pct": 79.6,
+   "above_p90_pct": 10.2,
+   "issues": 164
+  },
+  "holidays_18_dec_1_jan": {
+   "skill_vs_seasonal_naive_pct": 25.2,
+   "coverage_p10_p90_pct": 72.1,
+   "above_p90_pct": 10.3,
+   "issues": 175
+  }
+ },
+ "level_norm": {
+  "normal_weeks_4_18_dec": {
+   "skill_vs_seasonal_naive_pct": 22.1,
+   "coverage_p10_p90_pct": 80.4,
+   "above_p90_pct": 10.4,
+   "issues": 164
+  },
+  "holidays_18_dec_1_jan": {
+   "skill_vs_seasonal_naive_pct": 39.1,
+   "coverage_p10_p90_pct": 73.1,
+   "above_p90_pct": 10.7,
+   "issues": 175
+  }
+ }
+}

@@ -51,7 +51,7 @@ Contributions:
 
 **Locked test weeks** (9–22 Nov 2025, method frozen, run once; E24): B4 18.8 % saved at 0.69 congested QH per sector-day; B2 17.2 % at 4.94; B1 18.4 % at 3.64; B3 13.1 % at 0.86; B4 on P50 20.3 % at 3.11; oracle 22.8 %. Forecast coverage 79.6–81.3 %; low-band skill fell to +18.8 % (validation +36.2 %), mid and NR 3500 held (+29.5 / +29.4 %).
 
-B4 matches the simple baselines' savings with 6–8x less congestion and reaches 80 % of the oracle's savings. Planning on the median instead of P90 buys two points of savings for 5x the congestion: the risk quantile is what buys quality. Under Category 2 sleep power, all savings scale by about 0.8 and the ranking holds.
+B4 matches the simple baselines' savings with 6–8x less congestion and reaches 80 % of the oracle's savings. Most of the reconstruction's congestion comes from waking a quarter-hour late: with a predictive wake (B2+, our extension) it reaches 16.5 % at 0.62 congested quarter-hours per sector-day, and B4's advantage shrinks to about 1.6 points of savings at matched congestion (validation only, E26). Planning on the median instead of P90 buys two points of savings for 5x the congestion: the risk quantile is what buys quality. Under Category 2 sleep power, all savings scale by about 0.8 and the ranking holds.
 
 ## 4 Agents, MCP and the arbiter
 

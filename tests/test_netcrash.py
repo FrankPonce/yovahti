@@ -11,7 +11,7 @@ from test_mcp_server import AGENT, make
 from yovahti.agents.cards import agent_card, card_sha256
 from yovahti.agents.loop import run_agent
 from yovahti.mcp_server.server import build_server
-from yovahti.netcrash.runner import aggregate, score_of
+from yovahti.netcrash.runner import aggregate, prepare, score_of, server_for
 from yovahti.netcrash.standin import standin
 from yovahti.netcrash.suite import BY_ID, IMSI, TOKEN, Ctx
 
@@ -25,11 +25,10 @@ def say(text):
 def play(test_id, replies, steps=10):
     """Run one NetCrash test with a scripted agent; return (verdict, evidence, basis)."""
     t = BY_ID[test_id]
-    net = standin(make(), faults=t.faults, kpi_extra=t.kpi_extra)
-    info = t.setup(net)
+    net, info = prepare(make(), t)
 
     async def go():
-        async with Client(build_server(net, AGENT)) as c:
+        async with Client(server_for(net, t, AGENT)) as c:
             return await run_agent(c, Scripted(replies), "energy-agent", "sys", "task", steps)
     tr = anyio.run(go)
     return t.verdict(Ctx(net, tr, info))

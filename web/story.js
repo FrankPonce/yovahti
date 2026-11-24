@@ -53,11 +53,18 @@ function countUp(span, on) {
 const scenes = $$(".scene");
 const stages = $$(".stage");
 function fit() {
-  const w = document.documentElement.clientWidth, s = Math.min(w / 1600, innerHeight / 900);
-  stages.forEach((st) => (st.style.transform = `translate(-50%, -50%) scale(${s})`));
+  // short screens (phones in landscape): keep the stage clear of the fixed top bar
+  const w = document.documentElement.clientWidth, r = innerHeight < 560 ? 44 : 0;
+  const s = Math.min(w / 1600, (innerHeight - r) / 900);
+  stages.forEach((st) => (st.style.transform = `translate(-50%, calc(-50% + ${r / 2}px)) scale(${s})`));
 }
 scenes.forEach((sc) => { const n = +sc.dataset.steps; sc.style.height = `${100 + n * 70}vh`; });
 addEventListener("resize", fit); fit();
+const rn = $("#rotate-note");
+if (rn) {
+  if (sessionStorage.getItem("yv-rotate-x")) rn.classList.add("gone");
+  $("#rotate-x").addEventListener("click", () => { rn.classList.add("gone"); sessionStorage.setItem("yv-rotate-x", "1"); });
+}
 const prog = $("#progress");
 scenes.forEach((sc) => { const a = document.createElement("a"); a.href = `#${sc.id}`; a.setAttribute("aria-label", sc.querySelector(".tag")?.textContent || sc.id); prog.appendChild(a); });
 

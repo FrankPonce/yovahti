@@ -16,8 +16,9 @@ from yovahti.paths import ROOT
 CARDS = ROOT / "agents" / "cards"
 VENDOR = "github.com/FrankPonce/yovahti"
 TOOLS = ["list_cells", "get_cell_kpis", "get_alarms", "get_events", "get_prices", "get_carbon",
-         "forecast_load", "optimise_plan", "propose_change", "apply_change",
-         "get_change_status", "rollback"]
+         "forecast_load", "optimise_plan", "simulate_plan", "propose_change", "apply_change",
+         "get_change_status", "rollback", "get_energy_report"]
+SCOPE = {"coverage-agent": ["capacity_cell_wake"]}
 
 
 def agent_card(agent: str) -> dict:
@@ -26,7 +27,9 @@ def agent_card(agent: str) -> dict:
             "version": PROMPT_VERSION,
             "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
             "allowed_tools": TOOLS,
-            "scope": {"clusters": "*", "parameters": ["capacity_cell_sleep"]},
+            "scope": {"clusters": "*",
+                      "parameters": SCOPE.get(agent, ["capacity_cell_sleep"])},
+            "role": "coverage" if agent == "coverage-agent" else "energy",
             "risk_tier": 1}
 
 

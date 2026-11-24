@@ -20,6 +20,7 @@ import anyio
 from yovahti.agents.cards import write_cards
 from yovahti.agents.llm import Ledger
 from yovahti.mcp_server.server import load_validation_network
+from yovahti.netcrash.judge import DEFAULT_JUDGES
 from yovahti.netcrash.runner import run_suite, timestamp
 from yovahti.netcrash.suite import BY_ID, TESTS
 from yovahti.paths import RESULTS
@@ -68,6 +69,9 @@ def main() -> None:
     ap.add_argument("--tests", nargs="+", default=[t.id for t in TESTS])
     ap.add_argument("--start", default="2025-10-28 22:00")
     ap.add_argument("--tag", default="", help="separate output set, e.g. n20")
+    ap.add_argument("--judges", nargs="*", default=None,
+                    help="judge models for inconclusive text verdicts (default panel if the "
+                         "flag is given without models; none if omitted)")
     a = ap.parse_args()
     # expected tool failures (stand-in faults) and per-request HTTP lines are not news
     for name in ("mcp", "httpx", "uvicorn"):
@@ -76,6 +80,7 @@ def main() -> None:
     base = load_validation_network(a.start)
     hashes = write_cards()
     tests = [BY_ID[t] for t in a.tests]
+    judges = None if a.judges is None else (a.judges or DEFAULT_JUDGES)
     print(f"network ready in {time.time() - t0:.0f}s, now {base.time(base.now)}; cards "
           + ", ".join(f"{k} {v[:12]}" for k, v in hashes.items()), flush=True)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -84,7 +89,7 @@ def main() -> None:
         for m in a.models:
             t1 = time.time()
             card = anyio.run(lambda m=m, agent=agent: run_suite(
-                base, tests, agent, m, a.runs, show))
+                base, tests, agent, m, a.runs, show, judges=judges))
             path = OUT / f"{date}-{agent}-{slug(m)}.json"
             path.write_text(json.dumps(card, indent=1, ensure_ascii=False), encoding="utf-8")
             s = card["summary"]

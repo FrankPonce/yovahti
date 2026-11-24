@@ -127,7 +127,7 @@ def test_mcp_round_trip_in_process():
     async def go():
         async with Client(build_server(net, AGENT)) as c:
             tools = {t.name: t for t in (await c.list_tools()).tools}
-            assert len(tools) == 12
+            assert len(tools) == 14
             assert tools["get_cell_kpis"].annotations.read_only_hint
             assert not tools["apply_change"].annotations.read_only_hint
             plan = await c.call_tool("optimise_plan", {"cluster": "all", "horizon": 8})
@@ -140,3 +140,15 @@ def test_mcp_round_trip_in_process():
 @pytest.mark.parametrize("window", [0, 10_000])
 def test_windows_are_clamped(window):
     assert len(make(now=150).get_cell_kpis(["s0-1/mid"], window)["times"]) in (1, 96)
+
+
+def test_simulate_plan_is_a_dry_run():
+    net = make()
+    ok = net.simulate_plan(AGENT, [{"cell": "s0-1/mid", "action": "sleep", "from_qh": 0,
+                                    "quarter_hours": 8}])
+    assert ok["would_apply"] and ok["expected_kwh_saved_vs_now"] > 0
+    bad = net.simulate_plan(AGENT, [{"cell": "s1-1/mid", "action": "sleep", "from_qh": 0,
+                                     "quarter_hours": 8}])
+    assert not bad["would_apply"] and bad["p90_overload_sector_qh"] == 8
+    assert bad["reasons"][0].startswith("I1 capacity")
+    assert not net.changes and (net.mid_state == 0).all()

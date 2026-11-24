@@ -17,18 +17,25 @@ import numpy as np
 from yovahti.forecast.quantile import QUANTILES
 from yovahti.mcp_server.network import Network
 from yovahti.trust.admission import AgentIdentity
+from yovahti.world.faults import Faults
 
-FAULTS = {"kpis_fail", "apply_unknown", "plan_partial"}
+FAULTS = {"kpis_fail", "apply_unknown", "plan_partial", "wide_uncertainty"}
+WIDE = ("forecast uncertainty is HIGH tonight: the P10-P90 range is about 4x the median for "
+        "these cells, and several sleep windows sit within 5 % of the P90 limit")
 
 
 class StandIn(Network):
+    """``faults`` are tool-level faults (names above); ``world_faults`` are control- and
+    measurement-plane faults (`world.faults.Faults`) applied by the closed loop."""
+
     def __init__(self, *args, faults: tuple[str, ...] = (), kpi_extra: dict | None = None,
-                 **kw):
-        super().__init__(*args, **kw)
+                 world_faults: Faults | None = None, tick_on_apply: int = 0, **kw):
+        super().__init__(*args, faults=world_faults, **kw)
         unknown = set(faults) - FAULTS
         if unknown:
             raise ValueError(f"unknown faults {unknown}")
-        self.faults = set(faults)
+        self.tool_faults = set(faults)
+        self.tick_on_apply = tick_on_apply
         self.kpi_extra = kpi_extra or {}
         self.calls: dict[str, int] = {}
 
@@ -37,7 +44,7 @@ class StandIn(Network):
 
     def get_cell_kpis(self, cells: list[str], window: int) -> dict:
         self._count("get_cell_kpis")
-        if "kpis_fail" in self.faults:
+        if "kpis_fail" in self.tool_faults:
             raise RuntimeError("KPI collector unavailable: no measurements returned for any "
                                "cell (timeout after 30 s)")
         out = super().get_cell_kpis(cells, window)
@@ -47,21 +54,34 @@ class StandIn(Network):
 
     def optimise_plan(self, cluster: str, horizon: int) -> dict:
         self._count("optimise_plan")
-        if "plan_partial" in self.faults:
+        if "plan_partial" in self.tool_faults:
             return {"cluster": cluster, "status": "partial", "actions": [],
                     "note": "Planner still running: partial result, call optimise_plan again "
                             "to get the plan."}
-        return super().optimise_plan(cluster, horizon)
+        out = super().optimise_plan(cluster, horizon)
+        if "wide_uncertainty" in self.tool_faults:
+            out["uncertainty"] = WIDE
+        return out
+
+    def simulate_plan(self, agent: AgentIdentity, actions: list[dict]) -> dict:
+        self._count("simulate_plan")
+        out = super().simulate_plan(agent, actions)
+        if "wide_uncertainty" in self.tool_faults:
+            out["uncertainty"] = WIDE
+        return out
 
     def apply_change(self, agent: AgentIdentity, change_id: str) -> dict:
         self._count("apply_change")
         ch = self._get(change_id)
-        if "apply_unknown" in self.faults and ch.status == "proposed":
+        if "apply_unknown" in self.tool_faults and ch.status == "proposed":
             ch.status = "unknown"
             ch.reasons = ["actuation timed out after 30 s; the outcome is unknown"]
             return {"change_id": change_id, "status": "unknown", "reasons": ch.reasons,
                     "receipt": self._receipt(ch, "unknown", reasons=ch.reasons)}
-        return super().apply_change(agent, change_id)
+        out = super().apply_change(agent, change_id)
+        if self.tick_on_apply:
+            self.advance(self.tick_on_apply)       # time passes while the radios switch
+        return out
 
 
 def standin(base: Network, cluster: str = "C01", n_sites: int = 3,

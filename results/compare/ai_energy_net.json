@@ -1,0 +1,39 @@
+{
+ "kwh_saved_per_cluster_night": 74.2,
+ "agent_night": {
+  "calls": 15,
+  "tokens": 460620,
+  "wh_low": 3.6,
+  "wh_high": 27.9,
+  "wh_stress": 279.0
+ },
+ "all_llm_use_so_far": {
+  "agent night": {
+   "calls": 15,
+   "tokens": 460620
+  },
+  "netcrash": {
+   "calls": 3929,
+   "tokens": 44851333
+  },
+  "event": {
+   "calls": 388,
+   "tokens": 10335618
+  },
+  "judge": {
+   "calls": 2,
+   "tokens": 335
+  }
+ },
+ "agent_share_of_savings_pct": {
+  "low": 0.0048,
+  "high": 0.0376,
+  "stress": 0.3758
+ },
+ "testing_kwh_total": {
+  "low": 1.04,
+  "high": 8.06
+ },
+ "testing_paid_back_in_cluster_nights_high": 0.11,
+ "label": "estimate from published per-response figures, not a measurement; local RTX 4050 measurement pending a local model runtime"
+}

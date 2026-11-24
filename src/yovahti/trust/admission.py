@@ -19,6 +19,7 @@ class AgentIdentity:
     scope_clusters: frozenset[str] | None = None     # None = every cluster
     may_wake: bool = True
     may_sleep: bool = True
+    role: str = "energy"          # "coverage" wakes are holds that beat energy sleeps (I9)
 
 
 @dataclass

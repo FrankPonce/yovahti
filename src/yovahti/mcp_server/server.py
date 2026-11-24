@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from mcp.server import MCPServer
+from mcp.server.mcpserver import Context
 from mcp.types import ToolAnnotations
 
 from yovahti.mcp_server.network import Network
@@ -33,9 +34,20 @@ admission and safety invariants and may refuse with reasons; a refusal is final 
 """
 
 
-def build_server(net: Network, agent: AgentIdentity) -> MCPServer:
-    """One server per authenticated agent (request signatures, I20, come later)."""
-    mcp = MCPServer("yovahti", instructions=INSTRUCTIONS, version="0.1.0")
+def build_server(net: Network, agent: AgentIdentity | None) -> MCPServer:
+    """MCP server over a network. Behind `auth.SignedAgents` (I20) each request acts as the
+    agent its RFC 9421 signature proves; ``agent`` is the identity for in-process use and
+    must be None when signatures are required."""
+    mcp = MCPServer("yovahti", instructions=INSTRUCTIONS, version="0.2.0")
+
+    def who(ctx: Context) -> AgentIdentity:
+        req = getattr(ctx.request_context, "request", None) if ctx else None
+        signed = getattr(getattr(req, "state", None), "agent", None) if req is not None else None
+        if signed is not None:
+            return signed
+        if agent is None:
+            raise PermissionError("no verified agent identity on this request (I20)")
+        return agent
 
     @mcp.tool(annotations=READ)
     def list_cells(cluster: str = "all") -> dict[str, Any]:
@@ -81,33 +93,49 @@ def build_server(net: Network, agent: AgentIdentity) -> MCPServer:
         and expected kWh saved. Does not change anything; propose it to act."""
         return net.optimise_plan(cluster, horizon)
 
+    @mcp.tool(annotations=READ)
+    def simulate_plan(actions: list[dict[str, Any]], ctx: Context) -> dict[str, Any]:
+        """Dry run: would these actions pass the arbiter now, do they need human approval,
+        and what do they change in expected kWh and P90 risk (planner twin)? Same action
+        format as propose_change. Nothing is registered or applied."""
+        return net.simulate_plan(who(ctx), actions)
+
     @mcp.tool(annotations=ACT)
-    def propose_change(actions: list[dict[str, Any]], rationale: str) -> dict[str, Any]:
+    def propose_change(actions: list[dict[str, Any]], rationale: str,
+                       ctx: Context) -> dict[str, Any]:
         """Register a change. Each action: {"cell", "action": "sleep"|"wake", "from_qh"
         (0 = this quarter-hour), "quarter_hours"}. Returns change_id and approval tier.
         Nothing is applied until apply_change."""
-        return net.propose_change(agent, actions, rationale)
+        return net.propose_change(who(ctx), actions, rationale)
 
     @mcp.tool(annotations=ACT)
-    def apply_change(change_id: str) -> dict[str, Any]:
+    def apply_change(change_id: str, ctx: Context) -> dict[str, Any]:
         """Apply a proposed change through admission and the arbiter. Returns a receipt, or a
         refusal with machine-readable reasons."""
-        return net.apply_change(agent, change_id)
+        return net.apply_change(who(ctx), change_id)
 
     @mcp.tool(annotations=READ)
     def get_change_status(change_id: str) -> dict[str, Any]:
-        """Status of a change: proposed, applied, refused, rolled_back or unknown."""
+        """Status of a change: proposed, applied, refused, rolled_back, unknown (no
+        acknowledgement yet: do not apply again) or failed. Applied changes show, per cell,
+        how many elapsed quarter-hours the radio actually complied."""
         return net.get_change_status(change_id)
 
+    @mcp.tool(annotations=READ)
+    def get_energy_report(cluster: str = "all", window: int = 32) -> dict[str, Any]:
+        """Measured energy, congestion and watchdog wake-ups over the last `window`
+        quarter-hours, against the same traffic with nothing asleep."""
+        return net.get_energy_report(cluster, window)
+
     @mcp.tool(annotations=ACT)
-    def rollback(change_id: str) -> dict[str, Any]:
+    def rollback(change_id: str, ctx: Context) -> dict[str, Any]:
         """Undo the remaining part of an applied change. Returns a receipt."""
-        return net.rollback(agent, change_id)
+        return net.rollback(who(ctx), change_id)
 
     return mcp
 
 
-def load_validation_network(start: str | None = None) -> Network:
+def load_validation_network(start: str | None = None, clusters: str = "id") -> Network:
     """Validation weeks with the saved calibrated forecasts (scripts/fit_forecaster.py)."""
     from yovahti.energy.model import SPLITS
     from yovahti.forecast.quantile import TARGETS
@@ -128,7 +156,13 @@ def load_validation_network(start: str | None = None) -> Network:
         ts = ts.tz_localize("Europe/Bratislava") if ts.tzinfo is None else ts
         now = int(np.searchsorted(world.times, ts.tz_convert("UTC")))
     first_issue = int(fc["mid"]["issues"][0]) - lo
-    return Network(world, fc, now=max(now, first_issue), issue_offset=lo)
+    cl = None
+    if clusters == "rhythm":       # I31: sites with alike weekly traffic (no coordinates)
+        from yovahti.world.layout import rhythm_clusters
+        train_end = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["validation"][0],
+                                                                 tz="UTC")))
+        cl = rhythm_clusters(full, train_end)
+    return Network(world, fc, now=max(now, first_issue), issue_offset=lo, clusters=cl)
 
 
 def main() -> None:
@@ -140,8 +174,13 @@ def main() -> None:
     ap.add_argument("--model", default="unknown", help="provider:model the agent runs on")
     ap.add_argument("--admission", choices=["allow-list", "attested"], default="allow-list",
                     help="attested = only NetCrash-attested agent x model pairs may act")
+    ap.add_argument("--clusters", choices=["id", "rhythm"], default="id",
+                    help="rhythm = data-driven clusters of sites with alike weekly traffic")
+    ap.add_argument("--signed", action="store_true",
+                    help="require RFC 9421 request signatures from operator-bound agent keys "
+                         "(trust/operator.jwks.json, trust/bindings/*.jws); --agent is ignored")
     a = ap.parse_args()
-    net = load_validation_network(a.start)
+    net = load_validation_network(a.start, a.clusters)
     if a.admission == "attested":
         from yovahti.paths import RESULTS, ROOT
         from yovahti.trust.attestation import AttestedAdmission
@@ -150,5 +189,23 @@ def main() -> None:
     print(f"network ready: {len(net.cells)} cells, {len(net.clusters())} clusters, "
           f"now {net.time(net.now)}; serving http://{a.host}:{a.port}/mcp", flush=True)
     import anyio
-    server = build_server(net, AgentIdentity(a.agent, model=a.model))
-    anyio.run(lambda: server.run_streamable_http_async(host=a.host, port=a.port))
+    if not a.signed:
+        server = build_server(net, AgentIdentity(a.agent, model=a.model))
+        anyio.run(lambda: server.run_streamable_http_async(host=a.host, port=a.port))
+        return
+    # I20: every request must carry an RFC 9421 signature from a key the operator bound
+    import json
+
+    import uvicorn
+
+    from yovahti.mcp_server.auth import SignedAgents
+    from yovahti.paths import ROOT
+    from yovahti.trust.identity import KeyRegistry
+    jwks = json.loads((ROOT / "trust" / "operator.jwks.json").read_text(encoding="utf-8"))
+    bindings = [p.read_text(encoding="utf-8").strip()
+                for p in sorted((ROOT / "trust" / "bindings").glob("*.jws"))]
+    reg = KeyRegistry(jwks, bindings)
+    print(f"signed mode: {len(reg.by_kid)} bound agent keys, {len(reg.rejected)} rejected",
+          flush=True)
+    app = SignedAgents(build_server(net, None).streamable_http_app(host=a.host), reg)
+    uvicorn.run(app, host=a.host, port=a.port)

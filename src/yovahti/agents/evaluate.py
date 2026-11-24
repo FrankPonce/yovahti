@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 
 from yovahti.baselines.simple import always_on
-from yovahti.mcp_server.network import Network
+from yovahti.mcp_server.network import Network, planner_operator
 from yovahti.plan.dp import DPPlanner, PlannerConfig
 from yovahti.trust.admission import AgentIdentity
 from yovahti.world.data import time_slice
@@ -44,6 +44,8 @@ def apply_plan_alone(net: Network, cluster: str, horizon: int = 32,
     that sector's cells: the "ideal reader" of an event calendar (scripts/event_value.py).
     """
     who = AgentIdentity("planner-alone", model="none")
+    if net.approver is None:          # I8: the planner's own plan, approved by a simulated op
+        net.approver = planner_operator(net)
     plan = net.optimise_plan(cluster, horizon)
     if keep_awake:
         plan = {**plan, "actions": _cut(plan["actions"], keep_awake)}

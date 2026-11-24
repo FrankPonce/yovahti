@@ -81,48 +81,75 @@ def _cap_per_pct(world: WorldData, carriers: list[str]) -> np.ndarray:
     return sum(world.present[c] * EFFICIENCY[c] * BANDWIDTH[c] for c in carriers)
 
 
-def run(world: WorldData, policy: Policy, name: str = "policy",
-        config: WorldConfig | None = None) -> RunResult:
-    cfg = config or WorldConfig()
-    T, S = world.T, world.S  # noqa: N806
-    cap_low = _cap_per_pct(world, LOW)
-    cap_mid = _cap_per_pct(world, ["LTE_1800", "NR_2100"])
-    has_nr = world.present["NR_3500"]
-    has_low = cap_low > 0
+@dataclass
+class Step:
+    """What happened in one quarter-hour (all arrays [S])."""
+    t: int
+    mid_state: np.ndarray            # applied (after watchdog holds and missing radios)
+    nr_state: np.ndarray
+    low_mb: np.ndarray               # traffic carried per layer after re-routing
+    mid_mb: np.ndarray
+    nr_mb: np.ndarray
+    low_util: np.ndarray
+    mid_util: np.ndarray
+    energy: dict[str, np.ndarray]
+    congested: np.ndarray
+    unserved_mb: np.ndarray
+    woken: np.ndarray                # watchdog triggered this quarter-hour
 
-    ratio_mid = (tr38864.power(cfg.sleep_state, cfg.category, 2)
-                 / tr38864.power("micro_sleep", cfg.category, 2))
-    ratio_nr = (tr38864.power(cfg.sleep_state, cfg.category, 1)
-                / tr38864.power("micro_sleep", cfg.category, 1))
-    # transition energy per switch, as Wh: idle W x (E / P_micro) ms
-    st_mid = tr38864.sleep_state(cfg.sleep_state, cfg.category, 2)
-    st_nr = tr38864.sleep_state(cfg.sleep_state, cfg.category, 1)
-    tr_mid = (world.idle["mid"] * 4) * (st_mid.transition_energy
-                                        / tr38864.power("micro_sleep", cfg.category, 2)) / 3.6e6
-    tr_nr = (world.idle["nr3500"] * 4) * (st_nr.transition_energy
-                                          / tr38864.power("micro_sleep", cfg.category, 1)) / 3.6e6
 
-    e = {k: np.zeros((T, S)) for k in ("low", "mid", "nr3500")}
-    mid_s = np.zeros((T, S), dtype=np.int8)
-    nr_s = np.zeros((T, S), dtype=np.int8)
-    low_u = np.zeros((T, S))
-    mid_u = np.zeros((T, S))
-    cong = np.zeros((T, S), dtype=bool)
-    unserved = np.zeros((T, S))
-    hold_until = np.full(S, -1)
-    wakes = 0
-    prev_mid = np.zeros(S, dtype=np.int8)
-    prev_nr = np.zeros(S, dtype=np.int8)
-    obs = Observation(t=0, util={c: world.util[c][0] * 0 for c in world.util},
-                      low_util=np.zeros(S), mid_util=np.zeros(S), mid_state=prev_mid,
-                      nr_state=prev_nr, forced_awake=np.zeros(S, dtype=bool))
-    sl = world.slopes
+class Stepper:
+    """The world one quarter-hour at a time, so a live controller (the MCP network, S7) can
+    drive it; `run` is a loop over it. History is kept for every stepped quarter-hour."""
 
-    for t in range(T):
-        want_mid, want_nr = policy(obs)
-        forced = hold_until >= t
-        ms = np.where(forced | ~has_low, AWAKE, want_mid).astype(np.int8)
-        ns = np.where(forced | ~has_nr, AWAKE, want_nr).astype(np.int8)
+    def __init__(self, world: WorldData, config: WorldConfig | None = None):
+        cfg = self.cfg = config or WorldConfig()
+        self.w = world
+        T, S = world.T, world.S  # noqa: N806
+        self.cap_low = _cap_per_pct(world, LOW)
+        self.cap_mid = _cap_per_pct(world, ["LTE_1800", "NR_2100"])
+        self.has_nr = world.present["NR_3500"]
+        self.has_low = self.cap_low > 0
+        self.ratio_mid = (tr38864.power(cfg.sleep_state, cfg.category, 2)
+                          / tr38864.power("micro_sleep", cfg.category, 2))
+        self.ratio_nr = (tr38864.power(cfg.sleep_state, cfg.category, 1)
+                         / tr38864.power("micro_sleep", cfg.category, 1))
+        # transition energy per switch, as Wh: idle W x (E / P_micro) ms
+        st_mid = tr38864.sleep_state(cfg.sleep_state, cfg.category, 2)
+        st_nr = tr38864.sleep_state(cfg.sleep_state, cfg.category, 1)
+        self.tr_mid = (world.idle["mid"] * 4) * (
+            st_mid.transition_energy / tr38864.power("micro_sleep", cfg.category, 2)) / 3.6e6
+        self.tr_nr = (world.idle["nr3500"] * 4) * (
+            st_nr.transition_energy / tr38864.power("micro_sleep", cfg.category, 1)) / 3.6e6
+        self.e = {k: np.zeros((T, S)) for k in ("low", "mid", "nr3500")}
+        self.mid_s = np.zeros((T, S), dtype=np.int8)
+        self.nr_s = np.zeros((T, S), dtype=np.int8)
+        self.low_u = np.zeros((T, S))
+        self.mid_u = np.zeros((T, S))
+        self.low_mb = np.zeros((T, S))
+        self.mid_mb = np.zeros((T, S))
+        self.nr_mb = np.zeros((T, S))
+        self.cong = np.zeros((T, S), dtype=bool)
+        self.unserved = np.zeros((T, S))
+        self.woken = np.zeros((T, S), dtype=bool)
+        self.hold_until = np.full(S, -1)
+        self.wakes = 0
+        self.prev_mid = np.zeros(S, dtype=np.int8)
+        self.prev_nr = np.zeros(S, dtype=np.int8)
+        self.t = 0                      # next quarter-hour to simulate
+        self.obs = Observation(t=0, util={c: world.util[c][0] * 0 for c in world.util},
+                               low_util=np.zeros(S), mid_util=np.zeros(S),
+                               mid_state=self.prev_mid, nr_state=self.prev_nr,
+                               forced_awake=np.zeros(S, dtype=bool))
+
+    def step(self, want_mid: np.ndarray, want_nr: np.ndarray) -> Step:
+        world, cfg, t, S = self.w, self.cfg, self.t, self.w.S  # noqa: N806
+        if t >= world.T:
+            raise IndexError("the world has no more quarter-hours")
+        cap_low, cap_mid, sl = self.cap_low, self.cap_mid, world.slopes
+        forced = self.hold_until >= t
+        ms = np.where(forced | ~self.has_low, AWAKE, want_mid).astype(np.int8)
+        ns = np.where(forced | ~self.has_nr, AWAKE, want_nr).astype(np.int8)
 
         v = {c: world.vol[c][t] for c in world.vol}
         nr_mb = v["NR_3500"]
@@ -135,52 +162,75 @@ def run(world: WorldData, policy: Policy, name: str = "policy",
         lu = np.divide(low_mb, cap_low, out=np.zeros(S), where=cap_low > 0)
         mu = np.where(ms == AWAKE, np.divide(mid_mb, cap_mid, out=np.zeros(S),
                                              where=cap_mid > 0), 0.0)
-        low_u[t], mid_u[t] = lu, mu
+        self.low_u[t], self.mid_u[t] = lu, mu
+        self.low_mb[t] = low_mb
+        self.mid_mb[t] = np.where(ms == AWAKE, mid_mb, 0.0)
+        self.nr_mb[t] = np.where(ns == AWAKE, nr_mb, 0.0)
 
         # per-carrier loads after re-routing, for the energy model
         add_low = np.divide(to_low, cap_low, out=np.zeros(S), where=cap_low > 0)
         u700 = world.util["LTE_700"][t] + add_low * world.present["LTE_700"]
         u800 = world.util["LTE_800"][t] + add_low * world.present["LTE_800"]
+        e = self.e
         e["low"][t] = (world.idle["low"] + sl["low"]["GSM_900"] * world.gsm_util[t]
                        + sl["low"]["LTE_700"] * u700 + sl["low"]["LTE_800"] * u800)
         add_2100 = np.divide(to_mid, EFFICIENCY["NR_2100"] * BANDWIDTH["NR_2100"])
         mid_on = (world.idle["mid"] + sl["mid"]["LTE_1800"] * world.util["LTE_1800"][t]
                   + sl["mid"]["NR_2100"] * (world.util["NR_2100"][t] + add_2100))
-        e["mid"][t] = np.where(ms == AWAKE, mid_on, world.idle["mid"] * ratio_mid)
+        e["mid"][t] = np.where(ms == AWAKE, mid_on, world.idle["mid"] * self.ratio_mid)
         nr_on = world.idle["nr3500"] + sl["nr3500"]["NR_3500"] * world.util["NR_3500"][t]
-        e["nr3500"][t] = np.where(has_nr, np.where(ns == AWAKE, nr_on,
-                                                   world.idle["nr3500"] * ratio_nr), 0.0)
-        e["mid"][t] += (ms != prev_mid) * tr_mid
-        e["nr3500"][t] += (ns != prev_nr) * tr_nr
+        e["nr3500"][t] = np.where(self.has_nr, np.where(ns == AWAKE, nr_on,
+                                                        world.idle["nr3500"] * self.ratio_nr),
+                                  0.0)
+        e["mid"][t] += (ms != self.prev_mid) * self.tr_mid
+        e["nr3500"][t] += (ns != self.prev_nr) * self.tr_nr
 
         c_low = lu * cfg.peak_margin > cfg.rho_max_low
         c_mid = mu * cfg.peak_margin > cfg.rho_max_mid
-        cong[t] = (c_low & (to_low > 0)) | (c_mid & (to_mid > 0))
+        self.cong[t] = (c_low & (to_low > 0)) | (c_mid & (to_mid > 0))
         # only traffic pushed beyond a layer's ceiling by sleeping counts as unserved: the
         # layer's own traffic was carried in reality, whatever our capacity estimate says
         over_low = np.maximum(0.0, low_mb - np.maximum(cap_low * cfg.ceiling_low, low_mb - to_low))
         over_mid = np.maximum(0.0, mid_mb - np.maximum(cap_mid * cfg.ceiling_mid, mid_mb - to_mid))
-        unserved[t] = over_low + over_mid * (ms == AWAKE)
+        self.unserved[t] = over_low + over_mid * (ms == AWAKE)
 
         if cfg.auto_wake:
-            trigger = cong[t] & ((ms == ASLEEP) | (ns == ASLEEP))
-            wakes += int(trigger.sum())
-            hold_until = np.where(trigger, t + cfg.hold, hold_until)
+            trigger = self.cong[t] & ((ms == ASLEEP) | (ns == ASLEEP))
+            self.wakes += int(trigger.sum())
+            self.woken[t] = trigger
+            self.hold_until = np.where(trigger, t + cfg.hold, self.hold_until)
 
-        mid_s[t], nr_s[t] = ms, ns
-        obs = Observation(
+        self.mid_s[t], self.nr_s[t] = ms, ns
+        self.obs = Observation(
             t=t + 1,
             util={c: (world.util[c][t] if c not in ("LTE_1800", "NR_2100", "NR_3500") else
                       world.util[c][t] * ((ms if c != "NR_3500" else ns) == AWAKE))
                   for c in world.util},
             low_util=lu, mid_util=mu, mid_state=ms, nr_state=ns,
-            forced_awake=hold_until >= t + 1)
-        prev_mid, prev_nr = ms, ns
+            forced_awake=self.hold_until >= t + 1)
+        self.prev_mid, self.prev_nr = ms, ns
+        self.t = t + 1
+        return Step(t=t, mid_state=ms, nr_state=ns, low_mb=low_mb, mid_mb=self.mid_mb[t],
+                    nr_mb=self.nr_mb[t], low_util=lu, mid_util=mu,
+                    energy={k: e[k][t] for k in e}, congested=self.cong[t],
+                    unserved_mb=self.unserved[t], woken=self.woken[t])
 
-    toggles = int((np.diff(mid_s, axis=0) != 0).sum() + (np.diff(nr_s, axis=0) != 0).sum())
-    return RunResult(name=name, energy=e, mid_state=mid_s, nr_state=nr_s, low_util=low_u,
-                     mid_util=mid_u, congested=cong, unserved_mb=unserved,
-                     watchdog_wakes=wakes, toggles=toggles, config=cfg)
+    def result(self, name: str = "policy") -> RunResult:
+        n = self.t
+        toggles = int((np.diff(self.mid_s[:n], axis=0) != 0).sum()
+                      + (np.diff(self.nr_s[:n], axis=0) != 0).sum())
+        return RunResult(name=name, energy=self.e, mid_state=self.mid_s, nr_state=self.nr_s,
+                         low_util=self.low_u, mid_util=self.mid_u, congested=self.cong,
+                         unserved_mb=self.unserved, watchdog_wakes=self.wakes,
+                         toggles=toggles, config=self.cfg)
+
+
+def run(world: WorldData, policy: Policy, name: str = "policy",
+        config: WorldConfig | None = None) -> RunResult:
+    st = Stepper(world, config)
+    for _ in range(world.T):
+        st.step(*policy(st.obs))
+    return st.result(name)
 
 
 def summarise(world: WorldData, r: RunResult, ref: RunResult | None = None) -> dict[str, float]:

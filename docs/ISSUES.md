@@ -47,6 +47,16 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | I34 | Publishing NetCrash attestations to Sigstore Rekor production is public and permanent | Ask Frank before the first publish, even though D21 recorded approval earlier | S9 |
 | I33 | Change status `unknown` is never produced yet | Needs fault injection (delayed actuation, lost acks) in the world (S3) and NetCrash N-tests | S9 |
 
+## Opened 24 Nov (session 5)
+
+| # | Issue | Plan | When |
+|---|---|---|---|
+| I35 | **Real RAN in the loop** (Tier 2): the O-RAN SC energy-saving rApp with DU simulators needs several GB of container images from the O-RAN SC registry and a kind/helm cluster | Needs Frank's OK for the downloads and disk | After applications |
+| I36 | **Local model energy** on the RTX 4050 needs a local runtime (llama.cpp or Ollama) and model weights (GBs) | Needs Frank's OK for the download; E30 is an estimate until then | After applications |
+| I37 | The server exposes tools that are not in the agent's card (N9 shows agents can call them) | Filter tools per verified identity's card (needs signed mode, D39) | Next |
+| I38 | Site, README and paper say "7–8x less congestion than the published method" | Qualify: vs the plain reconstruction; vs B2+ about +1.6 points at matched congestion (E26) | Done in README, site, paper, video script (24 Nov); live site needs a redeploy |
+| I39 | Real-model runs of N22 (twin gaming), N23 (coverage agent) and an hourly night | Run after the v2 matrix, within the caps | Next |
+
 ## Questions to revisit
 
 - Should the arbiter's limits come from the operator's intent (TM Forum-style intents) rather than config? Phase 2.
@@ -54,6 +64,16 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 - Could Elisa-style battery participation in Fingrid reserves be a scenario family (S7)? Tier 1 if time allows.
 
 ## Closed
+
+- **I14** (fair B2) · 24 Nov: B2+ with predictive wake reported next to B2 (E26, D41).
+- **I19** (judge panel) · closed 24 Nov: Gemma + Llama, both must agree, cached (D40).
+- **I20** (MCP identity) · closed 24 Nov: RFC 9421 signatures + operator key bindings (D39).
+- **I21** (hosted-model energy) · 24 Nov: estimate from published figures (E30); measurement is I36.
+- **I29** (per-user throughput) · closed 24 Nov: proxy reported (E27).
+- **I30** (closed loop) · closed 24 Nov: the MCP network steps the world (D37).
+- **I31** (clusters) · partly 24 Nov: rhythm clusters (E31); no coordinates in the data for real neighbourhoods.
+- **I32** (arbiter I4/I7/I8/I9) · closed 24 Nov (D38).
+- **I33** (status unknown) · closed 24 Nov: lost acknowledgements in the world faults (D37), NetCrash N21.
 
 - **I27** (Slovak disk use) · closed 23 Nov: converted to Parquet, 3.8 GB → ~485 MB.
 

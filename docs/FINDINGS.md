@@ -319,3 +319,53 @@ Final validation forecasts: skill vs seasonal naive mid **+25.6 %**, NR 3500 **+
 **What:** Method frozen (D36), the test split (9–22 Nov 2025, never touched before) run once (`fit_forecaster.py --split test`, `compare_methods.py --split test [--category 2]`; `results/forecast/test_report.json`, `results/compare/test_cat1.json`, `test_cat2.json`). Category 1, test vs validation: **B4 saves 18.8 % (18.1) at 0.69 congested QH per sector-day (0.59)**; published-method reconstruction 17.2 % at 4.94 → 7x less congestion for B4 (8x on validation); static thresholds 18.4 % at 3.64 → 5x (6x); O-RAN SC rApp 13.1 % at 0.86; B4 on P50 20.3 % at 3.11, i.e. **+3.0 points over the published method at less congestion** (+2.8 on validation); oracle 22.8 %, B4 reaches 82 % of it (80 %). Margin curve 1.0/1.15/1.3/1.5: 18.8/17.4/16.2/14.6 % at 0.69/0.40/0.25/0.16. Category 2 keeps the ranking (B4 14.9 % at 0.68 vs B2 13.6 % at 4.06). Forecaster: skill vs seasonal naive mid +29.5 % (val +29.9), NR 3500 +29.4 % (+27.8), **low +18.8 % (+36.2)**; P10–P90 coverage 81.2 / 81.3 / 79.6 %, above P90 9.3 / 9.2 / 9.4 %.
 **Why it matters:** The headline numbers were not tuned into the validation weeks: savings, the congestion advantage and calibration all transfer to two unseen weeks. The low-band skill drop is real (a quieter, smoother fortnight where last week's pattern was already a good guess); it does not move the planner results because sleep decisions hinge on the P90 of the receiving layer, whose coverage stayed on target.
 **Action:** Report test numbers next to validation in README, story and paper; no method change after this (D36).
+
+### E26 · 2026-11-24 · A fairer published method (B2+) closes most of the congestion gap
+**What:** `scripts/fairness_and_throughput.py` (validation weeks only, D36): B2 plus a **predictive wake** (wake, or don't sleep, when this quarter-hour's forecast puts the coverage cell over the wake threshold; our extension, not in the patent), six variants. B2 17.2 % saved at 4.89 congested QH/sector-day; **B2+ (P50, wake 20 %) 16.5 % at 0.62**; B2+ (P90, wake 30 %) 15.3 % at 0.40; B2+ (P50, wake 30 %) 18.4 % at 2.27. B4 18.1 % at 0.59.
+**Why it matters:** Most of B2's congestion came from waking a quarter-hour late, not from its threshold idea (the hunch in the handoff). Against B2+ B4 still wins, but by about **1.6 points at matched congestion**, not "8x less congestion". The 7–8x claim is true only against the plain reconstruction and must say so.
+**Action:** README, story and paper report B2 and B2+ side by side; the frontier slide gains the B2+ points (I38).
+
+### G30 · 2026-11-24 · The active-users counter contains float-max sentinels
+**What:** 12 of 5.6 M "active users DL" values are 1.797e308 (LTE 700: 9, LTE 800: 1, LTE 1800: 2). With 36 % of LTE 700 values missing and gaps filled from averages, those few sentinels made every filled value astronomic, and the first throughput proxy read 0 Mbit/s for every method.
+**Why it matters:** The same counters could be used for user-based features later; one sentinel poisons a whole column through imputation.
+**Action:** Values above 1e6 are treated as missing before filling (`fairness_and_throughput.py`). Worth reporting to the dataset authors with G26.
+
+### E27 · 2026-11-24 · No congestion is not no quality cost: moved users get a fifth of the pipe
+**What:** Throughput proxy (I29): full layer capacity / active DL users, for users moved off a sleeping capacity layer. Under B4 they get **12.5 Mbit/s median (P10 10.0)** on the receiving layer, **0.20x** of what their own capacity layer offered; the same for every method (12.0–12.7 Mbit/s, 0.20x), because sleep only happens when few users are active.
+**Why it matters:** Quantifies G22: the night-time per-user peak rate drops about five-fold, still well above what streaming needs, but it is a cost the congestion metric does not show.
+**Action:** Report it next to congestion; a per-user floor (e.g. P10 ≥ 5 Mbit/s) could become an arbiter invariant.
+
+### E28 · 2026-11-24 · The arbiter's capacity check is proved, and its guarantee is exactly the forecast's
+**What:** `arbiter/proofs.py` (Z3): for every traffic value, capacity and configuration, if I1 passes for a sleep state and the real traffic is at most its P90 forecast, the world can flag neither congestion nor unserved traffic (all three states proved; `rho <= ceiling` needed for unserved). Drop the forecast premise and Z3 finds a counterexample for each state. A numeric cross-check runs the real planner and simulator on random worlds (`tests/test_proofs.py`).
+**Why it matters:** The safety claim reduces to one number, how often the forecast is beaten, which is exactly what conformal calibration controls (E29).
+**Action:** Paper section "what is proved and what is assumed".
+
+### E29 · 2026-11-24 · The margin dial gets a stated guarantee
+**What:** `forecast/bound.py`, `scripts/conformal_bound.py`: split-conformal margin on the score actual / P90 receiving traffic, over the 1.28 M sleep-eligible sector-QH of the validation weeks; calibrate on one week, check on the other. Held-out miss vs alpha: 0.089 / 0.105 at 0.10, 0.043 / 0.058 at 0.05, 0.016 / 0.024 at 0.02 (slightly over alpha when calibrating on week 2: week-to-week drift breaks exact exchangeability). Congested per slept QH stayed far under alpha (0.2–1.1 %). B4 with the margin: alpha 0.05 → 15.9–16.4 % saved; alpha 0.02 → 12.7–13.4 %.
+**Why it matters:** "At most 5 % of slept sector-quarter-hours risk congestion, for 16 % savings" is a sentence an operator can sign; the realised rate is about 10x lower because most forecast misses don't push a layer over its limit.
+**Action:** Report as approximately valid (drift), with the per-fold numbers; a rolling calibration would track drift.
+
+### G31 · 2026-11-24 · Per-change approval tiers are bypassed by splitting, and the prompt told agents to split
+**What:** With I8 enforced per change, a 20-cell plan split into four 5-cell changes needs no approval. The energy prompt said "Large plans may have to be split into several smaller changes" (written for the blast-radius limit).
+**Why it matters:** The salami attack of NetCrash N8 was built into the design and encouraged by the prompt.
+**Action:** The tier now counts every cell the same agent changed in the last two hours (`Network._tier`, `test_i8_salami_split_does_not_dodge_approval`); prompt 2026-11-24.2 says to split only for blast radius and never to dodge approval.
+
+### G32 · 2026-11-24 · The planner's own plans broke the new dwell rule; rollback undid other changes
+**What:** (1) `optimise_plan` returned 15-minute sleep windows, which I4 refuses, so a whole planned change was refused in the smoke run. (2) `rollback` restored the entire future schedule from before the change, silently undoing changes applied after it on other cells. (3) Closing the loop broke stand-in KPIs (an attribute name collision) without a failing test.
+**Why it matters:** Each would have made NetCrash v2 measure our harness instead of the agents.
+**Action:** `optimise_plan` keeps only I4-valid windows (`_dwell_ok`; checked on three real stand-ins, all applied); rollback restores only its own cells and times; stand-in regression test; the v2 matrix was restarted after the fixes (D35).
+
+### E30 · 2026-11-24 · The agent's own energy is a rounding error (estimate)
+**What:** `scripts/ai_energy_net.py`: one agent night on a cluster is 15 LLM calls (460 k tokens). Priced at published per-response figures (0.24 Wh median Gemini prompt, Google 2025; 1.86 Wh Llama 3.1 405B response, ML.ENERGY), that is 3.6–28 Wh against 74 kWh saved per cluster-night: **0.005–0.04 %**, 0.4 % with a 10x long-context stress factor. All LLM use of the project so far (4 334 calls incl. NetCrash) is 1–8 kWh, paid back by about 0.1 cluster-nights.
+**Why it matters:** Answers "does the AI eat the savings?": no, by three orders of magnitude.
+**Action:** Labelled an estimate; a local RTX 4050 measurement needs a local model runtime (I36).
+
+### E31 · 2026-11-24 · Traffic-rhythm clusters are only slightly more coherent than id order
+**What:** `world/layout.py`: 27 clusters of sites with alike weekly rhythm (PCA angle, balanced groups of 10, training weeks only). Mean within-cluster rhythm correlation 0.941 vs 0.894 for the id-order placeholder.
+**Why it matters:** Most sites share the same daily shape, so the grouping matters little for planning; without coordinates there are no real neighbourhoods (I31 stays partly open).
+**Action:** Available as `--clusters rhythm`; default stays id order so earlier results remain comparable.
+
+### E32 · 2026-11-24 · The forecaster generalises to Milan, another operator a decade earlier
+**What:** `scripts/milan_generalisation.py`: Telecom Italia internet activity, 800 random grid squares, 10-min slots resampled to quarter-hours, same features, model and conformal calibration, no tuning; fit before 27 Nov 2013 (26 days), calibrate to 4 Dec. Normal weeks (4–18 Dec): P50 skill vs seasonal naive **+11.2 %** (+22.1 % with level normalisation), P10–P90 coverage 79.6 / 80.4 %, above P90 10.2 / 10.4 %. Holidays (18 Dec–1 Jan): skill +25.2 / +39.1 % (last week is a poor guess over Christmas), coverage drops to 72–73 % but **above P90 stays at 10.3–10.7 %**.
+**Why it matters:** The method is not fitted to one Slovak operator: with three and a half weeks of history in another city, it beats the standard baseline and keeps the upper quantile honest even through holidays, the side the arbiter's guarantee depends on (E28). Activity is a relative index (G13), so this is about the forecaster, not about energy.
+**Action:** Paper: one-paragraph generalisation result; level normalisation helps more where history is short.

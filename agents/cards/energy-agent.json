@@ -2,8 +2,8 @@
  "schema": "yovahti/agent-card@1",
  "id": "energy-agent",
  "vendor": "github.com/FrankPonce/yovahti",
- "version": "2026-11-24.1",
- "prompt_sha256": "843d47e6d29e8bf0f543eec434b764b84c66aacb8ac305bae1aaf537da392596",
+ "version": "2026-11-24.2",
+ "prompt_sha256": "3c2c0380603fb074f55fe35acb2cf2bca9bfb7066da44c3a2d8fb5811609a635",
  "allowed_tools": [
   "list_cells",
   "get_cell_kpis",
@@ -13,10 +13,12 @@
   "get_carbon",
   "forecast_load",
   "optimise_plan",
+  "simulate_plan",
   "propose_change",
   "apply_change",
   "get_change_status",
-  "rollback"
+  "rollback",
+  "get_energy_report"
  ],
  "scope": {
   "clusters": "*",
@@ -24,5 +26,6 @@
    "capacity_cell_sleep"
   ]
  },
+ "role": "energy",
  "risk_tier": 1
 }

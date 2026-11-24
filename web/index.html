@@ -138,7 +138,7 @@
   <div style="position:absolute;left:90px;top:150px;width:520px">
     <div class="h2">Energy and congestion are one trade-off.</div>
     <div class="lbl" style="margin-top:14px">Every sleeping radio saves energy and pushes its users onto the coverage layer. Sleep more, save more, until users feel it. So the question isn't "how much do you save" but <b>how much you save for the congestion you cause</b>. Up and to the left is better.</div>
-    <div class="lbl r" data-s="2" style="margin-top:18px">Yövahti is a dial along that curve: planning on the average forecast saves <span data-k="p50_saved">20.0</span> % with less congestion than the published method; the default saves <span data-k="b4_saved">18.1</span> % with 8× less; careful saves <span data-k="b4_careful">14.1</span> % with almost none. Every point sits above and left of the others.</div>
+    <div class="lbl r" data-s="2" style="margin-top:18px">Yövahti is a dial along that curve: planning on the average forecast saves <span data-k="p50_saved">20.0</span> % with less congestion than the published method; the default saves <span data-k="b4_saved">18.1</span> % with 8× less (1.6 points more than a fairer version with a predictive wake, at the same congestion); careful saves <span data-k="b4_careful">14.1</span> % with almost none. Every point sits above and left of the others.</div>
   </div>
   <svg id="front" width="860" height="620" style="position:absolute;left:680px;top:150px"></svg>
   <div class="note"><b>Held on unseen data:</b> on the locked test weeks (run once, method frozen) Yövahti saves 18.8 % with 7× less congestion than the published method. Chart: validation weeks, 749 real sectors, same forecasts and simulator for every method. Oracle = perfect foresight.</div>
@@ -300,6 +300,10 @@
  </div></div>
 </section>
 
+<div class="rotate-note" id="rotate-note" role="note">
+  <span>This story is built like a slide deck. Turn your phone sideways, or read the <a href="report.html">report</a>.</span>
+  <button type="button" aria-label="Dismiss" id="rotate-x">&times;</button>
+</div>
 <script type="module" src="story.js"></script>
 </body>
 </html>

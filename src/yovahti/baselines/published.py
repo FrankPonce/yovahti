@@ -119,6 +119,32 @@ class PublishedThresholdMethod(_ForecastAccess):
 
 
 @dataclass
+class PublishedThresholdPlus(PublishedThresholdMethod):
+    """B2+ (I14): B2 made fairer with a **predictive wake**. Plain CSM wakes a quarter-hour
+    after the coverage cell is already overloaded; B2+ also wakes (and refuses to sleep) when
+    the forecast for this quarter-hour, at quantile ``wake_q``, puts the coverage cell above
+    the wake threshold once the capacity traffic moves. Not in the patent: an extension we add
+    so that B4 is compared with the strongest reasonable version of the published idea."""
+    wake_q: float = 0.5
+
+    def __call__(self, obs: Observation) -> tuple[np.ndarray, np.ndarray]:
+        ms, ns = super().__call__(obs)
+        loc = self.latest(obs.t)
+        if loc is None or obs.t == 0:
+            return ms, ns
+        k, off = loc
+        f = {t: self.f[t][self.wake_q][k][off].astype(float) for t in ("mid", "nr", "low")}
+        low_if_mid = self.util(f["low"] + f["mid"], self.cap_low)
+        low_if_both = self.util(f["low"] + f["mid"] + f["nr"] * self.w.present["NR_3500"],
+                                self.cap_low)
+        mid_if_nr = self.util(f["mid"] + f["nr"], self.cap_mid)
+        ms = np.where(low_if_mid > self.wake_low_above, AWAKE, ms)
+        both = (ms == ASLEEP) & (low_if_both > self.wake_low_above)
+        ns = np.where(both | ((ms == AWAKE) & (mid_if_nr > self.wake_mid_above)), AWAKE, ns)
+        return ms.astype(np.int8), ns.astype(np.int8)
+
+
+@dataclass
 class OranScDemoRapp(_ForecastAccess):
     """B3."""
     world: WorldData

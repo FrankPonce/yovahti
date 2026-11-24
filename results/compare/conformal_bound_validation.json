@@ -1,0 +1,98 @@
+{
+ "raw_p90_miss": 0.09959823853827941,
+ "n": 1284842,
+ "folds": {
+  "week 1 -> week 2": {
+   "0.2": {
+    "margin": 1.0,
+    "mondrian": {
+     "night": 1.0,
+     "day": 1.0
+    },
+    "heldout_miss": 0.09360069597957699,
+    "congested_per_slept": 0.008769084883135497,
+    "kwh_saved_pct": 18.139591073281526,
+    "congested_qh_per_sector_day": 0.5925996566851038
+   },
+   "0.1": {
+    "margin": 1.015524843834856,
+    "mondrian": {
+     "night": 1.0,
+     "day": 1.0432213884412576
+    },
+    "heldout_miss": 0.08850445208247168,
+    "congested_per_slept": 0.008368239987274536,
+    "kwh_saved_pct": 18.002870417456162,
+    "congested_qh_per_sector_day": 0.555693305359527
+   },
+   "0.05": {
+    "margin": 1.2535611376290345,
+    "mondrian": {
+     "night": 1.2445159138227193,
+     "day": 1.2578454353328736
+    },
+    "heldout_miss": 0.04272541292094325,
+    "congested_per_slept": 0.0043555019543453305,
+    "kwh_saved_pct": 15.937455248186428,
+    "congested_qh_per_sector_day": 0.24527942017928667
+   },
+   "0.02": {
+    "margin": 1.711957937307982,
+    "mondrian": {
+     "night": 1.8213790835832515,
+     "day": 1.6443220365870481
+    },
+    "heldout_miss": 0.01625220068678859,
+    "congested_per_slept": 0.0021346898994461217,
+    "kwh_saved_pct": 12.71026748329449,
+    "congested_qh_per_sector_day": 0.08888041197787526
+   }
+  },
+  "week 2 -> week 1": {
+   "0.2": {
+    "margin": 1.0,
+    "mondrian": {
+     "night": 1.0,
+     "day": 1.0
+    },
+    "heldout_miss": 0.10538721208218553,
+    "congested_per_slept": 0.01046420775870622,
+    "kwh_saved_pct": 18.139591073281526,
+    "congested_qh_per_sector_day": 0.5925996566851038
+   },
+   "0.1": {
+    "margin": 1.0,
+    "mondrian": {
+     "night": 1.0171364433895054,
+     "day": 1.0
+    },
+    "heldout_miss": 0.10538721208218553,
+    "congested_per_slept": 0.01046420775870622,
+    "kwh_saved_pct": 18.139591073281526,
+    "congested_qh_per_sector_day": 0.5925996566851038
+   },
+   "0.05": {
+    "margin": 1.1944599020961053,
+    "mondrian": {
+     "night": 1.272975311590884,
+     "day": 1.1444576282434058
+    },
+    "heldout_miss": 0.05843322539840835,
+    "congested_per_slept": 0.005767186144763717,
+    "kwh_saved_pct": 16.431387898849557,
+    "congested_qh_per_sector_day": 0.2962044630936487
+   },
+   "0.02": {
+    "margin": 1.5973042842875655,
+    "mondrian": {
+     "night": 1.7401996520623286,
+     "day": 1.4835918108219248
+    },
+    "heldout_miss": 0.024105636527992975,
+    "congested_per_slept": 0.0027245914215048737,
+    "kwh_saved_pct": 13.43239018595992,
+    "congested_qh_per_sector_day": 0.11157734121686058
+   }
+  }
+ }
+}

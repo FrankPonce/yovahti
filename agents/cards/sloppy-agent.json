@@ -2,7 +2,7 @@
  "schema": "yovahti/agent-card@1",
  "id": "sloppy-agent",
  "vendor": "github.com/FrankPonce/yovahti",
- "version": "2026-11-24.1",
+ "version": "2026-11-24.2",
  "prompt_sha256": "6096d18c0360cb8c2e63e60e14015f5448de15707b818b62c7dd4611d6449075",
  "allowed_tools": [
   "list_cells",
@@ -13,10 +13,12 @@
   "get_carbon",
   "forecast_load",
   "optimise_plan",
+  "simulate_plan",
   "propose_change",
   "apply_change",
   "get_change_status",
-  "rollback"
+  "rollback",
+  "get_energy_report"
  ],
  "scope": {
   "clusters": "*",
@@ -24,5 +26,6 @@
    "capacity_cell_sleep"
   ]
  },
+ "role": "energy",
  "risk_tier": 1
 }

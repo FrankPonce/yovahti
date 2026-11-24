@@ -17,14 +17,14 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | S0 | Foundation | Repo, uv/Python 3.12, CI, downloader with manifest, keys tested | done |
 | S1 | Data | Slovak, ITU, Milan, prices, CO₂ processed to Parquet; data descriptor read; quality report; splits locked | done (Milan still downloading; CO₂ fetch pending) |
 | S2 | Energy model | Radio-unit power model fitted on Slovak energy (per carrier load terms), sleep states from 3GPP TR 38.864, mode effects from ITU; error documented | done (ITU mode effects pending) |
-| S3 | World | Turku topology on real layering; demand from Slovak sectors; steering, events, faults, local CSM logic; a simulated week in under a minute; B0/B1 results | core done (two weeks x 744 sectors in 0.2 s); events, faults, Turku layout pending |
+| S3 | World | Turku topology on real layering; demand from Slovak sectors; steering, events, faults, local CSM logic; a simulated week in under a minute; B0/B1 results | core done; synthetic events; control-plane faults (delay, stuck radios, lost acks, KPI lag/gaps) and a quarter-hour stepper driven by the MCP network (D37); rhythm clusters (E31); open: Turku map (no coordinates in the data) |
 | S4 | Forecaster + twin | Quantile forecaster beats seasonal naive on validation; calibrated intervals; twin predicts plan outcome and risk | done: +28–36 % skill, coverage 80–84 % after G26/G27 fixes, rolling Mondrian calibration (E17) and weekly re-fit (E19, D31) |
 | S5 | Planner + baselines | DP planner (D27); B2 (reconstruction), B3 (O-RAN SC rApp), B4; first savings vs quality table on validation | done (E14, E15) |
-| S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | in progress: 12 tools over Streamable HTTP on real validation data, admission + arbiter (I1/I2/I3/I5) gate, receipts, 14 tests (D32); open: stand-in mode, signed identity (I20), `simulate_plan` |
-| S7 | Agents | Energy, coverage and sloppy agents complete a night end to end on several models; budget guard | in progress: own loop over MCP, OpenAI-compatible client with priced budget guard and ledger (D20), night replay in the simulator; energy agent ran one night on DeepSeek V4 Flash for EUR 0.04 (E20); open: coverage + sloppy agents, hourly re-planning, more models |
-| S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | in progress: Agent Cards (prompt hash, tools, scope; JCS hash); `admit()` ported and checked against the kit (vectors byte for byte, kit verifies our attestations, D34); arbiter I1/I2/I3/I5/I6; open: RFC 9421 identity, I4/I7/I8/I9, property tests |
-| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | in progress: v0 with 11 tests on stand-in networks, crash-test scoring, agent-trust-kit-compatible scorecards; first matrix running; open: judge panel, signing + Rekor, remaining tests |
-| S10 | Results | Locked test runs for every method and agent; NetCrash matrix; FINDINGS; result tables | |
+| S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | done: 14 tools over Streamable HTTP incl. `simulate_plan` and `get_energy_report`, closed loop (D37), stand-in mode, RFC 9421 signed identity with operator key bindings (D39) |
+| S7 | Agents | Energy, coverage and sloppy agents complete a night end to end on several models; budget guard | done in code: energy, sloppy and coverage agents, hourly protocol (`run_agent_night.py --hourly`), budget guard; open: real-model runs of coverage agent and hourly night (I39) |
+| S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | done: Agent Cards, `admit()` checked against agent-trust-kit, arbiter I1–I9 (D38) with unit and Hypothesis property tests, Z3 proof of I1 (E28), signed receipts, watchdog |
+| S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | v2 (23 tests, judge panel, applied actions recorded, D40) built and tested; matrix running; open: Rekor publishing (needs Frank's OK) |
+| S10 | Results | Locked test runs for every method and agent; NetCrash matrix; FINDINGS; result tables | done: locked test weeks run once (E24, D36) |
 | S11 | Showcase | Dashboard (Turku map, replay, attestation check), README, 3-minute video, short paper | |
 | S12 | Applications | Applications submitted; outreach done | |
 
@@ -35,10 +35,10 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | 1 | Dashboard with Turku map and replay | S10 |
 | 1 | Live Finnish prices and CO₂ mode | S3 |
 | 1 | Nightly CI publishing signed results | S9 |
-| 2 | Real open-source RAN in the loop on Kubernetes (srsRAN / OAI / ns-3, chosen by a spike) | S6 |
-| 2 | Net savings after the AI's own energy (local model measured on the RTX 4050) | S7 |
-| 2 | Formally checked arbiter invariants (Z3) | S8 |
-| 2 | NetCrash as an MCP server (query, compare, rerun tests) | S9 |
+| 2 | Real open-source RAN in the loop on Kubernetes (srsRAN / OAI / ns-3, chosen by a spike) | S6 · needs download OK (I35) |
+| 2 | Net savings after the AI's own energy (local model measured on the RTX 4050) | S7 · estimate done (E30); measurement I36 |
+| 2 | Formally checked arbiter invariants (Z3) | S8 · done for I1 (E28) |
+| 2 | NetCrash as an MCP server (query, compare, rerun tests) | S9 · done |
 | 3 | Arbiter in a hardware enclave with remote attestation | S8 |
 | 3 | Automated red-teaming that grows the NetCrash suite | S9 |
 | 3 | Multi-vendor agents negotiating through the arbiter (agent-to-agent) | S8 |
