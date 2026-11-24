@@ -40,7 +40,7 @@ def target_series(world: WorldData, target: str) -> np.ndarray:
 
 def slot_of_week(times: pd.DatetimeIndex) -> np.ndarray:
     lt = times.tz_convert(TZ)
-    return ((lt.dayofweek * 24 + lt.hour) * 4 + lt.minute // 15).to_numpy()
+    return ((lt.day_of_week * 24 + lt.hour) * 4 + lt.minute // 15).to_numpy()
 
 
 @dataclass
@@ -87,14 +87,18 @@ class Forecaster:
     @staticmethod
     def _calendar(times: pd.DatetimeIndex):
         lt = times.tz_convert(TZ)
-        return slot_of_week(times), lt.hour.to_numpy(), lt.dayofweek.to_numpy()
+        return slot_of_week(times), lt.hour.to_numpy(), lt.day_of_week.to_numpy()
 
     # ---------------------------------------------------------------- fit
     @classmethod
     def fit(cls, world: WorldData, target: str, train_end: int, issue_every: int = 8,
             horizons_per_issue: int = 8, seed: int = 0, rounds: int = 300,
-            level_norm: bool = False) -> Forecaster:
-        """Fit on issue times before ``train_end`` (index into world.times), targets too."""
+            level_norm: bool = False, half_life_days: float | None = None) -> Forecaster:
+        """Fit on issue times before ``train_end`` (index into world.times), targets too.
+
+        ``half_life_days`` weights each training row by 0.5 ** (age / half-life), age measured
+        from the issue time to ``train_end`` (FINDINGS G28 candidate M1: recent weeks count more).
+        """
         y = target_series(world, target)
         slots, hours, dows = cls._calendar(world.times)
         tr = slice(0, train_end)
@@ -122,8 +126,11 @@ class Forecaster:
         params = {"learning_rate": 0.05, "num_leaves": 63, "min_data_in_leaf": 200,
                   "feature_fraction": 0.9, "bagging_fraction": 0.8, "bagging_freq": 1,
                   "verbose": -1, "seed": seed}
+        wt = None
+        if half_life_days is not None:
+            wt = 0.5 ** ((train_end - ii) / (half_life_days * 96))
         for q in QUANTILES:
-            ds = lgb.Dataset(x, t, feature_name=FEATURES, free_raw_data=False)
+            ds = lgb.Dataset(x, t, weight=wt, feature_name=FEATURES, free_raw_data=False)
             f.models[q] = lgb.train({**params, "objective": "quantile", "alpha": q}, ds,
                                     num_boost_round=rounds)
         return f
@@ -196,6 +203,29 @@ class Forecaster:
         out[0.5] = np.maximum(out[0.5], out[0.1])
         out[0.9] = np.maximum(out[0.9], out[0.5])
         return out
+
+
+def refit_predict_log(world: WorldData, target: str, fit_end: int, issues: np.ndarray,
+                      every: int = WEEK, base: Forecaster | None = None,
+                      **fit_kw) -> dict[float, np.ndarray]:
+    """Uncalibrated log forecasts with periodic re-fitting (FINDINGS E19).
+
+    Issues in ``[r, r + every)`` come from a model fitted on targets before ``r``, for
+    ``r = fit_end, fit_end + every, ...``: every forecast stays out-of-sample, as in production.
+    ``base`` (optional) is the model already fitted at ``fit_end``.
+    """
+    out = {q: np.empty((len(issues), HORIZON, world.S)) for q in QUANTILES}
+    r = fit_end
+    while r <= issues.max():
+        sel = (issues >= r) & (issues < r + every)
+        if sel.any():
+            f = base if (r == fit_end and base is not None) else \
+                Forecaster.fit(world, target, r, **fit_kw)
+            lp = f.predict_log(world, issues[sel])
+            for q in QUANTILES:
+                out[q][sel] = lp[q]
+        r += every
+    return out
 
 
 def calibrate(f: Forecaster, world: WorldData, start: int, end: int, every: int = 4) -> None:

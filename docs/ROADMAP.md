@@ -18,9 +18,9 @@ Status: in progress, 23 Nov 2026. The only fixed date: both applications go in b
 | S1 | Data | Slovak, ITU, Milan, prices, CO₂ processed to Parquet; data descriptor read; quality report; splits locked | done (Milan still downloading; CO₂ fetch pending) |
 | S2 | Energy model | Radio-unit power model fitted on Slovak energy (per carrier load terms), sleep states from 3GPP TR 38.864, mode effects from ITU; error documented | done (ITU mode effects pending) |
 | S3 | World | Turku topology on real layering; demand from Slovak sectors; steering, events, faults, local CSM logic; a simulated week in under a minute; B0/B1 results | core done (two weeks x 744 sectors in 0.2 s); events, faults, Turku layout pending |
-| S4 | Forecaster + twin | Quantile forecaster beats seasonal naive on validation; calibrated intervals; twin predicts plan outcome and risk | done: +25–29 % skill, coverage 79–82 % after G26/G27 fixes and rolling Mondrian calibration (E17) |
+| S4 | Forecaster + twin | Quantile forecaster beats seasonal naive on validation; calibrated intervals; twin predicts plan outcome and risk | done: +28–36 % skill, coverage 80–84 % after G26/G27 fixes, rolling Mondrian calibration (E17) and weekly re-fit (E19, D31) |
 | S5 | Planner + baselines | DP planner (D27); B2 (reconstruction), B3 (O-RAN SC rApp), B4; first savings vs quality table on validation | done (E14, E15) |
-| S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | |
+| S6 | MCP server | All tools over Streamable HTTP; stand-in mode; signed identity on requests | in progress: 12 tools over Streamable HTTP on real validation data, admission + arbiter (I1/I2/I3/I5) gate, receipts, 14 tests (D32); open: stand-in mode, signed identity (I20), `simulate_plan` |
 | S7 | Agents | Energy, coverage and sloppy agents complete a night end to end on several models; budget guard | |
 | S8 | Trust | Agent Cards, `admit()` passing agent-trust-kit vectors, arbiter I1–I9 with unit + property tests, watchdog rollback | |
 | S9 | NetCrash | Full catalogue, judge panel, scorecards, signed attestations logged to Rekor | |

@@ -77,3 +77,29 @@ def test_absent_sectors_do_not_pin_offsets_at_zero():
     miss = lambda lp: (ylog[..., present] > lp[0.9][..., present]).mean()  # noqa: E731
     assert miss(good) == pytest.approx(0.1, abs=0.02)
     assert miss(bad) > 0.2                     # unmasked P90 under-covers real sectors
+
+
+def test_trend_catches_up_with_steady_growth():
+    n = 600                                         # 25 days of issues every 4 QH
+    issues, hour, ylog, logp = fake(n=n)
+    ylog = ylog + 0.01 * (issues / 96)[:, None, None]          # +1 % a day, uncaptured
+    evm = issues >= 20 * 96
+    plain = cal.rolling_mondrian(logp, ylog, hour, issues, evm, start_floor=0)
+    trend = cal.rolling_mondrian(logp, ylog, hour, issues, evm, start_floor=0, trend=True)
+    below = lambda lp: (ylog[evm] < lp[0.5][evm]).mean()       # noqa: E731
+    assert below(plain) < 0.45                      # 14-day window lags growth
+    assert below(trend) == pytest.approx(0.5, abs=0.03)
+
+
+def test_trend_and_short_median_use_only_realised_past():
+    issues, hour, ylog, logp = fake(n=300)
+    evm = issues >= 200 * 4
+    first_eval = issues[evm].min()
+    poisoned = ylog.copy()
+    poisoned[issues + HORIZON > first_eval] += 100.0
+    kw = dict(start_floor=0, trend=True, median_window_days=3)
+    a = cal.rolling_mondrian(logp, ylog, hour, issues, evm, **kw)
+    b = cal.rolling_mondrian(logp, poisoned, hour, issues, evm, **kw)
+    first_day = (issues // 96 == (issues[evm] // 96).min()) & evm
+    for q in QUANTILES:
+        np.testing.assert_allclose(a[q][first_day], b[q][first_day])

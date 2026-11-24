@@ -1,9 +1,13 @@
 """Fit the quantile forecasters and write calibrated validation forecasts for the planner.
 
 Run: uv run python scripts/fit_forecaster.py [--level-norm] [--calib global|mondrian|rolling]
+                                             [--refit-days 7]
 Fit on the first six training weeks, calibrate on the last two (and, for ``rolling``, on
-realised validation outcomes as they become known). Defaults follow the experiments that won
-on both windows (D29, FINDINGS E17). Test weeks untouched.
+realised validation outcomes as they become known). With ``--refit-days N`` (default 7) the
+model is re-fitted every N days on all data before that point, out-of-sample (E19, D31).
+Writes ``validation_<target>.npz`` and, for rolling calibration, ``validation_<target>_trend.npz``
+(extrapolated residual drift, G28 C2). Defaults follow the experiments that won on both
+windows (D29, E17, E19). Test weeks untouched.
 """
 
 from __future__ import annotations
@@ -25,6 +29,7 @@ from yovahti.forecast.quantile import (
     Forecaster,
     persistence,
     pinball,
+    refit_predict_log,
     seasonal_naive,
     truth,
 )
@@ -36,6 +41,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--level-norm", action=argparse.BooleanOptionalAction, default=False)
     ap.add_argument("--calib", choices=["global", "mondrian", "rolling"], default="rolling")
+    ap.add_argument("--refit-days", type=int, default=7, help="0 = model frozen at fit end")
     a = ap.parse_args()
     t0 = time.time()
     world = load_world("all")
@@ -50,8 +56,10 @@ def main() -> None:
     hour = world.times.tz_convert(TZ).hour.to_numpy()[issues_all[:, None]
                                                        + np.arange(HORIZON)[None, :]]
     print(f"world all: {world.T} x {world.S}, loaded {time.time() - t0:.0f}s; "
-          f"{len(issues)} validation issues; level_norm={a.level_norm}, calib={a.calib}")
-    report = {"config": {"level_norm": a.level_norm, "calib": a.calib}}
+          f"{len(issues)} validation issues; level_norm={a.level_norm}, calib={a.calib}, "
+          f"refit every {a.refit_days} days")
+    report = {"config": {"level_norm": a.level_norm, "calib": a.calib,
+                         "refit_days": a.refit_days}}
     out_dir = PROCESSED / "forecasts"
     out_dir.mkdir(parents=True, exist_ok=True)
     for target in TARGETS:
@@ -61,7 +69,11 @@ def main() -> None:
             (RESULTS / "forecast").mkdir(parents=True, exist_ok=True)
             m.save_model(str(RESULTS / "forecast" / f"{target}_q{int(q * 100)}.txt"))
         mask = world.present["NR_3500"] if target == "nr" else np.ones(world.S, dtype=bool)
-        logp = f.predict_log(world, issues_all)
+        if a.refit_days:
+            logp = refit_predict_log(world, target, fit_end, issues_all, a.refit_days * 96,
+                                     base=f, level_norm=a.level_norm)
+        else:
+            logp = f.predict_log(world, issues_all)
         ylog = np.log1p(truth(world, target, issues_all))
         if a.calib == "global":
             lp = cal.apply_global(logp, cal.global_offsets(
@@ -72,6 +84,11 @@ def main() -> None:
         else:
             lp = cal.rolling_mondrian(logp, ylog, hour, issues_all, evm, fit_end,
                                        sectors=mask)
+            lpt = cal.rolling_mondrian(logp, ylog, hour, issues_all, evm, fit_end,
+                                        sectors=mask, trend=True)
+            predt = {q: v[evm] for q, v in cal.to_mb(lpt).items()}
+            np.savez_compressed(out_dir / f"validation_{target}_trend.npz", issues=issues,
+                                **{f"q{int(q * 100)}": predt[q] for q in QUANTILES})
         pred = {q: v[evm] for q, v in cal.to_mb(lp).items()}
 
         y = truth(world, target, issues)

@@ -1,6 +1,6 @@
 """Compare every method on the validation weeks: savings vs quality, plus ablations.
 
-Run: uv run python scripts/compare_methods.py [--category 1|2]
+Run: uv run python scripts/compare_methods.py [--category 1|2] [--variant plain|trend]
 Needs scripts/fit_energy_model.py and scripts/fit_forecaster.py first. Test weeks untouched.
 """
 
@@ -27,10 +27,11 @@ COLS = ["kwh_saved_pct", "capacity_radio_saved_pct", "eur_saved_pct", "co2_saved
         "watchdog_wakes", "toggles_per_sector_day"]
 
 
-def load_forecasts() -> dict:
+def load_forecasts(variant: str = "plain") -> dict:
     out = {}
+    sfx = "" if variant == "plain" else f"_{variant}"
     for t in TARGETS:
-        z = np.load(PROCESSED / "forecasts" / f"validation_{t}.npz")
+        z = np.load(PROCESSED / "forecasts" / f"validation_{t}{sfx}.npz")
         out[t] = {"issues": z["issues"], 0.1: z["q10"], 0.5: z["q50"], 0.9: z["q90"]}
     return out
 
@@ -38,16 +39,18 @@ def load_forecasts() -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--category", type=int, default=1, choices=[1, 2])
+    ap.add_argument("--variant", default="plain", choices=["plain", "trend"],
+                    help="forecast calibration variant written by fit_forecaster.py")
     a = ap.parse_args()
     t0 = time.time()
     full = load_world("all")
     lo = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["validation"][0], tz="UTC")))
     hi = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["test"][0], tz="UTC")))
     world = time_slice(full, lo, hi)
-    fc = load_forecasts()
+    fc = load_forecasts(a.variant)
     cfg = WorldConfig(category=a.category)
     print(f"validation world {world.T} x {world.S}, ready in {time.time() - t0:.0f}s; "
-          f"TR 38.864 Category {a.category}")
+          f"TR 38.864 Category {a.category}; forecasts: {a.variant}")
 
     def planner(**kw):
         return DPPlanner(world, fc, PlannerConfig(**kw), cfg, issue_offset=lo)
@@ -87,7 +90,8 @@ def main() -> None:
         print(f"  rho {rho:2d}%: B4 saves {s4['kwh_saved_pct']:5.1f}% "
               f"(congested {s4['congested_qh_per_sector_day']:.3f}/sector-day) | B2 saves "
               f"{s2['kwh_saved_pct']:5.1f}% (congested {s2['congested_qh_per_sector_day']:.3f})")
-    out = RESULTS / "compare" / f"validation_cat{a.category}.json"
+    sfx = "" if a.variant == "plain" else f"_{a.variant}"
+    out = RESULTS / "compare" / f"validation_cat{a.category}{sfx}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"methods": rows, "rho_curve": curve}, indent=1))
 
