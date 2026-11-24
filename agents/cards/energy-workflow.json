@@ -1,0 +1,24 @@
+{
+ "schema": "yovahti/agent-card@1",
+ "id": "energy-workflow",
+ "vendor": "github.com/FrankPonce/yovahti",
+ "version": "2026-11-24.2",
+ "prompt_sha256": "dabc2590751ddfe65468e3c50bf0ecaabab69eca9d3e9e977bc3c5d852127b09",
+ "allowed_tools": [
+  "list_cells",
+  "get_events",
+  "get_alarms",
+  "get_cell_kpis",
+  "optimise_plan",
+  "apply_plan",
+  "get_change_status"
+ ],
+ "scope": {
+  "clusters": "*",
+  "parameters": [
+   "capacity_cell_sleep"
+  ]
+ },
+ "role": "energy",
+ "risk_tier": 1
+}

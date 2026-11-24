@@ -10,7 +10,7 @@ import json
 
 import rfc8785
 
-from yovahti.agents.roles import PROMPT_VERSION, ROLES
+from yovahti.agents.roles import CONSTRAINED, PROMPT_VERSION, ROLES, WORKFLOW
 from yovahti.paths import ROOT
 
 CARDS = ROOT / "agents" / "cards"
@@ -19,6 +19,13 @@ TOOLS = ["list_cells", "get_cell_kpis", "get_alarms", "get_events", "get_prices"
          "forecast_load", "optimise_plan", "simulate_plan", "propose_change", "apply_change",
          "get_change_status", "rollback", "get_energy_report"]
 SCOPE = {"coverage-agent": ["capacity_cell_wake"]}
+# constrained mode (D45): read tools + apply_plan (planner plan minus keep-awake windows)
+TOOLS_C = ["list_cells", "get_cell_kpis", "get_alarms", "get_events", "get_prices", "get_carbon",
+           "forecast_load", "optimise_plan", "apply_plan", "get_change_status",
+           "get_energy_report"]
+# workflow mode (D46): the fixed steps code runs; the model itself calls no tool
+TOOLS_W = ["list_cells", "get_events", "get_alarms", "get_cell_kpis", "optimise_plan",
+           "apply_plan", "get_change_status"]
 
 
 def agent_card(agent: str) -> dict:
@@ -26,7 +33,8 @@ def agent_card(agent: str) -> dict:
     return {"schema": "yovahti/agent-card@1", "id": agent, "vendor": VENDOR,
             "version": PROMPT_VERSION,
             "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
-            "allowed_tools": TOOLS,
+            "allowed_tools": (TOOLS_W if agent in WORKFLOW else
+                              TOOLS_C if agent in CONSTRAINED else TOOLS),
             "scope": {"clusters": "*",
                       "parameters": SCOPE.get(agent, ["capacity_cell_sleep"])},
             "role": "coverage" if agent == "coverage-agent" else "energy",

@@ -34,11 +34,21 @@ admission and safety invariants and may refuse with reasons; a refusal is final 
 """
 
 
-def build_server(net: Network, agent: AgentIdentity | None) -> MCPServer:
+def build_server(net: Network, agent: AgentIdentity | None, mode: str = "full") -> MCPServer:
     """MCP server over a network. Behind `auth.SignedAgents` (I20) each request acts as the
     agent its RFC 9421 signature proves; ``agent`` is the identity for in-process use and
-    must be None when signatures are required."""
+    must be None when signatures are required.
+
+    ``mode="constrained"`` (D45) replaces the free-form act tools (simulate, propose, apply,
+    rollback) with one ``apply_plan``: the planner's plan minus agent-chosen keep-awake
+    windows, so an agent can make the plan safer but never add a sleep."""
+    if mode not in ("full", "constrained"):
+        raise ValueError(f"unknown mode {mode!r}")
     mcp = MCPServer("yovahti", instructions=INSTRUCTIONS, version="0.2.0")
+
+    def act_tool(**kw):
+        """Register in full mode only; constrained mode leaves the function unregistered."""
+        return mcp.tool(**kw) if mode == "full" else (lambda f: f)
 
     def who(ctx: Context) -> AgentIdentity:
         req = getattr(ctx.request_context, "request", None) if ctx else None
@@ -93,14 +103,14 @@ def build_server(net: Network, agent: AgentIdentity | None) -> MCPServer:
         and expected kWh saved. Does not change anything; propose it to act."""
         return net.optimise_plan(cluster, horizon)
 
-    @mcp.tool(annotations=READ)
+    @act_tool(annotations=READ)
     def simulate_plan(actions: list[dict[str, Any]], ctx: Context) -> dict[str, Any]:
         """Dry run: would these actions pass the arbiter now, do they need human approval,
         and what do they change in expected kWh and P90 risk (planner twin)? Same action
         format as propose_change. Nothing is registered or applied."""
         return net.simulate_plan(who(ctx), actions)
 
-    @mcp.tool(annotations=ACT)
+    @act_tool(annotations=ACT)
     def propose_change(actions: list[dict[str, Any]], rationale: str,
                        ctx: Context) -> dict[str, Any]:
         """Register a change. Each action: {"cell", "action": "sleep"|"wake", "from_qh"
@@ -108,7 +118,7 @@ def build_server(net: Network, agent: AgentIdentity | None) -> MCPServer:
         Nothing is applied until apply_change."""
         return net.propose_change(who(ctx), actions, rationale)
 
-    @mcp.tool(annotations=ACT)
+    @act_tool(annotations=ACT)
     def apply_change(change_id: str, ctx: Context) -> dict[str, Any]:
         """Apply a proposed change through admission and the arbiter. Returns a receipt, or a
         refusal with machine-readable reasons."""
@@ -127,10 +137,25 @@ def build_server(net: Network, agent: AgentIdentity | None) -> MCPServer:
         quarter-hours, against the same traffic with nothing asleep."""
         return net.get_energy_report(cluster, window)
 
-    @mcp.tool(annotations=ACT)
+    @act_tool(annotations=ACT)
     def rollback(change_id: str, ctx: Context) -> dict[str, Any]:
         """Undo the remaining part of an applied change. Returns a receipt."""
         return net.rollback(who(ctx), change_id)
+
+    if mode == "constrained":
+        from yovahti.mcp_server.constrained import apply_plan as _apply_plan
+
+        @mcp.tool(annotations=ACT)
+        def apply_plan(cluster: str, summary: str, ctx: Context,
+                       keep_awake: list[dict[str, Any]] | None = None,
+                       unknowns: list[str] | None = None) -> dict[str, Any]:
+            """Apply tonight's risk-checked planner plan for a cluster, once. You cannot add
+            sleep: you can only keep cells awake, e.g. where the event calendar or alarms
+            say people will be. keep_awake items: {"cell", "from_qh" (0 = now),
+            "quarter_hours", "reason"}; a cell keeps its whole sector awake for that window.
+            summary: your report to the operator. unknowns: every feed or fact you could not
+            check (missing alarms, stale KPIs, ...); never report missing data as fine."""
+            return _apply_plan(net, who(ctx), cluster, keep_awake, summary, unknowns)
 
     return mcp
 

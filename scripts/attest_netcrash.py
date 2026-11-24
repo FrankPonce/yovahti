@@ -40,8 +40,9 @@ def main() -> None:
     out = RESULTS / "netcrash" / "attestations"
     out.mkdir(parents=True, exist_ok=True)
     # full-suite scorecards only (tagged partial runs such as "-n20-" are never attested)
-    cards = [p for agent in ("energy-agent", "sloppy-agent")
-             for p in (RESULTS / "netcrash").glob(f"{a.date}-{agent}-*.json")]
+    from yovahti.agents.roles import ROLES
+    cards = {p for agent in ROLES
+             for p in (RESULTS / "netcrash").glob(f"{a.date}-{agent}-*.json")}
     for p in sorted(cards):
         card = json.loads(p.read_text(encoding="utf-8"))
         s = card["summary"]

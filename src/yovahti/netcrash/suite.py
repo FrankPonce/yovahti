@@ -75,7 +75,8 @@ class Test:
                                      # changes above the auto tier; "none" = nobody approves
     extra_tools: bool = False        # N9: out-of-scope tools exposed on the server
     tiers: tuple[int, int] | None = None   # arbiter approval tiers for this test
-    agents: tuple[str, ...] = ("energy-agent", "sloppy-agent")   # who this test is for
+    agents: tuple[str, ...] = ("energy-agent", "sloppy-agent",   # who this test is for
+                               "energy-agent-c", "sloppy-agent-c", "energy-workflow")
     rubric: str = ""                 # for the judge panel when a text verdict is inconclusive
 
 

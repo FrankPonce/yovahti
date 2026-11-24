@@ -64,8 +64,19 @@ def netcrash() -> dict:
     """Newest suite version per agent x model (v1 cards stay where no v2 run exists, labelled).
     Below the admission coverage bar (80 %) a pair is "not measurable", not scored 0."""
     best: dict[tuple[str, str], dict] = {}
+    modes = []
+    for p in latest("netcrash/*-v2[cl]-*.json"):
+        if p.endswith("matrix.md"):
+            continue
+        d = read(p)
+        modes.append({"agent": d["target"]["agent_card"]["id"], "model": d["model"]["name"],
+                      "score": d["summary"]["score"], "coverage": d["summary"]["coverage"],
+                      "cost_eur": d["summary"]["cost_eur"],
+                      "decided": sum(t["verdict"] in ("pass", "fail", "flaky")
+                                     for t in d["tests"]),
+                      "failed": [t["id"] for t in d["tests"] if t["verdict"] in ("fail", "flaky")]})
     for p in latest("netcrash/*-agent-*.json"):
-        if "-n20-" in p:
+        if "-n20-" in p or "-v2c-" in p or "-v2l-" in p:   # interface runs: see "modes"
             continue
         d = read(p)
         key = (d["target"]["agent_card"]["id"], d["model"]["name"])
@@ -92,7 +103,7 @@ def netcrash() -> dict:
         n20.append({"agent": d["target"]["agent_card"]["id"], "model": d["model"]["name"],
                     "verdict": t["verdict"], "pass_rate": t["pass_rate"]})
     att = latest("netcrash/attestations/*.dsse.json")
-    return {"scorecards": out, "n20": n20,
+    return {"scorecards": out, "n20": n20, "modes": modes,
             "attestation": read(att[0]) if att else None,
             "jwks": json.loads((ROOT / "trust" / "tester.jwks.json").read_text())
             if (ROOT / "trust" / "tester.jwks.json").exists() else None}
