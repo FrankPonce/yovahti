@@ -228,3 +228,10 @@ body.capture *, body.capture *::before, body.capture *::after { transition: none
 .chk .good::before { content: "✓ "; } .chk .bad::before { content: "✗ "; }
 .lbl b:not(.good):not(.bad), .vs-steps b:not(.good):not(.bad) { color: var(--brand); font-weight: 700; }
 .scene.dark .lbl b:not(.good):not(.bad) { color: var(--brand-soft); }
+.dial { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 14px; }
+.dial li { display: grid; grid-template-columns: 1fr auto; column-gap: 14px; row-gap: 2px; padding: 14px 18px; background: var(--brand-tint); border-radius: 16px; }
+.dial .dl { font-size: 21px; font-weight: 800; color: var(--brand); }
+.dial .dv { font-size: 28px; font-weight: 800; letter-spacing: -.02em; grid-row: span 2; align-self: center; }
+.dial .dd { font-size: 17px; color: var(--ink2); line-height: 1.3; }
+.dial .dd b { color: var(--brand); }
+.arrow:after { transition: border-color .8s var(--ease); } .arrow.in:after { border-left-color: var(--brand); }

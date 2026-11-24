@@ -225,27 +225,38 @@ hooks.s3 = (s) => { $("#vsrows").style.top = s >= 3 ? "665px" : "640px"; };
 
 // ------------------------------------------------------------------ 5 · every method on one chart
 hooks.s3b = (() => {
-  const svg = $("#front"), W = 860, H = 620, m = { l: 70, r: 40, t: 30, b: 70 };
+  const svg = $("#front"), W = 860, H = 620, m = { l: 92, r: 40, t: 56, b: 96 };
   const xmax = 5.4, ymin = 10, ymax = 24;
   const X = (v) => m.l + (Math.min(v, xmax) / xmax) * (W - m.l - m.r), Y = (v) => H - m.b - ((v - ymin) / (ymax - ymin)) * (H - m.t - m.b);
-  for (let v = 10; v <= 24; v += 2) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: C.rule }, svg); el("text", { x: m.l - 10, y: Y(v) + 5, "text-anchor": "end", "font-size": 14, fill: C.mute }, svg).textContent = `${v} %`; }
-  for (let v = 0; v <= 5; v++) el("text", { x: X(v), y: H - m.b + 24, "text-anchor": "middle", "font-size": 14, fill: C.mute }, svg).textContent = v;
-  el("text", { x: (m.l + W - m.r) / 2, y: H - 14, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: C.badInk }, svg).textContent = "Congested quarter-hours per sector-day →  (worse)";
-  el("text", { x: m.l - 54, y: m.t - 10, "font-size": 16, "font-weight": 700, fill: C.goodInk }, svg).textContent = "↑ Energy saved (better)";
+  for (let v = 10; v <= 24; v += 2) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: C.rule }, svg); el("text", { x: m.l - 12, y: Y(v) + 7, "text-anchor": "end", "font-size": 20, fill: C.mute }, svg).textContent = `${v} %`; }
+  for (let v = 0; v <= 5; v++) el("text", { x: X(v), y: H - m.b + 30, "text-anchor": "middle", "font-size": 20, fill: C.mute }, svg).textContent = v;
+  // axis arrows: drawn, not typed, so they read at a glance
+  const arrow = (x1, y1, x2, y2, col) => {
+    el("line", { x1, y1, x2, y2, stroke: col, "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    const a = Math.atan2(y2 - y1, x2 - x1), k = 16;
+    el("path", { d: `M${x2},${y2} L${x2 - k * Math.cos(a - 0.5)},${y2 - k * Math.sin(a - 0.5)} L${x2 - k * Math.cos(a + 0.5)},${y2 - k * Math.sin(a + 0.5)} Z`, fill: col }, svg);
+  };
+  arrow(m.l, H - m.b, m.l, m.t - 26, C.goodInk);
+  arrow(m.l, H - m.b, W - m.r + 14, H - m.b, C.badInk);
+  el("text", { x: m.l + 14, y: m.t - 18, "font-size": 22, "font-weight": 800, fill: C.goodInk }, svg).textContent = "Energy saved · better ↑";
+  el("text", { x: W - m.r, y: H - 18, "text-anchor": "end", "font-size": 22, "font-weight": 800, fill: C.badInk }, svg).textContent = "Congested quarter-hours per sector-day · worse →";
   const g0 = el("g", { opacity: 0, style: "transition:opacity .8s" }, svg);
-  const pts = [["Static thresholds", b1], ["Published method (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Oracle (perfect foresight)", M["Oracle (perfect foresight)"]]];
+  const pts = [["Static thresholds", b1], ["Published method (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Oracle (perfect foresight)", M["Oracle (perfect foresight)"]],
+    ["Published + predictive wake (our fix)", { congested_qh_per_sector_day: 0.62, kwh_saved_pct: 16.5 }]];
   for (const [n, mm] of pts) {
     el("circle", { cx: X(mm.congested_qh_per_sector_day), cy: Y(mm.kwh_saved_pct), r: 7, fill: "#7C8597", stroke: "#F6F7F4", "stroke-width": 2 }, g0);
     const left = mm.congested_qh_per_sector_day > 4;
-    el("text", { x: X(mm.congested_qh_per_sector_day) + (left ? -12 : 12), y: Y(mm.kwh_saved_pct) + 5, "text-anchor": left ? "end" : "start", "font-size": 15, fill: C.ink }, g0).textContent = n;
+    el("text", { x: X(mm.congested_qh_per_sector_day) + (left ? -12 : 12), y: Y(mm.kwh_saved_pct) + 5, "text-anchor": left ? "end" : "start", "font-size": 18, fill: C.ink }, g0).textContent = n;
   }
   const curve = [{ margin: "P50", ...M["B4 on P50 (ablation)"] }, ...D.results.margin_curve];
   const cp = curve.map((c) => [X(c.congested_qh_per_sector_day), Y(c.kwh_saved_pct)]);
   const line = el("path", { d: "M" + cp.map((q) => q.join(",")).join("L"), fill: "none", stroke: C.brand, "stroke-width": 3, pathLength: 1, class: "draw" }, svg);
   const g1 = el("g", { opacity: 0, style: "transition:opacity .8s .8s" }, svg);
   curve.forEach((c, i) => el("circle", { cx: cp[i][0], cy: cp[i][1], r: 7, fill: C.brand, stroke: "#F6F7F4", "stroke-width": 2 }, g1));
-  el("text", { x: cp[0][0] - 14, y: cp[0][1] - 14, "text-anchor": "end", "font-size": 16, "font-weight": 800, fill: C.brand }, g1).textContent = "Yövahti (average forecast)";
-  el("text", { x: cp[cp.length - 1][0] + 14, y: cp[cp.length - 1][1] + 18, "font-size": 16, "font-weight": 800, fill: C.brand }, g1).textContent = "Yövahti (careful)";
+  el("text", { x: cp[0][0] - 14, y: cp[0][1] - 16, "text-anchor": "end", "font-size": 20, "font-weight": 800, fill: C.brand }, g1).textContent = "Average forecast";
+  const di = curve.findIndex((c) => Math.abs(c.kwh_saved_pct - 18.1) < 0.15);
+  if (di > 0) el("text", { x: cp[di][0] + 14, y: cp[di][1] - 12, "font-size": 20, "font-weight": 800, fill: C.brand }, g1).textContent = "Default (P90)";
+  el("text", { x: cp[cp.length - 1][0] + 16, y: cp[cp.length - 1][1] + 22, "font-size": 20, "font-weight": 800, fill: C.brand }, g1).textContent = "Careful";
   return (s) => { g0.setAttribute("opacity", s >= 0 ? 1 : 0); line.classList.toggle("in", s >= 1); g1.setAttribute("opacity", s >= 1 ? 1 : 0); };
 })();
 

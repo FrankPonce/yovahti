@@ -180,8 +180,15 @@
   <div class="tag"><b>06</b>Every method on one chart</div>
   <div style="position:absolute;left:90px;top:150px;width:520px">
     <div class="h2">Energy and congestion are one trade-off.</div>
-    <div class="lbl" style="margin-top:14px">Every sleeping radio saves energy and pushes its users onto the coverage layer. Sleep more, save more, until users feel it. So the question isn't "how much do you save" but <b>how much you save for the congestion you cause</b>. Up and to the left is better.</div>
-    <div class="lbl r" data-s="2" style="margin-top:18px">Yövahti is a dial along that curve: planning on the average forecast saves <span data-k="p50_saved">20.0</span> % with less congestion than the published method; the default saves <span data-k="b4_saved">18.1</span> % with 8× less (1.6 points more than a fairer version with a predictive wake, at the same congestion); careful saves <span data-k="b4_careful">14.1</span> % with almost none. Every point sits above and left of the others.</div>
+    <div class="lbl" style="margin-top:14px">Every sleeping radio pushes its users onto the coverage layer. The question isn't how much you save, but <b>how much you save for the congestion you cause</b>. <b>Up and left</b> is better.</div>
+    <div class="r" data-s="2" style="margin-top:22px">
+      <div class="cap">Yövahti is a dial</div>
+      <ul class="dial">
+        <li><span class="dl">Average forecast</span><span class="dv good">20.0 %</span><span class="dd">saved, still less congestion than the published method</span></li>
+        <li><span class="dl">Default (P90)</span><span class="dv good">18.1 %</span><span class="dd">saved with <b>8× less</b> congestion; <b>+1.6 points</b> vs the published method with our predictive-wake fix, at the same congestion</span></li>
+        <li><span class="dl">Careful</span><span class="dv good">14.1 %</span><span class="dd">saved with <b>almost no</b> congestion</span></li>
+      </ul>
+    </div>
   </div>
   <svg id="front" width="860" height="620" style="position:absolute;left:680px;top:150px"></svg>
   <div class="note"><b>Held on unseen data:</b> on the locked test weeks (run once, method frozen) Yövahti saves 18.8 % with 7× less congestion than the published method. Chart: validation weeks, 749 real sectors, same forecasts and simulator for every method. Oracle = perfect foresight.</div>
@@ -372,11 +379,11 @@ Signature: sig=:Mx4f…Q9w=:</div>
   </div>
   <div class="flow r" data-s="0" style="left:90px;top:430px">
     <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/robot.webp" alt="AI agent" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">agent</div><div class="cap">MCP · proposes</div></div>
-    <div class="arrow"><i></i></div>
+    <div class="arrow" data-s="0"><i></i></div>
     <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/rack.webp" alt="Server rack running the arbiter" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">arbiter</div><div class="cap">I1–I9 · approves</div></div>
-    <div class="arrow"><i></i></div>
+    <div class="arrow" data-s="0"><i></i></div>
     <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/site_on.webp" alt="Base station" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">eNB</div><div class="cap">srsRAN 4G · sleeps, wakes</div></div>
-    <div class="arrow"><i></i></div>
+    <div class="arrow" data-s="0"><i></i></div>
     <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/phone.webp" alt="Phone" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">phone</div><div class="cap">attach, ping · observed</div></div>
   </div>
   <div style="position:absolute;left:1080px;top:170px;width:440px;display:flex;flex-direction:column;gap:30px">

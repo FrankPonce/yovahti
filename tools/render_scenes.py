@@ -630,7 +630,7 @@ def build_phone():
         place(box("sig%d" % i, 0.2, 0.23, -0.55 + i * 0.3, -0.36 + i * 0.3, 1.5, 1.5 + h,
                   mat("white", 0.3, emit=2.0), bv=0.02))
     place(box("notch", 0.2, 0.22, -0.18, 0.18, 3.5, 3.6, mat("dark", 0.3), bv=0.02))
-    shadow_catcher()
+    # no shadow catcher: on dark props its haze survives web_images.clean as a grey box
 
 
 def build_rack():
@@ -647,7 +647,7 @@ def build_rack():
         for j in range(5):                                 # drive bays
             box("bay%d_%d" % (i, j), 0.95, 0.97, -0.55 + j * 0.13, -0.45 + j * 0.13, z0 + 0.08,
                 z0 + 0.32, mat("dark", 0.5), bv=0)
-    shadow_catcher()
+    # no shadow catcher (see build_phone)
 
 
 def build_bolt():
