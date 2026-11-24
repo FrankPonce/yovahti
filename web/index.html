@@ -56,18 +56,23 @@
   <div class="tag"><b>02</b>Where the emissions are</div>
   <div class="h2" style="position:absolute;left:90px;top:150px;width:1400px">For a network vendor, the climate problem is <span class="k">out on the masts</span>.</div>
 
-  <div style="position:absolute;left:90px;top:290px;width:700px">
+  <div style="position:absolute;left:90px;top:290px;width:520px">
     <div class="cap">Ericsson's carbon footprint</div>
     <div class="big num bad" style="font-size:150px;margin-top:8px">&gt;93%</div>
     <div class="lbl" style="margin-top:6px">is the <span class="k">energy its products use</span> in operators' networks.</div>
-    <div class="fp" style="margin-top:26px;width:700px">
+    <div class="fp" style="margin-top:26px;width:520px">
       <div style="width:93%;background:var(--bad)">products in the field</div>
       <div style="width:7%;background:var(--sleep);padding:0"></div>
     </div>
     <div class="lbl" style="font-size:16px;margin-top:8px;text-align:right">factories, offices, travel: <b>under 7 %</b></div>
   </div>
 
-  <div class="r" data-s="1" style="position:absolute;left:900px;top:290px;width:620px">
+  <div style="position:absolute;left:600px;top:250px;width:340px;height:290px">
+    <img class="fade" data-s="0" data-out="2" src="img/plant.webp" alt="A coal power plant with smoking chimney and cooling towers" style="position:absolute;inset:0;width:100%">
+    <img class="fade" data-s="2" src="img/wind.webp" alt="The same land with wind turbines" style="position:absolute;inset:0;width:100%">
+  </div>
+
+  <div class="r" data-s="1" style="position:absolute;left:965px;top:290px;width:560px">
     <div class="cap">Ericsson's pledge · emissions from products in use</div>
     <div class="trend" style="margin-top:22px">
       <div class="col"><div class="v">100</div><div class="tb" style="height:240px;background:var(--sleep)"></div></div>
@@ -365,14 +370,14 @@ Signature: sig=:Mx4f…Q9w=:</div>
     <div class="h2">Simulators can be generous. So the last hop runs on a real stack.</div>
     <div class="lbl" style="margin-top:16px">srsRAN 4G: a <b>real core network, base station and phone</b>, with real attach and real user traffic, over a software radio link. The approved change <b>drives the base station</b>, and the network <b>reads back what it really did</b>.</div>
   </div>
-  <div class="flow r" data-s="0" style="left:90px;top:480px">
-    <div class="node"><div class="box" style="font-size:22px;font-weight:800">agent</div><div class="lbl">MCP</div><div class="cap">proposes</div></div>
+  <div class="flow r" data-s="0" style="left:90px;top:430px">
+    <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/robot.webp" alt="AI agent" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">agent</div><div class="cap">MCP · proposes</div></div>
     <div class="arrow"><i></i></div>
-    <div class="node"><div class="box brand" style="font-size:22px;font-weight:800">arbiter</div><div class="lbl">I1–I9</div><div class="cap">approves</div></div>
+    <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/rack.webp" alt="Server rack running the arbiter" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">arbiter</div><div class="cap">I1–I9 · approves</div></div>
     <div class="arrow"><i></i></div>
-    <div class="node"><div class="box" style="font-size:22px;font-weight:800">eNB</div><div class="lbl">srsRAN 4G</div><div class="cap">sleeps · wakes</div></div>
+    <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/site_on.webp" alt="Base station" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">eNB</div><div class="cap">srsRAN 4G · sleeps, wakes</div></div>
     <div class="arrow"><i></i></div>
-    <div class="node"><div class="box" style="font-size:22px;font-weight:800">phone</div><div class="lbl">attach · ping</div><div class="cap">observed state</div></div>
+    <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/phone.webp" alt="Phone" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">phone</div><div class="cap">attach, ping · observed</div></div>
   </div>
   <div style="position:absolute;left:1080px;top:170px;width:440px;display:flex;flex-direction:column;gap:30px">
     <div class="r" data-s="1"><div class="big num good" style="font-size:96px">2.4 s</div><div class="lbl" style="font-size:19px">from "wake" to user traffic flowing again, median of 10 cycles (worst 2.6 s). The planner allows a quarter-hour: this is <b>0.3 %</b> of it.</div></div>
@@ -387,14 +392,14 @@ Signature: sig=:Mx4f…Q9w=:</div>
  <div class="sticky"><div class="stage">
   <div class="tag"><b>14</b>The AI's own energy</div>
   <div style="position:absolute;left:90px;top:150px;width:900px">
-    <div class="h2">Does the AI eat the savings?</div>
+    <div class="h2">Does the AI <span class="k">eat the savings</span>?</div>
     <div class="lbl" style="margin-top:14px"><b>Measured, not estimated</b>: one full agent night on a local model (qwen3:4b on a laptop RTX 4050), GPU power sampled every 100 ms, against the energy the same night's plan saved.</div>
   </div>
-  <div style="position:absolute;left:90px;top:370px;width:1420px">
+    <div style="position:absolute;left:90px;top:370px;width:1420px">
     <div class="cap">Energy saved by one agent night · 31 sectors</div>
-    <div style="margin-top:12px;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800">21.3 kWh</div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="flex:1;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800">21.3 kWh</div><img src="img/bolt.webp" alt="" style="height:110px;margin:-24px 0"></div>
     <div class="cap r" data-s="1" style="margin-top:34px">Energy the agent&#39;s model used, same scale (true width: half a pixel)</div>
-    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad">7.6 Wh</div></div>
+    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad">7.6 Wh</div><img src="img/bolt.webp" alt="" style="height:12px"></div>
   </div>
   <div class="r" data-s="1" style="position:absolute;left:90px;top:640px;width:1300px">
     <div class="big num good" style="font-size:96px">0.035 %</div>

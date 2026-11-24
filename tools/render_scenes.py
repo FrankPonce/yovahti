@@ -503,7 +503,170 @@ def build_robot():
     shadow_catcher()
 
 
+# ---------------------------------------------------------------- power plant (emissions scene)
+def smoke(name, x, y, z, puffs, r0, grow, rise, drift, c0, c1, seed):
+    """A rising plume of opaque puffs, growing and lightening with height (cartoon smoke)."""
+    rnd = _rnd.Random(seed)
+    for i in range(puffs):
+        t = i / max(1, puffs - 1)
+        r = r0 + grow * t
+        px = x + drift[0] * t + rnd.uniform(-0.12, 0.12) * (1 + t)
+        py = y + drift[1] * t + rnd.uniform(-0.12, 0.12) * (1 + t)
+        col = "#%02X%02X%02X" % tuple(round(a + (b - a) * t) for a, b in zip(c0, c1))
+        sphere("%s%d" % (name, i), r, mat(col, 0.9), (px, py, z + rise * t + r * 0.6), sz=0.85)
+        for k in range(2):                                  # side lumps make it billow
+            a = rnd.uniform(0, 2 * math.pi)
+            sphere("%s%d_%d" % (name, i, k), r * 0.62, mat(col, 0.9),
+                   (px + math.cos(a) * r * 0.7, py + math.sin(a) * r * 0.7,
+                    z + rise * t + r * 0.45), sz=0.85)
+
+
+def cooling_tower(name, x, y, h=3.4, rb=1.25, rw=0.78, rt=0.95):
+    """Hyperboloid cooling tower from stacked frusta (waist at 70 % height)."""
+    zw = h * 0.7
+    m = mat("concrete", 0.75)
+    cyl(name + "_lo", rb, 0.08, zw, m, r1=rw, seg=48, loc=(x, y, 0))
+    cyl(name + "_hi", rw, zw, h, m, r1=rt, seg=48, loc=(x, y, 0))
+    cyl(name + "_rim", rt * 0.9, h - 0.02, h + 0.01, mat("dark", 0.8), seg=48, loc=(x, y, 0))
+
+
+def same_frame():
+    """Invisible box both before/after tiles share, so iso_camera frames them identically."""
+    ob = box("frame", -5.4, 5.4, -5.4, 5.4, -0.35, 10.6, None, bv=0)
+    ob.hide_render = True
+
+
+def build_plant():
+    tile(5.4)
+    same_frame()
+    cooling_tower("ctA", -2.2, 1.6)
+    cooling_tower("ctB", -0.2, 2.6, h=3.0, rb=1.1, rw=0.7, rt=0.85)
+    # boiler house with a sawtooth roof and the chimney behind it
+    box("hall", 0.6, 3.6, -2.6, -0.4, 0.08, 1.7, mat("falu", 0.6), bv=0.06)
+    for i in range(3):
+        y0 = -2.6 + i * 0.74
+        mesh("roof%d" % i, [(0.6, y0, 1.7), (3.6, y0, 1.7), (3.6, y0 + 0.74, 1.7),
+                            (0.6, y0 + 0.74, 1.7), (0.6, y0 + 0.74, 2.15), (3.6, y0 + 0.74, 2.15)],
+             [(0, 1, 2, 3), (3, 2, 5, 4), (0, 4, 5, 1), (0, 3, 4), (1, 5, 2)], mat("roof", 0.6))
+    for i in range(4):                                     # windows
+        box("win%d" % i, 3.6, 3.64, -2.4 + i * 0.5, -2.1 + i * 0.5, 0.7, 1.2, window_mat(), bv=0)
+    cx, cy = 2.9, 1.0
+    bands = 6
+    for i in range(bands):                                 # red-white striped chimney
+        z0 = 0.08 + i * (5.6 / bands)
+        z1 = z0 + 5.6 / bands
+        r0 = 0.42 - 0.12 * i / bands
+        cyl("chim%d" % i, r0, z0, z1, mat("falu" if i % 2 == 0 else "white", 0.55),
+            r1=0.42 - 0.12 * (i + 1) / bands, seg=32, loc=(cx, cy, 0))
+    # coal heap and a conveyor to the hall
+    cyl("coal", 1.1, 0.08, 1.0, mat("#2A2A2E", 0.95), r1=0.12, seg=40, loc=(-2.4, -2.3, 0))
+    cyl("coal2", 0.7, 0.08, 0.6, mat("#34343A", 0.95), r1=0.1, seg=32, loc=(-1.3, -2.9, 0))
+    # plumes: dark coal smoke from the chimney, white steam from the towers
+    smoke("smk", cx, cy, 5.35, 7, 0.32, 0.55, 3.4, (-1.6, -0.6), (88, 90, 98), (150, 152, 160), 3)
+    smoke("stA", -2.2, 1.6, 3.4, 5, 0.6, 0.45, 2.2, (-1.0, -0.2), (236, 236, 238), (250, 250, 252), 5)
+    smoke("stB", -0.2, 2.6, 3.0, 5, 0.5, 0.4, 2.0, (-1.0, -0.3), (236, 236, 238), (250, 250, 252), 9)
+
+
+def turbine(name, x, y, h, L, spin, face=(1.0, 1.0)):
+    """Three-blade wind turbine; the rotor faces ``face`` (towards the iso camera)."""
+    f = Vector((face[0], face[1], 0)).normalized()
+    u = Vector((-f.y, f.x, 0))                              # lateral, in the rotor plane
+    z = Vector((0, 0, 1))
+    white = mat("white", 0.35)
+    cyl(name + "_tower", 0.2, 0.08, h, white, r1=0.11, seg=24, loc=(x, y, 0))
+    hub = Vector((x, y, h + 0.12)) + f * 0.38
+    nac = box(name + "_nac", -0.36, 0.36, -0.14, 0.14, h - 0.02, h + 0.26, white, bv=0.06)
+    nac.location = (x, y, 0)
+    nac.rotation_euler[2] = math.atan2(f.y, f.x)
+    nac.location = (x + f.x * 0.12, y + f.y * 0.12, 0)
+    sphere(name + "_hub", 0.16, white, tuple(hub), sz=1.0)
+    for k in range(3):
+        a = math.radians(spin + 120 * k)
+        d = z * math.cos(a) + u * math.sin(a)              # blade axis
+        w = z * -math.sin(a) + u * math.cos(a)             # blade width direction
+        t = f * 0.03
+        root, tip = hub + d * 0.12, hub + d * L
+        v = []
+        for p, half in ((root, 0.13), (root + d * L * 0.25, 0.17), (tip, 0.035)):
+            for sgn in (-1, 1):
+                for th in (-1, 1):
+                    v.append(tuple(p + w * half * sgn + t * th))
+        faces = []
+        for s0 in (0, 4):                                    # two segments of 4-vertex rings
+            r0, r1 = [s0 + i for i in (0, 1, 3, 2)], [s0 + 4 + i for i in (0, 1, 3, 2)]
+            for i in range(4):
+                faces.append((r0[i], r0[(i + 1) % 4], r1[(i + 1) % 4], r1[i]))
+        faces += [(0, 2, 3, 1), (8, 9, 11, 10)]
+        mesh(name + "_blade%d" % k, v, faces, white)
+    # a red tip light on the nacelle
+    sphere(name + "_light", 0.05, mat("falu", 0.4, emit=2.0), (x, y, h + 0.3))
+
+
+def build_wind():
+    """The 'after' for the plant: same tile, clean power."""
+    tile(5.4)
+    same_frame()
+    turbine("tA", -2.0, 1.4, 5.6, 2.1, 10)
+    turbine("tB", 1.4, 2.4, 4.8, 1.8, 55)
+    turbine("tC", 2.2, -1.6, 5.2, 2.0, 95)
+    # a small substation and a few trees, so the tile isn't bare
+    box("sub", -2.9, -1.3, -2.9, -1.9, 0.08, 0.7, mat("mast", 0.5, metal=0.2), bv=0.05)
+    for i, (tx, ty) in enumerate(((-0.4, -0.6), (0.2, -2.8), (-3.6, -0.6), (3.6, 1.0), (-0.9, 3.4))):
+        cyl("trunk%d" % i, 0.07, 0.08, 0.4, mat("#7A5A3A", 0.8), seg=10, loc=(tx, ty, 0))
+        cyl("tree%d" % i, 0.42, 0.35, 1.35, mat("#5E9E4A", 0.8), r1=0.02, seg=16, loc=(tx, ty, 0))
+
+
+# ---------------------------------------------------------------- small props for the trust scenes
+def build_phone():
+    """A smartphone standing on its edge, screen to the camera, showing signal bars."""
+    rz = math.radians(18)
+    def place(ob):
+        ob.rotation_euler[2] = rz
+        return ob
+    place(box("body", -0.18, 0.18, -1.0, 1.0, 0.0, 3.9, mat("dark", 0.35), bv=0.22))
+    place(box("screen", 0.17, 0.2, -0.88, 0.88, 0.22, 3.68, mat("brand", 0.25, emit=0.6), bv=0.08))
+    for i in range(4):                                     # signal bars
+        h = 0.35 + 0.3 * i
+        place(box("sig%d" % i, 0.2, 0.23, -0.55 + i * 0.3, -0.36 + i * 0.3, 1.5, 1.5 + h,
+                  mat("white", 0.3, emit=2.0), bv=0.02))
+    place(box("notch", 0.2, 0.22, -0.18, 0.18, 3.5, 3.6, mat("dark", 0.3), bv=0.02))
+    shadow_catcher()
+
+
+def build_rack():
+    """A server rack (where the MCP server and the arbiter run), with status LEDs."""
+    box("cab", -0.9, 0.9, -0.7, 0.7, 0.0, 3.8, mat("dark", 0.45), bv=0.08)
+    rnd = _rnd.Random(4)
+    for i in range(7):
+        z0 = 0.25 + i * 0.5
+        box("unit%d" % i, 0.88, 0.95, -0.6, 0.6, z0, z0 + 0.4, mat("roof", 0.4), bv=0.03)
+        for j in range(3):
+            col = "good" if rnd.random() < 0.8 else "brand"
+            box("led%d_%d" % (i, j), 0.95, 0.98, 0.25 + j * 0.1, 0.31 + j * 0.1, z0 + 0.15,
+                z0 + 0.23, mat({"good": "#4ADE80", "brand": "#A5B4FC"}[col], 0.3, emit=6.0), bv=0)
+        for j in range(5):                                 # drive bays
+            box("bay%d_%d" % (i, j), 0.95, 0.97, -0.55 + j * 0.13, -0.45 + j * 0.13, z0 + 0.08,
+                z0 + 0.32, mat("dark", 0.5), bv=0)
+    shadow_catcher()
+
+
+def build_bolt():
+    """A chunky lightning bolt (energy), extruded, standing up."""
+    pts = [(0.35, 2.0), (-0.75, -0.15), (-0.05, -0.15), (-0.45, -2.0), (0.8, 0.35), (0.1, 0.35),
+           (0.55, 2.0)]
+    th = 0.22
+    v = [(-th, x, z + 2.1) for x, z in pts] + [(th, x, z + 2.1) for x, z in pts]
+    n = len(pts)
+    faces = [tuple(range(n))[::-1], tuple(range(n, 2 * n))]
+    faces += [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+    ob = mesh("bolt", v, faces, mat("#D96A00", 0.3, emit=0.15))
+    bevel(ob, 0.05, 3)
+    ob.rotation_euler[2] = math.radians(15)   # floats like an icon: no ground shadow
+
+
 BUILDERS = {"site_on": lambda: build_site(True), "site_off": lambda: build_site(False),
+            "plant": build_plant, "wind": build_wind, "phone": build_phone, "rack": build_rack,
+            "bolt": build_bolt,
             "site_dial": lambda: build_site(True, "dial"),
             "site_forecast": lambda: build_site(True, "forecast"),
             "stadium": build_stadium, "ferry": build_ferry, "town": build_town,

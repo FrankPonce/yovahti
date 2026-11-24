@@ -12,7 +12,7 @@ from PIL import Image
 
 IMG = Path(__file__).resolve().parents[1] / "web" / "img"
 GROUPS = [["site_on", "site_off", "site_on_night", "site_dial", "site_forecast"],
-          ["town", "town_night"], ["stadium", "stadium_night"], ["ferry"], ["robot"]]
+          ["town", "town_night"], ["stadium", "stadium_night"], ["ferry"], ["robot"], ["plant", "wind"], ["phone"], ["rack"], ["bolt"]]
 
 
 def clean(im: Image.Image) -> Image.Image:
