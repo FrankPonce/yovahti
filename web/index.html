@@ -58,7 +58,7 @@
 
   <div style="position:absolute;left:90px;top:290px;width:520px">
     <div class="cap">Ericsson's carbon footprint</div>
-    <div class="big num bad" style="font-size:150px;margin-top:8px">&gt;93%</div>
+    <div class="big num bad" style="font-size:150px;margin-top:8px">&gt;<span data-count="93" data-s="0">0</span>%</div>
     <div class="lbl" style="margin-top:6px">is the <span class="k">energy its products use</span> in operators' networks.</div>
     <div class="fp" style="margin-top:26px;width:520px">
       <div style="width:93%;background:var(--bad)">products in the field</div>
@@ -184,9 +184,9 @@
     <div class="r" data-s="2" style="margin-top:22px">
       <div class="cap">Yövahti is a dial</div>
       <ul class="dial">
-        <li><span class="dl">Average forecast</span><span class="dv good">20.0 %</span><span class="dd">saved, still less congestion than the published method</span></li>
-        <li><span class="dl">Default (P90)</span><span class="dv good">18.1 %</span><span class="dd">saved with <b>8× less</b> congestion; <b>+1.6 points</b> vs the published method with our predictive-wake fix, at the same congestion</span></li>
-        <li><span class="dl">Careful</span><span class="dv good">14.1 %</span><span class="dd">saved with <b>almost no</b> congestion</span></li>
+        <li><span class="dl">Average forecast</span><span class="dv good"><span data-count="20.0" data-dec="1" data-s="2">0</span> %</span><span class="dd">saved, still less congestion than the published method</span></li>
+        <li><span class="dl">Default (P90)</span><span class="dv good"><span data-count="18.1" data-dec="1" data-s="2">0</span> %</span><span class="dd">saved with <b>8× less</b> congestion; <b>+1.6 points</b> vs the published method with our predictive-wake fix, at the same congestion</span></li>
+        <li><span class="dl">Careful</span><span class="dv good"><span data-count="14.1" data-dec="1" data-s="2">0</span> %</span><span class="dd">saved with <b>almost no</b> congestion</span></li>
       </ul>
     </div>
   </div>
@@ -387,8 +387,8 @@ Signature: sig=:Mx4f…Q9w=:</div>
     <div class="node"><div class="box" style="background:transparent;box-shadow:none"><img src="img/phone.webp" alt="Phone" style="max-height:140px;max-width:150px"></div><div class="lbl" style="font-size:20px;font-weight:800;margin-top:6px">phone</div><div class="cap">attach, ping · observed</div></div>
   </div>
   <div style="position:absolute;left:1080px;top:170px;width:440px;display:flex;flex-direction:column;gap:30px">
-    <div class="r" data-s="1"><div class="big num good" style="font-size:96px">2.4 s</div><div class="lbl" style="font-size:19px">from "wake" to user traffic flowing again, median of 10 cycles (worst 2.6 s). The planner allows a quarter-hour: this is <b>0.3 %</b> of it.</div></div>
-    <div class="r" data-s="2"><div class="big num good" style="font-size:96px">24 / 24</div><div class="lbl" style="font-size:19px">quarter-hours of a real validation night in which the base station did exactly what the arbiter approved.</div></div>
+    <div class="r" data-s="1"><div class="big num good" style="font-size:96px"><span data-count="2.4" data-dec="1" data-s="1">0</span> s</div><div class="lbl" style="font-size:19px">from "wake" to user traffic flowing again, median of 10 cycles (worst 2.6 s). The planner allows a quarter-hour: this is <b>0.3 %</b> of it.</div></div>
+    <div class="r" data-s="2"><div class="big num good" style="font-size:96px"><span data-count="24" data-s="2">0</span> / 24</div><div class="lbl" style="font-size:19px">quarter-hours of a real validation night in which the base station did exactly what the arbiter approved.</div></div>
   </div>
   <div class="note">Not covered: radio hardware (power-amplifier warm-up, RF) and its power draw. The software radio can't reconnect, so a wake restarts the phone too, which makes 2.4 s an upper bound for the software side.</div>
  </div></div>
@@ -404,12 +404,12 @@ Signature: sig=:Mx4f…Q9w=:</div>
   </div>
     <div style="position:absolute;left:90px;top:370px;width:1420px">
     <div class="cap">Energy saved by one agent night · 31 sectors</div>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="flex:1;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800">21.3 kWh</div><img src="img/bolt.webp" alt="" style="height:110px;margin:-24px 0"></div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="flex:1;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800"><span data-count="21.3" data-dec="1" data-s="0">0</span> kWh</div><img src="img/bolt.webp" alt="" style="height:110px;margin:-24px 0"></div>
     <div class="cap r" data-s="1" style="margin-top:34px">Energy the agent&#39;s model used, same scale (true width: half a pixel)</div>
-    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad">7.6 Wh</div><img src="img/bolt.webp" alt="" style="height:12px"></div>
+    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad"><span data-count="7.6" data-dec="1" data-s="1">0</span> Wh</div><img src="img/bolt.webp" alt="" style="height:12px"></div>
   </div>
   <div class="r" data-s="1" style="position:absolute;left:90px;top:640px;width:1300px">
-    <div class="big num good" style="font-size:96px">0.035 %</div>
+    <div class="big num good" style="font-size:96px"><span data-count="0.035" data-dec="3" data-s="1">0</span> %</div>
     <div class="lbl" style="font-size:20px">of what the night saved (0.07 % counting the rest of the laptop). Three orders of magnitude to spare.</div>
   </div>
   <div class="note">GPU board power only (nvidia-smi); one night, cluster C01, 27 Oct 2025. Hosted models are estimated from published per-response figures and land in the same range.</div>
@@ -423,10 +423,10 @@ Signature: sig=:Mx4f…Q9w=:</div>
     <div class="site" style="position:relative;width:110px;height:123px;margin-bottom:14px"><img class="on" src="img/site_on.webp" alt=""><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%"><i></i><i></i><i></i></div></div>
     <div class="h" style="max-width:1200px">Radios that sleep.<br><span class="brand">Agents that earn the right to act.</span></div>
     <div class="r" data-s="1" style="display:flex;gap:70px;margin-top:34px;justify-content:center">
-      <div><div class="big num good" style="font-size:64px"><span data-k="b4_saved">18.1</span>%</div><div class="lbl" style="font-size:17px">radio energy saved</div></div>
-      <div><div class="big num good" style="font-size:64px"><span data-k="x_b1">6</span>×</div><div class="lbl" style="font-size:17px">less congestion than static rules</div></div>
-      <div><div class="big num good" style="font-size:64px"><span data-k="match_removed">92</span>%</div><div class="lbl" style="font-size:17px">of event congestion avoided by an agent</div></div>
-      <div><div class="big num good" style="font-size:64px">0.035%</div><div class="lbl" style="font-size:17px">of the savings spent on the AI itself</div></div>
+      <div><div class="big num good" style="font-size:64px"><span data-count data-dec="1" data-k="b4_saved" data-s="1">0</span>%</div><div class="lbl" style="font-size:17px">radio energy saved</div></div>
+      <div><div class="big num good" style="font-size:64px"><span data-count data-k="x_b1" data-s="1">0</span>×</div><div class="lbl" style="font-size:17px">less congestion than static rules</div></div>
+      <div><div class="big num good" style="font-size:64px"><span data-count data-k="match_removed" data-s="1">0</span>%</div><div class="lbl" style="font-size:17px">of event congestion avoided by an agent</div></div>
+      <div><div class="big num good" style="font-size:64px"><span data-count="0.035" data-dec="3" data-s="1">0</span>%</div><div class="lbl" style="font-size:17px">of the savings spent on the AI itself</div></div>
     </div>
     <div class="lbl r" data-s="1" style="margin-top:22px;max-width:980px">Real live-network data and a real LTE stack. A planner that saves energy safely by construction, aimed at the part of the footprint Ericsson has pledged to halve by 2030. Agents tested on the model they run on, signed, logged in public, and checked by proved rules before every action. Everything is open, including what went wrong.</div>
     <div class="r" data-s="1" style="display:flex;gap:20px;margin-top:30px;max-width:1100px;text-align:left">
