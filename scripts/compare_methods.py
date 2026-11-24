@@ -90,10 +90,20 @@ def main() -> None:
         print(f"  rho {rho:2d}%: B4 saves {s4['kwh_saved_pct']:5.1f}% "
               f"(congested {s4['congested_qh_per_sector_day']:.3f}/sector-day) | B2 saves "
               f"{s2['kwh_saved_pct']:5.1f}% (congested {s2['congested_qh_per_sector_day']:.3f})")
+    print("\nplanning-margin curve (B4 P90 x margin), D28:")
+    margin_curve = {}
+    b0 = results["B0 always-on"]
+    for m in (1.0, 1.15, 1.3, 1.5):
+        s = summarise(world, run(world, planner(margin=m), "B4", cfg), b0)
+        margin_curve[m] = s
+        print(f"  margin {m:4.2f}: B4 saves {s['kwh_saved_pct']:5.1f}% (congested "
+              f"{s['congested_qh_per_sector_day']:.3f}/sector-day, unserved "
+              f"{s['unserved_gb'] / 1000:.2f} TB, wakes {s['watchdog_wakes']:.0f})")
     sfx = "" if a.variant == "plain" else f"_{a.variant}"
     out = RESULTS / "compare" / f"validation_cat{a.category}{sfx}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps({"methods": rows, "rho_curve": curve}, indent=1))
+    out.write_text(json.dumps({"methods": rows, "rho_curve": curve,
+                               "margin_curve": margin_curve}, indent=1))
 
 
 if __name__ == "__main__":

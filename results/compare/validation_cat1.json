@@ -352,5 +352,75 @@
     "capacity_radio_saved_pct": 46.13490387084593
    }
   }
+ },
+ "margin_curve": {
+  "1.0": {
+   "kwh": 126632.27995919393,
+   "eur": 5011.364411249208,
+   "kg_co2": 2676.80898518187,
+   "sleep_share_mid": 0.4370023126072859,
+   "sleep_share_nr": 0.6915209148727984,
+   "congested_qh": 6214,
+   "congested_qh_per_sector_day": 0.5925996566851038,
+   "unserved_gb": 1834.1911277938104,
+   "watchdog_wakes": 6214,
+   "toggles_per_sector_day": 7.729734884608049,
+   "kwh_saved_pct": 18.139591073281526,
+   "eur_saved_pct": 15.815313334629622,
+   "co2_saved_pct": 18.002863135833003,
+   "kwh_saved_per_sector_day": 2.6760126090661207,
+   "capacity_radio_saved_pct": 40.45759908076968
+  },
+  "1.15": {
+   "kwh": 128672.51735004601,
+   "eur": 5093.215145365271,
+   "kg_co2": 2720.203907985661,
+   "sleep_share_mid": 0.38375472852692477,
+   "sleep_share_nr": 0.6524889921722113,
+   "congested_qh": 3583,
+   "congested_qh_per_sector_day": 0.3416936868205226,
+   "unserved_gb": 1384.9625833608989,
+   "watchdog_wakes": 3583,
+   "toggles_per_sector_day": 7.581632653061225,
+   "kwh_saved_pct": 16.820696181895613,
+   "eur_saved_pct": 14.44032284512865,
+   "co2_saved_pct": 16.673571638363438,
+   "kwh_saved_per_sector_day": 2.4814448624656937,
+   "capacity_radio_saved_pct": 36.55921311851026
+  },
+  "1.3": {
+   "kwh": 130609.13620006936,
+   "eur": 5170.342389668696,
+   "kg_co2": 2761.425582514913,
+   "sleep_share_mid": 0.3408224855362706,
+   "sleep_share_nr": 0.6087736464448793,
+   "congested_qh": 2282,
+   "congested_qh_per_sector_day": 0.21762349799732977,
+   "unserved_gb": 1133.3557935845547,
+   "watchdog_wakes": 2282,
+   "toggles_per_sector_day": 7.374403967194354,
+   "kwh_saved_pct": 15.5687846546832,
+   "eur_saved_pct": 13.144681107227418,
+   "co2_saved_pct": 15.410851994617325,
+   "kwh_saved_per_sector_day": 2.296758723802394,
+   "capacity_radio_saved_pct": 33.206750896010284
+  },
+  "1.5": {
+   "kwh": 132903.42326445298,
+   "eur": 5258.643257459363,
+   "kg_co2": 2809.9581150444883,
+   "sleep_share_mid": 0.2960713491003878,
+   "sleep_share_nr": 0.5531560869210698,
+   "congested_qh": 1444,
+   "congested_qh_per_sector_day": 0.1377074194163647,
+   "unserved_gb": 905.4694654882726,
+   "watchdog_wakes": 1444,
+   "toggles_per_sector_day": 7.178428380698073,
+   "kwh_saved_pct": 14.085661415124983,
+   "eur_saved_pct": 11.661336397640731,
+   "co2_saved_pct": 13.924183078672304,
+   "kwh_saved_per_sector_day": 2.0779634668518305,
+   "capacity_radio_saved_pct": 29.50421207535543
+  }
  }
 }

@@ -11,6 +11,8 @@ __pycache__/
 data/raw/
 data/processed/
 data/*.log
+data/*.json
+data/*.jsonl
 
 # Secrets and keys
 .env
