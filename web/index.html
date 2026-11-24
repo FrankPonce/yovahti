@@ -7,7 +7,7 @@
 <meta name="description" content="Radios that sleep at night, AI agents that read the event calendar, and a network that only admits agents tested on the model they run on. Built on real live-network data.">
 <link rel="stylesheet" href="story.css">
 </head>
-<body class="dark">
+<body>
 <header class="bar">
   <a class="brand" href="#s1"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M21 9a8 8 0 1 0 2 9 6.5 6.5 0 0 1-2-9z" fill="#FBBF24"/></svg>Yövahti</a>
   <span class="sp"></span>
@@ -54,12 +54,9 @@
 <section class="scene" id="s2" data-steps="3">
  <div class="sticky"><div class="stage">
   <div class="tag"><b>02</b>Let them sleep</div>
-  <div class="site" data-grid="quiet" style="left:70px;top:360px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
-  <div class="site" data-grid="quiet" style="left:270px;top:250px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
-  <div class="site" data-grid="busy" style="left:470px;top:140px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl busy">busy · awake</div></div>
-  <div class="site" data-grid="quiet" style="left:170px;top:560px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
-  <div class="site" data-grid="quiet" style="left:370px;top:450px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
-  <div class="site" data-grid="busy" style="left:570px;top:340px;width:180px;height:201px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:120px;height:120px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:20px"><span>z</span><span>z</span><span>z</span></div><div class="gl busy">busy · awake</div></div>
+  <div class="site" data-grid="quiet" style="left:80px;top:330px;width:250px;height:280px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:150px;height:150px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:24px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
+  <div class="site" data-grid="busy" style="left:300px;top:170px;width:250px;height:280px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:150px;height:150px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:24px"><span>z</span><span>z</span><span>z</span></div><div class="gl busy">busy · awake</div></div>
+  <div class="site" data-grid="quiet" style="left:360px;top:470px;width:250px;height:280px"><img class="on" src="img/site_on.webp" alt="Radio site"><img class="off" src="img/site_off.webp" alt=""><div class="waves" style="left:50%;top:7%;width:150px;height:150px"><i></i><i></i><i></i></div><div class="zzz" style="left:62%;top:2%;font-size:24px"><span>z</span><span>z</span><span>z</span></div><div class="gl quiet">quiet · asleep</div></div>
   <div style="position:absolute;left:720px;top:150px;width:800px">
     <div class="h2">Every site has two kinds of radio.</div>
     <div class="lbl" style="margin-top:14px;max-width:700px">A <b>coverage</b> layer that reaches everyone, and <b>capacity</b> layers for the busy hours. At night the capacity radios of <b>quiet</b> sites can sleep, and their few users move to coverage. Busy sites stay awake. The planner decides site by site, quarter by quarter.</div>
@@ -68,9 +65,9 @@
       <div class="card cap-layer" style="padding:18px 22px;display:flex;align-items:center;gap:20px;transition:opacity .8s"><span class="dot" style="background:var(--brand)"></span><div style="flex:1"><b style="font-size:20px">Capacity</b> <span class="lbl" style="font-size:17px">· 1800/2100 MHz</span> <span class="r badge sleepc" data-s="1">asleep</span></div><div class="users" data-layer="mid"></div></div>
       <div class="card cap-layer" style="padding:18px 22px;display:flex;align-items:center;gap:20px;transition:opacity .8s"><span class="dot" style="background:var(--brand)"></span><div style="flex:1"><b style="font-size:20px">Capacity</b> <span class="lbl" style="font-size:17px">· 5G 3.5 GHz massive MIMO</span> <span class="r badge sleepc" data-s="1">asleep</span></div><div class="users" data-layer="nr"></div></div>
     </div>
-    <div class="r" data-s="2" style="display:flex;gap:70px;margin-top:40px;align-items:flex-end">
-      <div><div class="big num good" style="font-size:120px"><span data-count data-k="b4_saved" data-dec="1" data-s="2">0</span>%</div><div class="lbl">of all radio energy saved</div></div>
-      <div><div class="big num good" style="font-size:84px;opacity:.8"><span data-count data-k="b4_cap" data-s="2">0</span>%</div><div class="lbl">of the capacity radios'</div></div>
+    <div class="r" data-s="2" style="margin-top:34px">
+      <div class="cap">Radio energy, 749 sectors, two weeks</div>
+      <div id="ebars" style="margin-top:14px"></div>
     </div>
   </div>
   <div class="note r" data-s="2">749 real sectors of a live 2G/4G/5G network, two validation weeks, measured radio energy. Sleep power from 3GPP TR 38.864.</div>
@@ -99,28 +96,59 @@
  </div></div>
 </section>
 
-<!-- ===================== 3 · THE CATCH ===================== -->
-<section class="scene" id="s3" data-steps="3">
+<!-- ===================== THEM VS US ===================== -->
+<section class="scene" id="s3" data-steps="4">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>04</b>The catch</div>
-  <div style="position:absolute;left:90px;top:150px;width:700px">
-    <div class="h2">Sleep at the wrong moment and users feel it.</div>
-    <div class="lbl" style="margin-top:14px">Moved traffic can overload the coverage layer. So the planner forecasts every sector 10 hours ahead and only sleeps where the <b>pessimistic</b> forecast (P90) still fits.</div>
+  <div class="tag"><b>04</b>The published method vs Yövahti</div>
+  <div class="h2" style="position:absolute;left:90px;top:140px;width:1300px">Same antenna, same forecasts. A different brain.</div>
+  <div class="vs-col" style="left:90px">
+    <div class="vs-head"><span class="vs-pill gray">Published method</span><span class="lbl" style="font-size:15px">reconstruction of patent WO2024028883A1, not Ericsson's software</span></div>
+    <div class="vs-body">
+      <div class="vs-art"><img src="img/site_dial.webp" alt="Radio site with a threshold dial"><div class="zoom" style="background-image:url(img/site_dial.webp);background-position:-116px -378px"></div><div class="zoom-cap">a threshold dial</div></div>
+      <ol class="vs-steps r" data-s="1">
+        <li>Sleeps when the cell is quieter than a <b>dial setting</b>.</li>
+        <li>Every hour, re-sets the dial from the <b>average</b> forecast.</li>
+        <li>Wakes when the coverage layer is <b class="bad">already</b> over 30 % busy.</li>
+      </ol>
+    </div>
   </div>
-  <svg id="catch" width="720" height="420" style="position:absolute;left:90px;top:400px"></svg>
-  <div class="r" data-s="2" style="position:absolute;left:900px;top:170px;width:610px">
-    <div class="cap">Congested quarter-hours per sector-day</div>
-    <div id="cbars" style="margin-top:22px;display:flex;flex-direction:column;gap:22px"></div>
-    <div class="h2" style="margin-top:42px">Same savings.<br><span class="good"><span data-count data-k="x_b1" data-s="2">0</span>× less congestion.</span></div>
+  <div class="vs-col" style="left:830px">
+    <div class="vs-head"><span class="vs-pill brand-bg">Yövahti</span><span class="lbl" style="font-size:15px">risk-aware planner</span></div>
+    <div class="vs-body">
+      <div class="vs-art"><img src="img/site_forecast.webp" alt="Radio site with a forecast screen"><div class="zoom" style="background-image:url(img/site_forecast.webp);background-position:-115px -352px"></div><div class="zoom-cap">a forecast + a limit</div></div>
+      <ol class="vs-steps r" data-s="1">
+        <li>Looks <b>10 hours ahead</b> at the <b>pessimistic</b> forecast.</li>
+        <li>Checks the layer that <b>receives the users</b>, every quarter-hour.</li>
+        <li>Wakes <b class="good">before</b> the rush, and doesn't flap.</li>
+      </ol>
+    </div>
   </div>
-  <div class="note r" data-s="2">Validation weeks, 749 sectors, same forecasts and simulator for every method. "Published method" is a reconstruction from public sources (patent WO2024028883A1), not Ericsson's software.</div>
+  <div class="r" data-s="2" id="vsrows" style="position:absolute;left:90px;top:640px;width:1420px"></div>
+  <div class="r" data-s="3" style="position:absolute;left:90px;top:575px;width:1420px;text-align:center">
+    <div class="h2" style="font-size:38px">Same electricity bill, <span class="good"><span data-k="x_b2">8</span>× fewer congested quarter-hours.</span></div>
+    <div class="lbl" style="margin-top:8px">Or turn the dial: at <b>less</b> congestion than theirs, Yövahti saves <b class="good"><span data-k="p50_gain">2.8</span> points more</b> energy (<span data-k="p50_saved">20.0</span> % vs <span data-k="b2_saved">17.2</span> %).</div>
+  </div>
+ </div></div>
+</section>
+
+<!-- ===================== ONE CHART ===================== -->
+<section class="scene" id="s3b" data-steps="3">
+ <div class="sticky"><div class="stage">
+  <div class="tag"><b>05</b>Every method on one chart</div>
+  <div style="position:absolute;left:90px;top:150px;width:520px">
+    <div class="h2">Energy and congestion are one trade-off.</div>
+    <div class="lbl" style="margin-top:14px">Every sleeping radio saves energy and pushes its users onto the coverage layer. Sleep more, save more, until users feel it. So the question isn't "how much do you save" but <b>how much you save for the congestion you cause</b>. Up and to the left is better.</div>
+    <div class="lbl r" data-s="2" style="margin-top:18px">Yövahti is a dial along that curve: planning on the average forecast saves <span data-k="p50_saved">20.0</span> % with less congestion than the published method; the default saves <span data-k="b4_saved">18.1</span> % with 8× less; careful saves <span data-k="b4_careful">14.1</span> % with almost none. Every point sits above and left of the others.</div>
+  </div>
+  <svg id="front" width="860" height="620" style="position:absolute;left:680px;top:150px"></svg>
+  <div class="note"><b>Held on unseen data:</b> on the locked test weeks (run once, method frozen) Yövahti saves 18.8 % with 7× less congestion than the published method. Chart: validation weeks, 749 real sectors, same forecasts and simulator for every method. Oracle = perfect foresight.</div>
  </div></div>
 </section>
 
 <!-- ===================== 04 · EXAMPLE 01 · THE TURKU DERBY ===================== -->
 <section class="scene" id="s4" data-steps="4" data-event="match">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>05</b>Example 01 · The Turku derby</div>
+  <div class="tag"><b>06</b>Example 01 · The Turku derby</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">The forecast has never seen this match.</div>
     <div class="lbl" style="margin-top:14px">FC Inter – TPS ends at 22:30. Only the event calendar knows. A planner can't read it. An AI agent can.</div>
@@ -138,7 +166,7 @@
   <div class="r" data-s="1" data-out="3" style="position:absolute;left:790px;top:250px;width:360px">
     <div class="cap" data-who>Planner alone</div>
     <div class="big num bad" style="font-size:96px" data-num>–</div>
-    <div class="lbl">congested quarter-hours, 12 nights</div>
+    <div class="lbl">congested quarter-hours, 12 nights · <b data-saved>–</b> energy saved</div>
   </div>
   <div class="r" data-s="3" style="position:absolute;left:720px;top:150px;width:300px">
     <div class="big num good" style="font-size:118px"><span data-count data-k="match_removed" data-s="3">0</span>%</div>
@@ -151,7 +179,7 @@
 <!-- ===================== 05 · EXAMPLE 02 · THE NIGHT FERRY ===================== -->
 <section class="scene" id="s5" data-steps="4" data-event="ferry">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>06</b>Example 02 · The night ferry</div>
+  <div class="tag"><b>07</b>Example 02 · The night ferry</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">Same agent, a different crowd.</div>
     <div class="lbl" style="margin-top:14px">The night ferry from Stockholm docks at 05:30, while the capacity radios are still asleep. 2 000 phones wake up at once.</div>
@@ -169,7 +197,7 @@
   <div class="r" data-s="1" data-out="3" style="position:absolute;left:790px;top:250px;width:360px">
     <div class="cap" data-who>Planner alone</div>
     <div class="big num bad" style="font-size:96px" data-num>–</div>
-    <div class="lbl">congested quarter-hours, 12 mornings</div>
+    <div class="lbl">congested quarter-hours, 12 mornings · <b data-saved>–</b> energy saved</div>
   </div>
   <div class="r" data-s="3" style="position:absolute;left:720px;top:150px;width:300px">
     <div class="big num good" style="font-size:118px"><span data-count data-k="ferry_removed" data-s="3">0</span>%</div>
@@ -182,7 +210,7 @@
 <!-- ===================== 6 · THE SAME DOOR ===================== -->
 <section class="scene" id="s6" data-steps="3">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>07</b>The same door</div>
+  <div class="tag"><b>08</b>The same door</div>
   <div style="position:absolute;left:90px;top:150px;width:640px">
     <div class="h2">The text that makes an agent useful is how you attack it.</div>
   </div>
@@ -207,7 +235,7 @@
 <!-- ===================== 7 · NETCRASH ===================== -->
 <section class="scene" id="s7" data-steps="2">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>08</b>NetCrash</div>
+  <div class="tag"><b>09</b>NetCrash</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">So crash-test the agent, on the model it runs on.</div>
     <div class="lbl" style="margin-top:14px">Hostile nights on real network slices: injected text, failing telemetry, fake confirmations, leaked secrets, stuck tools. Every test three times, on every model.</div>
@@ -224,7 +252,7 @@
 <!-- ===================== 8 · ADMIT ===================== -->
 <section class="scene" id="s8" data-steps="3">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>09</b>Admitted, not trusted</div>
+  <div class="tag"><b>10</b>Admitted, not trusted</div>
   <div style="position:absolute;left:90px;top:150px;width:1000px">
     <div class="h2">The network checks the agent's passport, then every action.</div>
   </div>

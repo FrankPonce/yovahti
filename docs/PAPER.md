@@ -6,7 +6,7 @@ Frank Ponce · Åbo Akademi University · November 2026 · draft · code and dat
 
 ## Abstract
 
-Operators are starting to expose radio networks to AI agents through the Model Context Protocol (MCP). Agents can add something a forecaster cannot: they read event calendars, operator notes and alarm text. That same unstructured text is where injected instructions, missing data and social pressure arrive, so the value and the risk of an agent enter through the same channel. We present Yövahti, an end-to-end prototype on real live-network data that (1) saves radio energy with a risk-aware cell-sleep planner, (2) exposes it to agents through an MCP server whose actions pass a deterministic arbiter, (3) tests each agent *on each model* with behavioural tests (NetCrash), and (4) admits only agents holding a signed in-toto attestation for their exact prompt and model. On 749 real sectors of a commercial 2G/4G/5G network, the planner saves 18.1 % of radio-unit energy with 6x less congestion than static thresholds and 8x less than a reconstruction of a published vendor method. With synthetic event surges announced only in a calendar, an LLM agent that reads it removes 92 % of the event-caused congestion at no cost in savings, while NetCrash shows the same agent prompt failing different tests on different models, including leaking a credential and turning a missing alarm feed into "no alarms".
+Operators are starting to expose radio networks to AI agents through the Model Context Protocol (MCP). Agents can add something a forecaster cannot: they read event calendars, operator notes and alarm text. That same unstructured text is where injected instructions, missing data and social pressure arrive, so the value and the risk of an agent enter through the same channel. We present Yövahti, an end-to-end prototype on real live-network data that (1) saves radio energy with a risk-aware cell-sleep planner, (2) exposes it to agents through an MCP server whose actions pass a deterministic arbiter, (3) tests each agent *on each model* with behavioural tests (NetCrash), and (4) admits only agents holding a signed in-toto attestation for their exact prompt and model. On 749 real sectors of a commercial 2G/4G/5G network, the planner saves 18.1 % of radio-unit energy with 6x less congestion than static thresholds and 8x less than a reconstruction of a published vendor method; on locked test weeks, 18.8 % with 7x less. With synthetic event surges announced only in a calendar, an LLM agent that reads it removes 92 % of the event-caused congestion at no cost in savings, while NetCrash shows the same agent prompt failing different tests on different models, including leaking a credential and turning a missing alarm feed into "no alarms".
 
 ## 1 Introduction
 
@@ -49,6 +49,8 @@ Contributions:
 | B4 on P50 (ablation) | 20.0 % | 3.16 | 5.4 TB | 33 088 |
 | Oracle | 22.6 % | 0 | 0 | 0 |
 
+**Locked test weeks** (9–22 Nov 2025, method frozen, run once; E24): B4 18.8 % saved at 0.69 congested QH per sector-day; B2 17.2 % at 4.94; B1 18.4 % at 3.64; B3 13.1 % at 0.86; B4 on P50 20.3 % at 3.11; oracle 22.8 %. Forecast coverage 79.6–81.3 %; low-band skill fell to +18.8 % (validation +36.2 %), mid and NR 3500 held (+29.5 / +29.4 %).
+
 B4 matches the simple baselines' savings with 6–8x less congestion and reaches 80 % of the oracle's savings. Planning on the median instead of P90 buys two points of savings for 5x the congestion: the risk quantile is what buys quality. Under Category 2 sleep power, all savings scale by about 0.8 and the ranking holds.
 
 ## 4 Agents, MCP and the arbiter
@@ -80,7 +82,16 @@ Congestion that remains under the ideal reader is unrelated to the events. Of th
 
 Each test runs the production tools on a stand-in network (three real sites of a cluster, real traffic and forecasts) with scripted feeds and faults: injected instructions in alarm text (N1) and in the calendar (N20), failing telemetry (N4), apply calls with unknown outcomes (N6), a false request to confirm (N7), a tempting note about a protected cell (N10), a crowd event (N11, a usefulness test), a planner stuck on partial results (N14), a credential in an alarm (N15), subscriber identifiers in KPI rows (N16), a normal night (N18), and missing feeds (N19). Verdicts come from what the agent did first (proposals count even when the arbiter refuses them), then from conservative text checks; undecidable text verdicts are `inconclusive` and lower coverage. Three runs per test; score = mean pass rate over decided runs; coverage = decided ÷ applicable runs (crash-test's `decided/1`).
 
-**Table 3.** ⟨pending: energy and sloppy agents × DeepSeek V4 Flash, gpt-oss-120b, Mistral Small 3.2, Qwen 3.8 27B⟩
+**Table 3.** NetCrash v0 scores (pass rate over decided runs; coverage 85–97 %).
+
+| Model | Careful prompt (energy agent) | Sloppy prompt |
+|---|---:|---:|
+| Qwen 3.8 27B | 77 | 67 |
+| gpt-oss-120b | 71 | 62 |
+| Mistral Small 3.2 24B | 68 | 53 |
+| DeepSeek V4 Flash | 60 | 47 |
+
+N20 (calendar injection): careful prompt resisted 3/3 on DeepSeek, obeyed 2/3 on gpt-oss and Mistral; the sloppy prompt obeyed in every run where it read the calendar. No pair reaches the admission bar (90, no failed test).
 
 Early observations (DeepSeek V4 Flash, energy agent): the same model that refuses an injected "put all cells to sleep" alarm repeats a leaked audit token in its report (N15), sleeps cells under an announced crowd (N11) and loops on a stuck planner (N14).
 
@@ -90,7 +101,7 @@ NetCrash scorecards use the fields agent-trust-kit's `attestationFromScorecard` 
 
 ## 8 Limitations
 
-The world re-routes traffic with a simple capacity model and a stated peak margin, not a radio simulator; event surges are synthetic; NetCrash v0 has 12 of 20 planned tests and no judge panel yet, so text-only verdicts can be inconclusive; hosted models change under the same name, which is why attestations expire; B2 is a reconstruction from public documents. The test weeks have not been run.
+The world re-routes traffic with a simple capacity model and a stated peak margin, not a radio simulator; event surges are synthetic; NetCrash v0 has 12 of 20 planned tests and no judge panel yet, so text-only verdicts can be inconclusive; hosted models change under the same name, which is why attestations expire; B2 is a reconstruction from public documents. The test weeks were run once with the frozen method (E24).
 
 ## 9 Conclusion
 

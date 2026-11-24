@@ -115,3 +115,6 @@ Frank made the whole Featherless balance (USD 22.60) available. The guard's cap 
 
 ### D35 · NetCrash harness rules for comparable runs · accepted
 Every model gets the same loop: 14 steps, 8 192 output tokens, temperature 0. A model that stops with neither a tool call nor text gets **one** "Please give your final report now." (recorded in the trace); an empty final answer after that, a truncated answer, or an answer without any tool use is an `error` (format, I18), never a pass. A transient HTTP 422/429/5xx is retried with backoff. Results from a harness version are never mixed with another's: when the harness changed mid-run, the partial matrix was deleted and re-run.
+
+### D36 · Method frozen; locked test weeks run once · accepted
+Frozen on 24 Nov 2026 before touching the test split (9–22 Nov 2025): forecaster (D30/D31: weekly re-fit, rolling Mondrian calibration, fit ends two weeks before the split), planner (B4 P90, margin 1.0, switch cost 8 Wh), baselines B1–B3, world settings (Category 1 and 2, low-band limit 40 %, peak margin 1.25). `fit_forecaster.py --split test` and `compare_methods.py --split test`, each run once; results are reported as they come, whatever they show. No method change is allowed after this; any later change gets a new decision and is reported against validation only.

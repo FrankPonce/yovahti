@@ -143,6 +143,37 @@ def how_it_works(night: str = "2025-10-27") -> dict:
             "nr_asleep": [int(x) for x in STATES[path[:, j], 1]]}
 
 
+def energy_split() -> dict:
+    """Radio energy by radio type, always-on vs B4, validation weeks (scene 02's bars)."""
+    import numpy as np
+    import pandas as pd
+
+    from yovahti.baselines.simple import always_on
+    from yovahti.energy.model import SPLITS
+    from yovahti.forecast.quantile import TARGETS
+    from yovahti.paths import PROCESSED
+    from yovahti.plan.dp import DPPlanner, PlannerConfig
+    from yovahti.world.data import load_world, time_slice
+    from yovahti.world.sim import WorldConfig, run
+
+    full = load_world("all")
+    lo = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["validation"][0], tz="UTC")))
+    hi = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["test"][0], tz="UTC")))
+    world = time_slice(full, lo, hi)
+    fc = {}
+    for t in TARGETS:
+        z = np.load(PROCESSED / "forecasts" / f"validation_{t}.npz")
+        fc[t] = {"issues": z["issues"], 0.1: z["q10"], 0.5: z["q50"], 0.9: z["q90"]}
+    cfg = WorldConfig()
+    b0 = run(world, always_on, "B0", cfg)
+    b4 = run(world, DPPlanner(world, fc, PlannerConfig(), cfg, issue_offset=lo), "B4", cfg)
+
+    def kwh(r):
+        return {"coverage": float(r.energy["low"].sum() / 1e3),
+                "capacity": float((r.energy["mid"].sum() + r.energy["nr3500"].sum()) / 1e3)}
+    return {"always_on": kwh(b0), "yovahti": kwh(b4)}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--replay-model", default=None)
@@ -155,10 +186,12 @@ def main() -> None:
     data = {"results": results_summary(), "netcrash": netcrash(), "events": events()}
     if a.how:
         data["how"] = how_it_works()
+        data["split"] = energy_split()
     elif (WEB / "dashboard.json").exists():
         old = json.loads((WEB / "dashboard.json").read_text(encoding="utf-8"))
-        if old.get("how"):
-            data["how"] = old["how"]
+        for key in ("how", "split"):
+            if old.get(key):
+                data[key] = old[key]
     if a.replay_model:
         from replay_episode import replay_episode
         data["replay"] = replay_episode(a.replay_model)

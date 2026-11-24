@@ -11,8 +11,8 @@ from pathlib import Path
 from PIL import Image
 
 IMG = Path(__file__).resolve().parents[1] / "web" / "img"
-GROUPS = [["site_on", "site_off", "site_on_night"], ["town", "town_night"],
-          ["stadium", "stadium_night"], ["ferry"], ["robot"]]
+GROUPS = [["site_on", "site_off", "site_on_night", "site_dial", "site_forecast"],
+          ["town", "town_night"], ["stadium", "stadium_night"], ["ferry"], ["robot"]]
 
 
 def clean(im: Image.Image) -> Image.Image:

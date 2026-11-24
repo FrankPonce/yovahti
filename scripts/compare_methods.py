@@ -27,11 +27,11 @@ COLS = ["kwh_saved_pct", "capacity_radio_saved_pct", "eur_saved_pct", "co2_saved
         "watchdog_wakes", "toggles_per_sector_day"]
 
 
-def load_forecasts(variant: str = "plain") -> dict:
+def load_forecasts(variant: str = "plain", split: str = "validation") -> dict:
     out = {}
     sfx = "" if variant == "plain" else f"_{variant}"
     for t in TARGETS:
-        z = np.load(PROCESSED / "forecasts" / f"validation_{t}{sfx}.npz")
+        z = np.load(PROCESSED / "forecasts" / f"{split}_{t}{sfx}.npz")
         out[t] = {"issues": z["issues"], 0.1: z["q10"], 0.5: z["q50"], 0.9: z["q90"]}
     return out
 
@@ -39,17 +39,22 @@ def load_forecasts(variant: str = "plain") -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--category", type=int, default=1, choices=[1, 2])
+    ap.add_argument("--split", choices=["validation", "test"], default="validation",
+                    help="test = the locked weeks, run once with the frozen method (D36)")
     ap.add_argument("--variant", default="plain", choices=["plain", "trend"],
                     help="forecast calibration variant written by fit_forecaster.py")
     a = ap.parse_args()
     t0 = time.time()
     full = load_world("all")
-    lo = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["validation"][0], tz="UTC")))
-    hi = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["test"][0], tz="UTC")))
+    if a.split == "test":
+        lo, hi = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["test"][0], tz="UTC"))), full.T
+    else:
+        lo = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["validation"][0], tz="UTC")))
+        hi = int(np.searchsorted(full.times, pd.Timestamp(SPLITS["test"][0], tz="UTC")))
     world = time_slice(full, lo, hi)
-    fc = load_forecasts(a.variant)
+    fc = load_forecasts(a.variant, a.split)
     cfg = WorldConfig(category=a.category)
-    print(f"validation world {world.T} x {world.S}, ready in {time.time() - t0:.0f}s; "
+    print(f"{a.split} world {world.T} x {world.S}, ready in {time.time() - t0:.0f}s; "
           f"TR 38.864 Category {a.category}; forecasts: {a.variant}")
 
     def planner(**kw):
@@ -100,7 +105,7 @@ def main() -> None:
               f"{s['congested_qh_per_sector_day']:.3f}/sector-day, unserved "
               f"{s['unserved_gb'] / 1000:.2f} TB, wakes {s['watchdog_wakes']:.0f})")
     sfx = "" if a.variant == "plain" else f"_{a.variant}"
-    out = RESULTS / "compare" / f"validation_cat{a.category}{sfx}.json"
+    out = RESULTS / "compare" / f"{a.split}_cat{a.category}{sfx}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"methods": rows, "rho_curve": curve,
                                "margin_curve": margin_curve}, indent=1))

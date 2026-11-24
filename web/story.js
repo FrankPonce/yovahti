@@ -13,10 +13,16 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const M = Object.fromEntries(D.results.methods.map((m) => [m.name, m]));
 const b4 = M["B4 Yövahti planner"], b1 = M["B1 static thresholds"], b2 = M["B2 published method (reconstruction)"], b3 = M["B3 O-RAN SC rApp logic"];
 const K = {
-  b4_saved: b4.kwh_saved_pct, b4_cap: b4.capacity_radio_saved_pct,
+  b4_saved: +b4.kwh_saved_pct.toFixed(1), b4_cap: Math.round(b4.capacity_radio_saved_pct),
   x_b1: Math.round(b1.congested_qh_per_sector_day / b4.congested_qh_per_sector_day),
 };
 K.mwh = D.results.energy.b4_kwh_saved / 1000;
+K.x_b2 = Math.round(b2.congested_qh_per_sector_day / b4.congested_qh_per_sector_day);
+const p50 = M["B4 on P50 (ablation)"];
+K.p50_saved = p50.kwh_saved_pct.toFixed(1);
+K.b2_saved = b2.kwh_saved_pct.toFixed(1);
+K.p50_gain = (p50.kwh_saved_pct - b2.kwh_saved_pct).toFixed(1);
+K.b4_careful = D.results.margin_curve[D.results.margin_curve.length - 1].kwh_saved_pct.toFixed(1);
 K.co2 = D.results.energy.b4_co2_saved_kg;
 for (const kind of ["match", "ferry"]) {
   const E = D.events?.[kind]?.summary;
@@ -28,7 +34,10 @@ for (const kind of ["match", "ferry"]) {
   const cost = alone.kwh_saved_pct - agent.kwh_saved_pct;
   K[`${kind}_cost`] = cost >= 0.05 ? `${cost.toFixed(1)} point` : "no loss";
 }
-$$("[data-k]").forEach((e) => { if (e.dataset.count === undefined) e.textContent = K[e.dataset.k]; else e.dataset.count = K[e.dataset.k]; });
+
+function fillK() {
+  $$("[data-k]").forEach((e) => { if (e.dataset.count === undefined) e.textContent = K[e.dataset.k]; else e.dataset.count = K[e.dataset.k]; });
+}
 
 function countUp(span, on) {
   const tgt = parseFloat(span.dataset.count), dec = +(span.dataset.dec || 0);
@@ -170,48 +179,68 @@ hooks.sh = (() => {
   };
 })();
 
-// ------------------------------------------------------------------ 3 · the catch: an illustrative night + real bars
-const catchChart = (() => {
-  const svg = $("#catch"), W = 720, H = 420, m = { l: 50, r: 20, t: 30, b: 60 }, N = 41;
-  const x = (i) => m.l + (i / (N - 1)) * (W - m.l - m.r), y = (v) => m.t + (1 - v / 60) * (H - m.t - m.b);
-  // coverage-layer load (%) if the capacity radios sleep: illustrative night shape
-  const load = Array.from({ length: N }, (_, i) => { const h = i / 4; return 34 - 24 * Math.sin(Math.min(1, h / 5.5) * Math.PI / 2) + Math.max(0, h - 5.6) ** 2 * 2.1; });
-  const limit = 32;
-  for (const v of [0, 20, 40, 60]) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: C.rule }, svg); el("text", { x: m.l - 10, y: y(v) + 5, "text-anchor": "end", "font-size": 14, fill: C.mute }, svg).textContent = `${v}%`; }
-  ["22:00", "00:00", "02:00", "04:00", "06:00", "08:00"].forEach((t, k) => el("text", { x: x(k * 8), y: H - m.b + 26, "text-anchor": "middle", "font-size": 14, fill: C.mute }, svg).textContent = t);
-  el("text", { x: m.l, y: 16, "font-size": 14, "font-weight": 600, fill: C.mute }, svg).textContent = "Coverage layer load with the capacity radios asleep (illustration)";
-  el("line", { x1: m.l, x2: W - m.r, y1: y(limit), y2: y(limit), stroke: C.bad, "stroke-width": 2 }, svg);
-  el("text", { x: W - m.r, y: y(limit) - 8, "text-anchor": "end", "font-size": 14, "font-weight": 700, fill: C.badInk }, svg).textContent = "limit";
-  const path = el("path", { d: load.map((v, i) => `${i ? "L" : "M"}${x(i)},${y(v)}`).join(""), fill: "none", stroke: C.ink, "stroke-width": 3, pathLength: 1, class: "draw" }, svg);
-  // sleep windows: static threshold wakes after the limit is crossed; P90 planner before
-  const cross = load.findIndex((v, i) => i > 20 && v > limit);
-  const bar = (i0, i1, row, color, label) => {
-    const g = el("g", { opacity: 0, style: "transition:opacity .8s" }, svg);
-    el("rect", { x: x(i0), y: m.t + row * 24, width: x(i1) - x(i0), height: 16, rx: 8, fill: color, opacity: 0.9 }, g);
-    el("text", { x: x(i0) + 10, y: m.t + row * 24 + 12.5, "font-size": 12, "font-weight": 700, fill: "#fff" }, g).textContent = label;
-    return g;
-  };
-  const sStatic = bar(2, cross + 4, 1, "#7C8597", "static rule asleep");
-  const sP90 = bar(2, cross - 2, 2, C.brand, "Yövahti (P90) asleep");
-  const over = el("path", { d: load.slice(cross, cross + 5).map((v, k) => `${k ? "L" : "M"}${x(cross + k)},${y(v)}`).join(""), fill: "none", stroke: C.bad, "stroke-width": 6, "stroke-linecap": "round", opacity: 0, style: "transition:opacity .6s .6s" }, svg);
-  const hot = el("text", { x: x(cross + 2), y: y(load[cross + 3]) - 16, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: C.badInk, opacity: 0, style: "transition:opacity .6s .8s" }, svg);
-  hot.textContent = "congested";
-  return (s) => {
-    path.classList.toggle("in", s >= 0);
-    sStatic.setAttribute("opacity", s >= 1 ? 1 : 0); over.setAttribute("opacity", s >= 1 ? 1 : 0); hot.setAttribute("opacity", s >= 1 ? 1 : 0);
-    sP90.setAttribute("opacity", s >= 1 ? 1 : 0);
-  };
+// ------------------------------------------------------------------ 2 · energy bars: how 40 % becomes 18.1 %
+(function energyBars() {
+  const S = D.split;
+  if (!S) return;
+  const a = S.always_on, y = S.yovahti, ta = a.coverage + a.capacity, ty = y.coverage + y.capacity;
+  const W = 600, px = (v) => (v / ta) * W, fmt = (v) => Math.round(v).toLocaleString("en-US");
+  const capCut = Math.round(100 * (1 - y.capacity / a.capacity)), covUp = Math.round(100 * (y.coverage / a.coverage - 1));
+  const seg = (w, bg, txt, color = "#fff") => `<div style="width:${w}px;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:${color};white-space:nowrap;overflow:hidden">${txt}</div>`;
+  $("#ebars").innerHTML = `
+    <div style="display:grid;grid-template-columns:120px 1fr;row-gap:12px;align-items:center">
+      <div class="lbl" style="font-size:16px">Always on</div>
+      <div style="display:flex;align-items:center;gap:12px"><div style="display:flex;gap:2px;border-radius:0 8px 8px 0;overflow:hidden">${seg(px(a.coverage), C.wave, "coverage radios", C.ink)}${seg(px(a.capacity), C.brand, "capacity radios")}</div><span class="num" style="font-size:16px;font-weight:700">${fmt(ta)} kWh</span></div>
+      <div class="lbl" style="font-size:16px;font-weight:700;color:var(--ink)">Yövahti</div>
+      <div style="display:flex;align-items:center;gap:12px"><div class="growx" data-s="2" style="display:flex;gap:2px;border-radius:0 8px 8px 0;overflow:hidden">${seg(px(y.coverage), C.wave, `+${covUp} % (carries the users)`, C.ink)}${seg(px(y.capacity), C.brand, `−${capCut} %`)}</div>
+        <div style="width:${px(ta - ty)}px;height:44px;border:2px dashed ${C.good};border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:800;color:${C.goodInk}">saved</div></div>
+    </div>
+    <div class="lbl" style="margin-top:12px;font-size:17px">Capacity radios are ${Math.round((100 * a.capacity) / ta)} % of radio energy. Sleeping them cuts <b>their</b> energy by ${capCut} %; the coverage radios work ${covUp} % harder. Net: <b class="good">${(100 * (1 - ty / ta)).toFixed(1)} % less radio energy</b> (${fmt(ta - ty)} kWh in two weeks).</div>`;
 })();
-(function catchBars() {
-  const rows = [["Static thresholds", b1], ["Published method (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Yövahti planner", b4]];
-  const max = Math.max(...rows.map(([, m]) => m.congested_qh_per_sector_day));
-  $("#cbars").innerHTML = rows.map(([n, m], i) => {
-    const me = n.startsWith("Yövahti");
-    return `<div><div style="display:flex;justify-content:space-between;font-size:18px;font-weight:${me ? 800 : 600}"><span>${n}</span><span class="num" style="color:var(--ink2);font-weight:500">${m.kwh_saved_pct.toFixed(1)}% saved</span></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="growx" data-s="2" style="height:22px;border-radius:0 6px 6px 0;width:${Math.max(2, (m.congested_qh_per_sector_day / max) * 470)}px;background:${me ? C.good : C.gray};transition-delay:${i * 0.12}s"></div><span class="num" style="font-size:20px;font-weight:800">${m.congested_qh_per_sector_day.toFixed(2)}</span></div></div>`;
+
+// ------------------------------------------------------------------ 4 · published method vs Yövahti
+(function vsRows() {
+  const rows = [
+    ["Energy saved", b2.kwh_saved_pct, b4.kwh_saved_pct, (v) => `${v.toFixed(1)} %`, true],
+    ["Congested ¼-hours per sector-day", b2.congested_qh_per_sector_day, b4.congested_qh_per_sector_day, (v) => v.toFixed(2), false],
+    ["Traffic pushed past capacity", b2.unserved_gb / 1000, b4.unserved_gb / 1000, (v) => `${v.toFixed(1)} TB`, false],
+    ["Emergency wake-ups", b2.watchdog_wakes, b4.watchdog_wakes, (v) => Math.round(v).toLocaleString("en-US"), false],
+  ];
+  $("#vsrows").innerHTML = rows.map(([n, them, us, f, good]) => {
+    const max = Math.max(them, us), w = (v) => Math.max(3, (v / max) * 420);
+    const col = good ? C.good : C.bad;
+    return `<div class="vsr"><div class="m">${n}</div>
+      <div class="cell"><div class="vbar growx" data-s="2" style="width:${w(them)}px;background:${col};opacity:.55"></div><span class="val">${f(them)}</span></div>
+      <div class="cell"><div class="vbar growx" data-s="2" style="width:${w(us)}px;background:${col}"></div><span class="val">${f(us)}</span></div></div>`;
   }).join("");
 })();
-hooks.s3 = (s) => catchChart(s);
+hooks.s3 = (s) => { $("#vsrows").style.top = s >= 3 ? "665px" : "640px"; };
+
+// ------------------------------------------------------------------ 5 · every method on one chart
+hooks.s3b = (() => {
+  const svg = $("#front"), W = 860, H = 620, m = { l: 70, r: 40, t: 30, b: 70 };
+  const xmax = 5.4, ymin = 10, ymax = 24;
+  const X = (v) => m.l + (Math.min(v, xmax) / xmax) * (W - m.l - m.r), Y = (v) => H - m.b - ((v - ymin) / (ymax - ymin)) * (H - m.t - m.b);
+  for (let v = 10; v <= 24; v += 2) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: C.rule }, svg); el("text", { x: m.l - 10, y: Y(v) + 5, "text-anchor": "end", "font-size": 14, fill: C.mute }, svg).textContent = `${v} %`; }
+  for (let v = 0; v <= 5; v++) el("text", { x: X(v), y: H - m.b + 24, "text-anchor": "middle", "font-size": 14, fill: C.mute }, svg).textContent = v;
+  el("text", { x: (m.l + W - m.r) / 2, y: H - 14, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: C.badInk }, svg).textContent = "Congested quarter-hours per sector-day →  (worse)";
+  el("text", { x: m.l - 54, y: m.t - 10, "font-size": 16, "font-weight": 700, fill: C.goodInk }, svg).textContent = "↑ Energy saved (better)";
+  const g0 = el("g", { opacity: 0, style: "transition:opacity .8s" }, svg);
+  const pts = [["Static thresholds", b1], ["Published method (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Oracle (perfect foresight)", M["Oracle (perfect foresight)"]]];
+  for (const [n, mm] of pts) {
+    el("circle", { cx: X(mm.congested_qh_per_sector_day), cy: Y(mm.kwh_saved_pct), r: 7, fill: "#7C8597", stroke: "#F6F7F4", "stroke-width": 2 }, g0);
+    const left = mm.congested_qh_per_sector_day > 4;
+    el("text", { x: X(mm.congested_qh_per_sector_day) + (left ? -12 : 12), y: Y(mm.kwh_saved_pct) + 5, "text-anchor": left ? "end" : "start", "font-size": 15, fill: C.ink }, g0).textContent = n;
+  }
+  const curve = [{ margin: "P50", ...M["B4 on P50 (ablation)"] }, ...D.results.margin_curve];
+  const cp = curve.map((c) => [X(c.congested_qh_per_sector_day), Y(c.kwh_saved_pct)]);
+  const line = el("path", { d: "M" + cp.map((q) => q.join(",")).join("L"), fill: "none", stroke: C.brand, "stroke-width": 3, pathLength: 1, class: "draw" }, svg);
+  const g1 = el("g", { opacity: 0, style: "transition:opacity .8s .8s" }, svg);
+  curve.forEach((c, i) => el("circle", { cx: cp[i][0], cy: cp[i][1], r: 7, fill: C.brand, stroke: "#F6F7F4", "stroke-width": 2 }, g1));
+  el("text", { x: cp[0][0] - 14, y: cp[0][1] - 14, "text-anchor": "end", "font-size": 16, "font-weight": 800, fill: C.brand }, g1).textContent = "Yövahti (average forecast)";
+  el("text", { x: cp[cp.length - 1][0] + 14, y: cp[cp.length - 1][1] + 18, "font-size": 16, "font-weight": 800, fill: C.brand }, g1).textContent = "Yövahti (careful)";
+  return (s) => { g0.setAttribute("opacity", s >= 0 ? 1 : 0); line.classList.toggle("in", s >= 1); g1.setAttribute("opacity", s >= 1 ? 1 : 0); };
+})();
 
 // ------------------------------------------------------------------ 4, 5 · examples: crowd particles
 function eventScene(sc) {
@@ -224,7 +253,8 @@ function eventScene(sc) {
   if (!reduce) tick();
   const kind = sc.dataset.event, E = D.events?.[kind]?.summary;
   const agentKey = E && Object.keys(E).find((k) => k.startsWith("agent"));
-  const nums = E ? { alone: E["planner alone"].congested_qh, agent: E[agentKey].congested_qh } : null;
+  const nums = E ? { alone: E["planner alone"].congested_qh, agent: E[agentKey].congested_qh,
+    saveA: E["planner alone"].kwh_saved_pct, saveG: E[agentKey].kwh_saved_pct } : null;
   return (s) => {
     on = s >= 1; split = s >= 2;
     if (reduce) dots.forEach((d) => { place(d); d.c.setAttribute("opacity", on ? 1 : 0); });
@@ -234,6 +264,8 @@ function eventScene(sc) {
     const num = $("[data-num]", sc);
     num.textContent = nums ? (s >= 2 ? nums.agent : nums.alone) : "…";
     num.className = `big num ${s >= 2 ? "good" : "bad"}`;
+    const sv = $("[data-saved]", sc);
+    if (sv && nums) sv.textContent = `${(s >= 2 ? nums.saveG : nums.saveA).toFixed(1)} %`;
   };
 }
 $$("[data-event]").forEach((sc) => (hooks[sc.id] = eventScene(sc)));
@@ -290,4 +322,28 @@ hooks.s6 = (s) => { const e = $("#evil"); if (s >= 0 && !e._g) { e._g = 1; e.cla
   $$(".arrow").forEach((a) => a.classList.add("r"));
 })();
 
+fillK();
 update();
+
+// ------------------------------------------------------------------ ?at=<scene>:<step> jumps straight to a step (PDF export: tools/export_pdf.py)
+{
+  const at = new URLSearchParams(location.search).get("at");
+  if (at) {
+    const [id, k] = at.split(":"), sc = document.getElementById(id);
+    if (sc) {
+      document.body.classList.add("capture");
+      scenes.forEach((o) => { if (o !== sc) o.style.display = "none"; });
+      sc.style.height = "100vh";
+      const step = Math.min(+k, +sc.dataset.steps - 1);
+      $$("[data-s]", sc).forEach((e) => {
+        const on = step >= +e.dataset.s && (e.dataset.out === undefined || step < +e.dataset.out);
+        if (e.dataset.count !== undefined) {
+          if (on) e.textContent = parseFloat(e.dataset.count).toFixed(+(e.dataset.dec || 0));
+        } else e.classList.toggle("in", on);
+      });
+      hooks[sc.id]?.(step);
+      if (sc.id === "s1") { clearInterval(clockTimer); $("#clock").textContent = step >= 1 ? "22:00" : "14:00"; }
+      document.body.classList.toggle("dark", sc.classList.contains("dark"));
+    }
+  }
+}

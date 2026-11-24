@@ -290,13 +290,36 @@ def finnish_flag(name, x, y, z_top, angle=0.0, size=0.9, pole=True, z_pole0=0.08
 
 
 # ---------------------------------------------------------------- radio site
-def build_site(on=True):
+def build_site(on=True, brain=None):
     tile(2.6)
     box("pad", -0.9, 0.9, -0.9, 0.9, 0.08, 0.22, mat("concrete", 0.6), bv=0.05)
     # equipment cabinet with an orange stripe
     box("cab", 0.9, 1.9, -1.6, -0.9, 0.08, 1.05, mat("white", 0.45), bv=0.06)
     box("cab_stripe", 0.88, 1.92, -1.62, -0.88, 0.82, 0.9, mat("brand", 0.5), bv=0.01)
     box("cab_door", 1.9, 1.93, -1.5, -1.0, 0.2, 0.75, mat("mast", 0.5), bv=0.01)
+    if brain == "dial":
+        # the published method's brain: a threshold dial on the cabinet (sleep below, wake above)
+        cyl("dial_base", 0.36, 1.05, 1.13, mat("white", 0.4), seg=48, loc=(1.4, -1.25, 0))
+        cyl("dial_face", 0.31, 1.13, 1.16, mat("#E9ECF2", 0.35), seg=48, loc=(1.4, -1.25, 0))
+        for k in range(7):                                    # tick marks
+            ang = math.radians(-120 + 40 * k)
+            tx, ty = 1.4 + 0.24 * math.cos(ang), -1.25 + 0.24 * math.sin(ang)
+            t = box("tick%d" % k, -0.012, 0.012, -0.045, 0.045, 1.16, 1.18, mat("ink", 0.5), bv=0)
+            t.location = (tx, ty, 0); t.rotation_euler[2] = ang
+        ptr = box("pointer", -0.02, 0.02, 0.0, 0.22, 1.16, 1.2, mat("#DC2626", 0.4), bv=0.005)
+        ptr.location = (1.4, -1.25, 0); ptr.rotation_euler[2] = math.radians(-35)
+        cyl("dial_knob", 0.06, 1.16, 1.24, mat("ink", 0.4), seg=24, loc=(1.4, -1.25, 0))
+    if brain == "forecast":
+        # Yovahti's brain: a small screen showing a forecast band and a limit line
+        box("scr_leg", 1.37, 1.43, -1.28, -1.22, 1.05, 1.3, mat("mast", 0.4), bv=0.005)
+        scr = box("screen", -0.04, 0.04, -0.42, 0.42, 1.28, 1.78, mat("ink", 0.3), bv=0.03)
+        scr.location = (1.4, -1.25, 0)
+        for k, hgt in enumerate((0.10, 0.16, 0.13, 0.08, 0.06, 0.09, 0.2, 0.3)):
+            bar = box("fc%d" % k, 0.04, 0.05, -0.36 + k * 0.095, -0.30 + k * 0.095, 1.34, 1.34 + hgt,
+                      mat("#A5B4FC", 0.3, emit=4.0), bv=0)
+            bar.location = (1.4, -1.25, 0)
+        lim = box("limit", 0.045, 0.055, -0.38, 0.38, 1.62, 1.635, mat("#F87171", 0.3, emit=4.0), bv=0)
+        lim.location = (1.4, -1.25, 0)
     # mast (tapered monopole)
     cyl("mast", 0.22, 0.22, 6.2, mat("mast", 0.4, metal=0.3), r1=0.13, seg=24)
     cyl("cap", 0.16, 6.2, 6.35, mat("white", 0.4), seg=24)
@@ -481,6 +504,8 @@ def build_robot():
 
 
 BUILDERS = {"site_on": lambda: build_site(True), "site_off": lambda: build_site(False),
+            "site_dial": lambda: build_site(True, "dial"),
+            "site_forecast": lambda: build_site(True, "forecast"),
             "stadium": build_stadium, "ferry": build_ferry, "town": build_town,
             "robot": build_robot}
 

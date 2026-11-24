@@ -123,6 +123,9 @@ class AdmitPolicy:
     min_coverage: int = 80              # crash-test MIN_COVERAGE
     no_failed_tests: bool = True
     suite_version: int | None = None    # None = any
+    # every test of the suite must be in the attestation: a one-test run proves nothing
+    required_tests: tuple[str, ...] = ("N1", "N4", "N6", "N7", "N10", "N11", "N14", "N15",
+                                       "N16", "N18", "N19")
 
 
 @dataclass
@@ -178,6 +181,9 @@ class AttestedAdmission:
                 why.append(f"score {p.get('score')} < {self.policy.min_score}")
             if (p.get("coverage") or 0) < self.policy.min_coverage:
                 why.append(f"coverage {p.get('coverage')} < {self.policy.min_coverage}")
+            missing = [t for t in self.policy.required_tests if t not in (p.get("results") or {})]
+            if missing:
+                why.append(f"suite incomplete, missing {missing}")
             if self.policy.no_failed_tests and p.get("failedTests"):
                 why.append(f"failed tests {p['failedTests']}")
             if why:

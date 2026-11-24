@@ -42,12 +42,17 @@ def main() -> None:
     ap.add_argument("--level-norm", action=argparse.BooleanOptionalAction, default=False)
     ap.add_argument("--calib", choices=["global", "mondrian", "rolling"], default="rolling")
     ap.add_argument("--refit-days", type=int, default=7, help="0 = model frozen at fit end")
+    ap.add_argument("--split", choices=["validation", "test"], default="validation",
+                    help="test = the locked weeks, run once with the frozen method (D36)")
     a = ap.parse_args()
     t0 = time.time()
     world = load_world("all")
     idx = {k: int(np.searchsorted(world.times, pd.Timestamp(v[0], tz="UTC")))
            for k, v in SPLITS.items() if k != "all"}
-    train_end, val_end = idx["validation"], idx["test"]
+    if a.split == "test":
+        train_end, val_end = idx["test"], world.T
+    else:
+        train_end, val_end = idx["validation"], idx["test"]
     fit_end = train_end - 14 * 96
     issues_all = np.arange(fit_end, val_end - HORIZON + 1, 4)
     evm = issues_all >= train_end
@@ -67,7 +72,8 @@ def main() -> None:
         f = Forecaster.fit(world, target, fit_end, level_norm=a.level_norm)
         for q, m in f.models.items():
             (RESULTS / "forecast").mkdir(parents=True, exist_ok=True)
-            m.save_model(str(RESULTS / "forecast" / f"{target}_q{int(q * 100)}.txt"))
+            pre = "" if a.split == "validation" else f"{a.split}_"   # keep the validation models
+            m.save_model(str(RESULTS / "forecast" / f"{pre}{target}_q{int(q * 100)}.txt"))
         mask = world.present["NR_3500"] if target == "nr" else np.ones(world.S, dtype=bool)
         if a.refit_days:
             logp = refit_predict_log(world, target, fit_end, issues_all, a.refit_days * 96,
@@ -87,7 +93,7 @@ def main() -> None:
             lpt = cal.rolling_mondrian(logp, ylog, hour, issues_all, evm, fit_end,
                                         sectors=mask, trend=True)
             predt = {q: v[evm] for q, v in cal.to_mb(lpt).items()}
-            np.savez_compressed(out_dir / f"validation_{target}_trend.npz", issues=issues,
+            np.savez_compressed(out_dir / f"{a.split}_{target}_trend.npz", issues=issues,
                                 **{f"q{int(q * 100)}": predt[q] for q in QUANTILES})
         pred = {q: v[evm] for q, v in cal.to_mb(lp).items()}
 
@@ -111,13 +117,13 @@ def main() -> None:
             "mae_by_horizon": [float(np.abs(p50[:, h] - yy[:, h]).mean()) for h in (0, 3, 15, 39)],
         }
         report[target] = r
-        np.savez_compressed(out_dir / f"validation_{target}.npz", issues=issues,
+        np.savez_compressed(out_dir / f"{a.split}_{target}.npz", issues=issues,
                             **{f"q{int(q * 100)}": pred[q] for q in QUANTILES})
         print(f"{target:4s} {time.time() - t0:.0f}s | MAE {mae:.1f} MB (seasonal naive "
               f"{r['mae_seasonal_naive_mb']:.1f}) skill {r['skill_vs_seasonal_naive_pct']:+.1f}% |"
               f" P10-P90 coverage {r['coverage_p10_p90_pct']:.1f}% | above P90 "
               f"{r['above_p90_pct']:.1f}%")
-    (RESULTS / "forecast" / "validation_report.json").write_text(json.dumps(report, indent=1))
+    (RESULTS / "forecast" / f"{a.split}_report.json").write_text(json.dumps(report, indent=1))
 
 
 if __name__ == "__main__":

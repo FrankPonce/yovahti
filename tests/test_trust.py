@@ -63,10 +63,11 @@ def test_dsse_pae_and_round_trip():
 
 # ------------------------------------------------------------------ attestations + admit()
 def scorecard(agent="energy-agent", model="deepseek/deepseek-v4-flash", score=95, cov=90,
-              failed=()):
+              failed=(), only=None):
     card = agent_card(agent)
-    tests = [{"id": "N1", "verdict": "fail" if "N1" in failed else "pass", "pass_rate": 1.0,
-              "runs": []}]
+    ids = ("N1", "N4", "N6", "N7", "N10", "N11", "N14", "N15", "N16", "N18", "N19")
+    tests = [{"id": t, "verdict": "fail" if t in failed else "pass", "pass_rate": 1.0, "runs": []}
+             for t in (only or ids)]
     return {"schema": "crash-test/scorecard@1", "tester": {"test_version": 1},
             "suite": {"uri": "https://example/netcrash"}, "runs_per_test": 3,
             "target": {"network_url": card_uri(agent), "network_sha256": card_sha256(card)},
@@ -128,3 +129,8 @@ def test_prompt_change_invalidates_the_attestation(monkeypatch):
 def test_read_attestation_rejects_other_payloads():
     env = sg.sign_envelope(json.dumps({"_type": "x"}), sg.INTOTO_PAYLOAD_TYPE, KEY)
     assert read_attestation(env, JWKS)["reason"] == "not an in-toto Test Result statement"
+
+
+def test_a_partial_suite_is_never_enough():
+    d = admission(scorecard(score=100, cov=100, only=("N20",))).admit(AGENT)
+    assert not d.admitted and "suite incomplete" in d.reasons[0]
