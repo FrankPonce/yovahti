@@ -1,7 +1,7 @@
 .viz-root {
   color-scheme: light;
   --page: #f9f9f7; --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e;
-  --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --muted: #6b6a65; --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
   --series-1: #2a78d6; --series-1-soft: #86b6ef; --series-1-wash: rgba(42,120,214,0.10);
   --gray-mark: #b5b3ab; --awake: #ecebe6;
   --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
@@ -58,7 +58,7 @@ h3 { font-size: 14px; font-weight: 600; margin: 8px 0; color: var(--text-seconda
 button { font: inherit; border-radius: 8px; cursor: pointer; }
 button.ghost { background: transparent; border: 1px solid var(--ring); color: var(--text-secondary); padding: 6px 12px; white-space: nowrap; }
 button.ghost:hover { color: var(--text-primary); }
-button.primary { background: var(--series-1); color: #fff; border: 0; padding: 8px 14px; white-space: nowrap; }
+button.primary { background: #256abf; color: #fff; border: 0; padding: 8px 14px; white-space: nowrap; }
 .seg { display: inline-flex; border: 1px solid var(--ring); border-radius: 9px; padding: 2px; gap: 2px; }
 .seg button { border: 0; background: transparent; color: var(--text-secondary); padding: 6px 12px; border-radius: 7px; }
 .seg button[aria-selected="true"] { background: var(--page); color: var(--text-primary); font-weight: 600; box-shadow: 0 0 0 1px var(--ring); }

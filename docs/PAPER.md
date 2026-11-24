@@ -6,7 +6,7 @@ Frank Ponce · Åbo Akademi University · November 2026 · draft · code and dat
 
 ## Abstract
 
-Operators are starting to expose radio networks to AI agents through the Model Context Protocol (MCP). Agents can add something a forecaster cannot: they read event calendars, operator notes and alarm text. That same unstructured text is where injected instructions, missing data and social pressure arrive, so the value and the risk of an agent enter through the same channel. We present Yövahti, an end-to-end prototype on real live-network data that (1) saves radio energy with a risk-aware cell-sleep planner, (2) exposes it to agents through an MCP server whose actions pass a deterministic arbiter, (3) tests each agent *on each model* with behavioural tests (NetCrash), and (4) admits only agents holding a signed in-toto attestation for their exact prompt and model. On 749 real sectors of a commercial 2G/4G/5G network, the planner saves 18.1 % of radio-unit energy with 6x less congestion than static thresholds and 8x less than a reconstruction of a published vendor method. With synthetic event surges announced only in a calendar, an LLM agent that reads it cuts congestion by ⟨pending⟩ against the planner alone, while NetCrash shows the same agent prompt failing different tests on different models, including leaking a credential and turning a missing alarm feed into "no alarms".
+Operators are starting to expose radio networks to AI agents through the Model Context Protocol (MCP). Agents can add something a forecaster cannot: they read event calendars, operator notes and alarm text. That same unstructured text is where injected instructions, missing data and social pressure arrive, so the value and the risk of an agent enter through the same channel. We present Yövahti, an end-to-end prototype on real live-network data that (1) saves radio energy with a risk-aware cell-sleep planner, (2) exposes it to agents through an MCP server whose actions pass a deterministic arbiter, (3) tests each agent *on each model* with behavioural tests (NetCrash), and (4) admits only agents holding a signed in-toto attestation for their exact prompt and model. On 749 real sectors of a commercial 2G/4G/5G network, the planner saves 18.1 % of radio-unit energy with 6x less congestion than static thresholds and 8x less than a reconstruction of a published vendor method. With synthetic event surges announced only in a calendar, an LLM agent that reads it removes 92 % of the event-caused congestion at no cost in savings, while NetCrash shows the same agent prompt failing different tests on different models, including leaking a credential and turning a missing alarm feed into "no alarms".
 
 ## 1 Introduction
 
@@ -63,7 +63,18 @@ Agents run in a minimal loop (bounded steps, every call traced and priced, a har
 
 We inject synthetic crowd surges (a match ending) into the real traffic of three sectors per episode, 22:30–00:30, large enough that sleeping through them overloads the coverage layer. Forecasts are unchanged; only the event calendar announces the surge. Arms, all through the same gate and replayed in the simulator: the planner alone; the planner with an ideal calendar reader (the same plan minus sleep on the announced sectors during the window, an upper bound); and the LLM agent (`scripts/event_value.py`).
 
-**Table 2.** ⟨pending: 12 episodes × models⟩ Pilot, 4 episodes, DeepSeek V4 Flash: planner alone 19.6 % saved, 39 congested sector-quarter-hours, 19.4 GB unserved; agent reading the calendar 15.7 % saved, 9 congested, 1.0 GB unserved.
+**Table 2.** 12 episodes (4 clusters × 3 nights), synthetic surges, replayed 22:00–08:00 (`scripts/event_value.py`).
+
+| Arm | Energy saved | Congested sector-QH | Unserved |
+|---|---:|---:|---:|
+| Planner alone | 18.72 % | 163 | 90.0 GB |
+| Planner + ideal calendar reader | 18.87 % | 91 | 47.0 GB |
+| **LLM agent (DeepSeek V4 Flash)** | **18.64 %** | **97** | **51.4 GB** |
+| B4 re-planning hourly (reference) | 23.95 % | 155 | 71.7 GB |
+
+A second synthetic event confirms it (E23): a night ferry docking at 05:30 (clock 04:00, 12 episodes). Planner alone 14.08 % saved, 116 congested sector-QH, 34.2 GB unserved; ideal reader 14.14 %, 80, 24.0 GB; agent 14.19 %, 86, 26.7 GB, i.e. 83 % of the event-caused congestion removed with no loss of savings.
+
+Congestion that remains under the ideal reader is unrelated to the events. Of the 72 event-caused congested quarter-hours the agent removed 66 (92 %) and 90 % of the event's unserved traffic, at 0.1 point of savings. A pilot with a 14-step budget made the agent look over-cautious; it was running out of steps while applying the plan in blast-radius-sized changes.
 
 ## 6 NetCrash: behaviour per agent × model
 

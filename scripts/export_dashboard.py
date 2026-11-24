@@ -44,7 +44,13 @@ def results_summary() -> dict:
                for k, v in keep.items()]
     curve = [{"margin": float(m), **{c: round(s[c], 3) for c in cols}}
              for m, s in cmp["margin_curve"].items()]
-    return {"period": "validation weeks 26 Oct – 8 Nov 2025", "sectors": 749,
+    b0k = cmp["methods"]["B0 always-on"]
+    b4k = cmp["methods"]["B4 Yovahti planner (P90, energy)"]
+    energy = {"b0_kwh": round(b0k["kwh"]), "b4_kwh_saved": round(b0k["kwh"] - b4k["kwh"]),
+              "b4_kwh_per_sector_day": round(b4k["kwh_saved_per_sector_day"], 2),
+              "b4_co2_saved_kg": round(b0k["kg_co2"] - b4k["kg_co2"]),
+              "b4_eur_saved": round(b0k["eur"] - b4k["eur"]), "days": 14}
+    return {"period": "validation weeks 26 Oct – 8 Nov 2025", "sectors": 749, "energy": energy,
             "methods": methods, "margin_curve": curve,
             "cat2_b4_kwh_saved_pct": round(cat2["methods"]["B4 Yovahti planner (P90, energy)"]
                                            ["kwh_saved_pct"], 2),
@@ -81,23 +87,78 @@ def netcrash() -> dict:
             if (ROOT / "trust" / "tester.jwks.json").exists() else None}
 
 
-def events() -> dict | None:
-    files = latest("events/*-event-value.json")
-    if not files:
-        return None
-    d = read(files[-1])
-    return {"synthetic_events": True, "summary": d["summary"],
-            "episodes": len(d["episodes"]), "models": d["models"]}
+def events() -> dict:
+    out = {}
+    pats = (("match", "events/*-event-value.json"), ("ferry", "events/*-event-value-ferry.json"))
+    for kind, pat in pats:
+        files = latest(pat)
+        if files:
+            d = read(files[-1])
+            out[kind] = {"synthetic_events": True, "summary": d["summary"],
+                         "episodes": len(d["episodes"]), "models": d["models"]}
+    return out
+
+
+def how_it_works(night: str = "2025-10-27") -> dict:
+    """One real sector, one real night: forecast, P90 check, chosen sleep schedule (scene 03)."""
+    import numpy as np
+
+    from yovahti.forecast.quantile import HORIZON
+    from yovahti.mcp_server.server import load_validation_network
+    from yovahti.plan.dp import STATES
+
+    net = load_validation_network(f"{night} 22:00")
+    t0, k = net.now, net.latest_issue()
+    lag = t0 - (int(net.f["mid"]["issues"][k]) - net.issue_offset)
+    pl, wc = net.planner, net.wc
+    n = HORIZON - lag
+    cost = net.costs(k)[lag:lag + n]
+    path = pl.solve(cost, np.zeros(net.w.S, dtype=np.int64))
+    h = np.arange(lag, lag + n)
+
+    def q(t, qq, s=slice(None)):
+        return net.f[t][qq][k][h][:, s].astype(float)
+
+    cap = np.where(pl.cap_low > 0, pl.cap_low, np.inf)
+    moved90 = (q("low", 0.9) + q("mid", 0.9) + q("nr", 0.9)) / cap * wc.peak_margin
+    both = (STATES[path, 0] == 1) & (STATES[path, 1] == 1)
+    crosses = (moved90 > wc.rho_max_low).any(axis=0)
+    sleeps = both.sum(axis=0)
+    wakes_in_time = ~(both & (moved90 > wc.rho_max_low)).any(axis=0)
+    ok = net.w.present["NR_3500"] & crosses & wakes_in_time & (sleeps >= 16)
+    s = int(np.argmax(np.where(ok, sleeps, -1)))
+    j = s
+    moved = {qq: (q("low", qq, s) + q("mid", qq, s) + q("nr", qq, s)) / cap[s] * wc.peak_margin
+             for qq in (0.1, 0.5, 0.9)}
+    total = {qq: q("low", qq, s) + q("mid", qq, s) + q("nr", qq, s) for qq in (0.1, 0.5, 0.9)}
+    name = net.w.sectors[s]
+    label = f"s{name.split(' ')[1].replace('/', '-')}" if " " in name else name
+    return {"night": night, "sector": label,
+            "times": [net.time(t0 + i)[11:16] for i in range(n)],
+            "traffic_mb": {f"p{int(qq * 100)}": [round(v, 1) for v in total[qq]] for qq in total},
+            "coverage_load_if_asleep_pct": {f"p{int(qq * 100)}": [round(v, 1) for v in moved[qq]]
+                                            for qq in moved},
+            "limit_pct": wc.rho_max_low,
+            "mid_asleep": [int(x) for x in STATES[path[:, j], 0]],
+            "nr_asleep": [int(x) for x in STATES[path[:, j], 1]]}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--replay-model", default=None)
+    ap.add_argument("--how", action="store_true",
+                    help="recompute the how-it-works sector (loads the world)")
     a = ap.parse_args()
     logging.getLogger("mcp").setLevel(logging.CRITICAL)
     logging.getLogger("httpx").setLevel(logging.CRITICAL)
     WEB.mkdir(parents=True, exist_ok=True)
     data = {"results": results_summary(), "netcrash": netcrash(), "events": events()}
+    if a.how:
+        data["how"] = how_it_works()
+    elif (WEB / "dashboard.json").exists():
+        old = json.loads((WEB / "dashboard.json").read_text(encoding="utf-8"))
+        if old.get("how"):
+            data["how"] = old["how"]
     if a.replay_model:
         from replay_episode import replay_episode
         data["replay"] = replay_episode(a.replay_model)

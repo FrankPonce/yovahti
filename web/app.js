@@ -92,7 +92,7 @@ $("#tiles").innerHTML =
 
 // ------------------------------------------------------------------ event value
 (function events() {
-  const E = D.events;
+  const E = D.events?.match;
   if (!E) { $("#events").hidden = true; return; }
   const order = Object.keys(E.summary).filter((k) => !k.startsWith("B0"));
   const nice = (k) => k.replace("agent otari:", "Agent · ").replace("agent featherless:", "Agent · ").replace("B4 rolling (hourly re-plan)", "B4 re-planning hourly");

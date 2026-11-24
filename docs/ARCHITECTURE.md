@@ -1,6 +1,6 @@
 # Yövahti: architecture
 
-Status: design, 23 Nov 2026. Decisions referenced as D-numbers are in [DECISIONS.md](DECISIONS.md).
+Status: design 23 Nov 2026; "as built" notes added 24 Nov 2026. Decisions referenced as D-numbers are in [DECISIONS.md](DECISIONS.md).
 
 ## Principles
 
@@ -59,7 +59,8 @@ The ground truth that agents never see directly.
 
 ### 6. Planner (`yovahti.plan`)
 
-- OR-Tools CP-SAT (D9). Decision: per capacity cell per quarter-hour, a state in {awake, cell sleep, deep sleep}.
+- **As built (D27):** exact dynamic programming per sector over four states (both capacity radios awake, NR 3500 asleep, mid band asleep, both asleep) × 40 quarter-hours, vectorised over all sectors, re-planned hourly; P90 feasibility of the receiving layer and a switch cost. CP-SAT (D9) stays the tool for constraints across sectors (blast radius, conflicts), which the arbiter enforces today.
+- Original design: OR-Tools CP-SAT (D9). Decision: per capacity cell per quarter-hour, a state in {awake, cell sleep, deep sleep}.
 - Constraints: coverage cell load at **P90** forecast (plus moved demand) ≤ ρ_max; protected cells never sleep; minimum dwell time; maximum toggles per day; deep sleep only in windows ≥ minimum length; at most X % of a cluster asleep at once (blast radius); operator constraints from the agent (pins, windows).
 - Objective: maximise Σ price_t × kWh_saved_t (or CO₂-weighted) − λ × risk.
 - Re-plans every hour (rolling horizon). Solve-time budget a few seconds per cluster.
@@ -107,7 +108,8 @@ Runs agents against stand-in scenarios, 3 runs per test per model; verdicts from
 
 ### 11. Trust layer (`yovahti.trust`)
 
-- Reuses **agent-trust-kit** (Node) for signing, DSSE, in-toto statements and Rekor (D2).
+- **As built (D34):** a Python port of agent-trust-kit's signing (JCS, RFC 7638 kid, compact JWS, DSSE, in-toto Test Result), checked against the kit's vectors and by the kit's own verifier; `AttestedAdmission` is `admit()`; trusted tester keys come from `trust/tester.jwks.json`.
+- Original design: reuse **agent-trust-kit** (Node) for signing, DSSE, in-toto statements and Rekor (D2).
 - `admit()` is ported to Python and **proven compatible** by running agent-trust-kit's own test vectors.
 - Decision order: request signature → Agent Card signature and scope → declared model → attestation for (card hash, model, suite version) → score ≥ threshold and coverage ≥ 80 % → not expired. Any failure refuses with a machine-readable reason.
 

@@ -42,6 +42,8 @@ markers = ["network: needs internet access (skipped in CI by default)"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Runs inside Blender's own Python (bpy), not this project's environment
+extend-exclude = ["tools/render_scenes.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -30,3 +30,4 @@ Thumbs.db
 
 # Personal notes: pitch strategy, conversation notes (never public)
 private/
+web/img/*.png
