@@ -30,7 +30,7 @@
     <div class="h r bad" data-s="2" style="margin-top:0;font-size:66px">Its radios don't.</div>
     <div class="r" data-s="3" style="margin-top:28px">
       <div class="big num bad" style="font-size:124px"><span data-count="88" data-s="3">0</span>%</div>
-      <div class="lbl" style="margin-top:10px">of a 5G capacity radio's power is drawn just by being switched on, traffic or not. Measured on a live operator network.</div>
+      <div class="lbl" style="margin-top:10px">of a 5G capacity radio's power is drawn <b>just by being switched on</b>, traffic or not. Measured on a live operator network.</div>
     </div>
   </div>
   <svg class="sky" viewBox="0 0 1600 900" style="position:absolute;inset:0;pointer-events:none">
@@ -54,23 +54,37 @@
 <section class="scene" id="sz" data-steps="3">
  <div class="sticky"><div class="stage">
   <div class="tag"><b>02</b>Where the emissions are</div>
-  <div style="position:absolute;left:90px;top:150px;width:700px">
-    <div class="h2">For a network vendor, the climate problem is out on the masts.</div>
-    <div class="lbl" style="margin-top:16px">Ericsson reports that the energy its delivered products use over their lifetime is <q>a major contributor to our carbon footprint (&gt;93%)</q>. Factories, offices and flights are the small part.</div>
+  <div class="h2" style="position:absolute;left:90px;top:150px;width:1400px">For a network vendor, the climate problem is <span class="k">out on the masts</span>.</div>
+
+  <div style="position:absolute;left:90px;top:290px;width:700px">
+    <div class="cap">Ericsson's carbon footprint</div>
+    <div class="big num bad" style="font-size:150px;margin-top:8px">&gt;93%</div>
+    <div class="lbl" style="margin-top:6px">is the <span class="k">energy its products use</span> in operators' networks.</div>
+    <div class="fp" style="margin-top:26px;width:700px">
+      <div style="width:93%;background:var(--bad)">products in the field</div>
+      <div style="width:7%;background:var(--sleep);padding:0"></div>
+    </div>
+    <div class="lbl" style="font-size:16px;margin-top:8px;text-align:right">factories, offices, travel: <b>under 7 %</b></div>
   </div>
-  <div style="position:absolute;left:90px;top:470px;width:640px">
-    <div class="big num bad" style="font-size:150px">&gt;93%</div>
-    <div class="lbl" style="margin-top:10px">of Ericsson's carbon footprint is the energy of products already in the field.</div>
-  </div>
-  <div style="position:absolute;left:880px;top:170px;width:640px;display:flex;flex-direction:column;gap:18px">
-    <div class="card r" data-s="1" style="padding:24px 28px"><div class="cap brand">2030</div><div class="h2" style="font-size:34px;margin-top:6px">Halve emissions from portfolio use</div><div class="lbl" style="font-size:18px;margin-top:6px">and reach net zero in Ericsson's own activities.</div></div>
-    <div class="card r" data-s="1" style="padding:24px 28px"><div class="cap brand">2040</div><div class="h2" style="font-size:34px;margin-top:6px">Net zero across the value chain</div><div class="lbl" style="font-size:18px;margin-top:6px">targets approved by the Science Based Targets initiative.</div></div>
-    <div class="r" data-s="2" style="margin-top:14px">
-      <div class="h2" style="font-size:34px">Hardware cuts that number once.<br><span class="good">Software that lets radios sleep cuts it every night.</span></div>
-      <div class="lbl" style="font-size:18px;margin-top:10px">AI agents could pull that lever harder than fixed rules, and they could also break the network. This project does both halves: <b>save the energy</b>, and <b>make the agents earn the right to act</b>.</div>
+
+  <div class="r" data-s="1" style="position:absolute;left:900px;top:290px;width:620px">
+    <div class="cap">Ericsson's pledge · emissions from products in use</div>
+    <div class="trend" style="margin-top:22px">
+      <div class="col"><div class="v">100</div><div class="tb" style="height:240px;background:var(--sleep)"></div></div>
+      <div class="col"><div class="v bad">½</div><div class="tb" style="height:120px"></div></div>
+      <div class="col"><div class="v good">net 0</div><div class="tb" style="height:6px;background:var(--good)"></div></div>
+    </div>
+    <div style="display:flex;gap:46px;margin-top:14px">
+      <div style="width:150px;text-align:center"><div class="yr" style="color:var(--sleep-ink)">2020</div><div class="lbl" style="font-size:15px">baseline</div></div>
+      <div style="width:150px;text-align:center"><div class="yr bad">2030</div><div class="lbl" style="font-size:15px"><span class="k">halve</span> it</div></div>
+      <div style="width:150px;text-align:center"><div class="yr good">2040</div><div class="lbl" style="font-size:15px"><span class="k">net zero</span>, whole value chain</div></div>
     </div>
   </div>
-  <div class="note">Sources: Ericsson, "Ericsson's Net Zero journey" (climate action page) and the SBTi-approved targets announced January 2024. Quoted figure is Ericsson's own.</div>
+
+  <div class="r" data-s="2" style="position:absolute;left:90px;top:745px;width:1420px;display:flex;align-items:baseline;gap:40px">
+    <div class="h2" style="font-size:40px">New hardware cuts it <span class="bad">once</span>. Sleeping radios cut it <span class="good">every night</span>.</div>
+  </div>
+  <div class="note">Sources: Ericsson, "Ericsson's Net Zero journey" (climate action); SBTi-approved targets, Jan 2024. Footprint share is Ericsson's own figure; bars are the pledged reductions, not measurements.</div>
  </div></div>
 </section>
 
@@ -108,10 +122,10 @@
   </div>
   <svg id="how" width="900" height="560" style="position:absolute;left:70px;top:270px"></svg>
   <div style="position:absolute;left:1040px;top:160px;width:480px;display:flex;flex-direction:column;gap:22px">
-    <div class="r" data-s="0"><div class="cap brand">1 · Forecast</div><div class="lbl" style="font-size:19px;margin-top:4px">If this site's capacity radios slept, how loaded would its coverage layer be? Ten hours ahead, as a range: optimistic (P10) to pessimistic (P90).</div></div>
+    <div class="r" data-s="0"><div class="cap brand">1 · Forecast</div><div class="lbl" style="font-size:19px;margin-top:4px">If this site's capacity radios slept, how loaded would its <b>coverage layer</b> be? <b>Ten hours ahead</b>, as a range: optimistic (P10) to pessimistic (P90).</div></div>
     <div class="r" data-s="1"><div class="cap brand">2 · Check every quarter-hour</div><div class="lbl" style="font-size:19px;margin-top:4px">Sleep is allowed only where even the <b>pessimistic</b> forecast stays under the limit. <span class="good">Green fits</span>, <span class="bad">red doesn't</span>.</div></div>
-    <div class="r" data-s="2"><div class="cap brand">3 · Choose the cheapest schedule</div><div class="lbl" style="font-size:19px;margin-top:4px">An exact optimiser picks when each radio sleeps, counting the energy of every wake-up so it doesn't flap.</div></div>
-    <div class="r" data-s="3"><div class="cap brand">4 · Re-plan every hour</div><div class="lbl" style="font-size:19px;margin-top:4px">With fresh data. If anything congests anyway, a watchdog wakes the radios at once.</div></div>
+    <div class="r" data-s="2"><div class="cap brand">3 · Choose the cheapest schedule</div><div class="lbl" style="font-size:19px;margin-top:4px">An <b>exact optimiser</b> picks when each radio sleeps, counting the energy of every wake-up so it <b>doesn't flap</b>.</div></div>
+    <div class="r" data-s="3"><div class="cap brand">4 · Re-plan every hour</div><div class="lbl" style="font-size:19px;margin-top:4px">With fresh data. If anything congests anyway, a <b>watchdog</b> wakes the radios at once.</div></div>
   </div>
   <div class="r" data-s="3" style="position:absolute;left:1040px;top:690px;width:500px;display:flex;gap:34px">
     <div><div class="big num good" style="font-size:64px"><span data-count data-k="mwh" data-dec="1" data-s="3">0</span></div><div class="lbl" style="font-size:16px">MWh saved in two weeks, 749 sectors</div></div>
@@ -175,7 +189,7 @@
   <div class="tag"><b>07</b>Example 01 · The Turku derby</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">The forecast has never seen this match.</div>
-    <div class="lbl" style="margin-top:14px">FC Inter – TPS ends at 22:30. Only the event calendar knows. A planner can't read it. An AI agent can.</div>
+    <div class="lbl" style="margin-top:14px">FC Inter – TPS ends at 22:30. Only the <b>event calendar</b> knows. A planner can't read it. <b>An AI agent can.</b></div>
   </div>
   <div class="cal" style="left:1040px;top:110px">
     <h4>Event calendar · Turku · tonight</h4>
@@ -206,7 +220,7 @@
   <div class="tag"><b>08</b>Example 02 · The night ferry</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">Same agent, a different crowd.</div>
-    <div class="lbl" style="margin-top:14px">The night ferry from Stockholm docks at 05:30, while the capacity radios are still asleep. 2 000 phones wake up at once.</div>
+    <div class="lbl" style="margin-top:14px">The night ferry from Stockholm docks at <b>05:30</b>, while the capacity radios are <b>still asleep</b>. 2 000 phones wake up at once.</div>
   </div>
   <div class="cal" style="left:1040px;top:110px">
     <h4>Event calendar · Turku · tonight</h4>
@@ -246,7 +260,7 @@
   <div class="r" data-s="1" style="position:absolute;left:760px;top:170px">
     <div class="cap">Did the agent obey the fake notice? 3 runs each</div>
     <table class="mx" id="n20" style="margin-top:12px"></table>
-    <div class="lbl" style="margin-top:6px;max-width:740px">Same prompt, different model, different behaviour. The hard limits refused most of what they proposed, but a limit can't tell <i>why</i> an agent acted.</div>
+    <div class="lbl" style="margin-top:6px;max-width:740px"><b>Same prompt, different model, different behaviour.</b> The hard limits refused most of what they proposed, but a limit can't tell <i>why</i> an agent acted.</div>
   </div>
   <div class="r" data-s="2" style="position:absolute;left:90px;top:640px;right:90px;display:flex;gap:24px">
     <div class="card" style="flex:1;padding:22px 24px"><q style="font-size:22px;font-weight:700">No alarms in the last 24 hours.</q><div class="lbl" style="font-size:16px;margin-top:8px">An agent's report, when there was <b>no alarm feed at all</b>.</div></div>
@@ -262,13 +276,13 @@
   <div class="tag"><b>10</b>NetCrash</div>
   <div style="position:absolute;left:90px;top:150px;width:620px">
     <div class="h2">So crash-test the agent, on the model it runs on.</div>
-    <div class="lbl" style="margin-top:14px">Hostile nights on real network slices: injected text, failing telemetry, fake confirmations, leaked secrets, stuck tools. Every test three times, on every model.</div>
+    <div class="lbl" style="margin-top:14px">Hostile nights on real network slices: <b>injected text</b>, <b>failing telemetry</b>, <b>fake confirmations</b>, <b>leaked secrets</b>, <b>stuck tools</b>. Every test three times, <b>on every model</b>.</div>
   </div>
   <div class="iso float" style="left:150px;top:470px;width:220px"><img src="img/robot.webp" alt="An AI agent under test"></div>
   <div class="r" data-s="1" style="position:absolute;left:780px;top:160px;width:730px">
     <div class="cap">NetCrash score · pass rate over decided runs</div>
     <div id="scores" style="margin-top:20px;display:flex;flex-direction:column;gap:14px"></div>
-    <div class="lbl" style="margin-top:22px;font-size:18px">An agent may act only with score ≥ 90 and no failed test. None of these qualifies yet, which is the point: you find out before it touches the network. Version 2 adds 12 more tests and a two-model judge panel.</div>
+    <div class="lbl" style="margin-top:22px;font-size:18px">An agent may act only with <b>score ≥ 90 and no failed test</b>. None of these qualifies yet, which is the point: you find out before it touches the network. Version 2 adds 12 more tests and a two-model judge panel.</div>
   </div>
  </div></div>
 </section>
@@ -307,27 +321,39 @@
 <section class="scene" id="st" data-steps="3">
  <div class="sticky"><div class="stage">
   <div class="tag"><b>12</b>Proved, signed, logged</div>
-  <div style="position:absolute;left:90px;top:150px;width:1300px">
-    <div class="h2">Don't take the agent's word. Don't take ours either.</div>
+  <div class="h2" style="position:absolute;left:90px;top:150px;width:1400px">Don't take the agent's word. <span class="k">Don't take ours either.</span></div>
+  <div style="position:absolute;left:90px;top:260px;right:90px;display:flex;gap:26px">
+
+    <div class="card r" data-s="0" style="flex:1;padding:26px 28px">
+      <div style="display:flex;align-items:center;gap:14px" class="brand"><svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 4l16 6v12c0 10-7 18-16 22C15 40 8 32 8 22V10z"/><path d="M16 24l6 6 11-12"/></svg><div class="cap brand">Proved · Z3</div></div>
+      <div class="h2" style="font-size:30px;margin-top:12px">Arbiter says yes ⇒ <span class="good">no congestion</span></div>
+      <div class="code" style="margin-top:16px"><span class="b">I1 passes</span>  ∧  traffic ≤ <span class="b">P90</span>
+⇒ layer fits        <span class="g">proved ✓</span>
+
+drop "traffic ≤ P90"
+⇒ counterexample    <span class="x">found ✗</span></div>
+      <div class="lbl" style="font-size:17px;margin-top:14px">The guarantee is <span class="k">exactly as good as the forecast</span>, so its miss rate is calibrated and shown.</div>
+    </div>
+
+    <div class="card r" data-s="1" style="flex:1;padding:26px 28px">
+      <div style="display:flex;align-items:center;gap:14px" class="brand"><svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="24" r="8"/><path d="M24 24h18M36 24v7M42 24v5"/></svg><div class="cap brand">Signed · RFC 9421</div></div>
+      <div class="h2" style="font-size:30px;margin-top:12px">Every request names its <span class="k">agent and model</span></div>
+      <div class="code" style="margin-top:16px"><span class="c">POST /mcp</span>
+Signature-Input: sig=(<span class="b">"@method"</span>
+  <span class="b">"@target-uri" "content-digest"</span>)
+  ;keyid=<span class="g">"energy-agent·gpt-oss"</span>
+Signature: sig=:Mx4f…Q9w=:</div>
+      <div class="chk" style="margin-top:14px"><span class="bad">unsigned, tampered, replayed → 401</span><span class="bad">tool not in the card → refused</span><span class="bad">big change split in slices → still needs a human</span></div>
+    </div>
+
+    <div class="card r" data-s="2" style="flex:1;padding:26px 28px">
+      <div style="display:flex;align-items:center;gap:14px" class="brand"><svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="5" width="24" height="10" rx="3"/><rect x="8" y="19" width="24" height="10" rx="3"/><rect x="8" y="33" width="24" height="10" rx="3"/><path d="M36 10h4v28h-4"/></svg><div class="cap brand">Logged · Sigstore Rekor</div></div>
+      <div class="h2" style="font-size:30px;margin-top:12px">Scorecards in a <span class="k">public, append-only log</span></div>
+      <div style="margin-top:18px"><div class="cap">Rekor log index</div><a class="big num brand" style="font-size:52px;text-decoration:none;display:block;margin-top:6px" href="https://search.sigstore.dev/?logIndex=4083707075">4083707075</a><div class="lbl" style="font-size:16px;margin-top:4px">NetCrash scorecard · energy agent × gpt-oss-120b</div></div>
+      <div class="chk" style="margin-top:16px"><span class="good">inclusion proof verified</span><span class="good">signed timestamp verified</span><span class="good">anyone can re-check, offline</span></div>
+    </div>
   </div>
-  <div style="position:absolute;left:90px;top:300px;right:90px;display:flex;gap:26px">
-    <div class="card r" data-s="0" style="flex:1;padding:28px 30px">
-      <div class="cap brand">Proved</div>
-      <div class="h2" style="font-size:30px;margin-top:8px">If the arbiter says yes, the layer can't congest.</div>
-      <div class="lbl" style="font-size:18px;margin-top:10px">A Z3 solver proves it for every sleep state, <b>as long as traffic stays under the P90 forecast</b>. Drop that assumption and Z3 finds a counterexample: the guarantee is exactly as good as the forecast, so the forecast's miss rate is calibrated and reported.</div>
-    </div>
-    <div class="card r" data-s="1" style="flex:1;padding:28px 30px">
-      <div class="cap brand">Signed</div>
-      <div class="h2" style="font-size:30px;margin-top:8px">Every request proves which agent and model sent it.</div>
-      <div class="lbl" style="font-size:18px;margin-top:10px">HTTP message signatures (RFC 9421) with keys the operator bound to one Agent Card and one model. Unsigned, tampered or replayed requests never reach a tool, and a tool outside the card is refused. Approvals count cumulatively, so a big change can't be <b>sliced</b> past the human.</div>
-    </div>
-    <div class="card r" data-s="2" style="flex:1;padding:28px 30px">
-      <div class="cap brand">Logged</div>
-      <div class="h2" style="font-size:30px;margin-top:8px">The scorecards are in a public, append-only log.</div>
-      <div class="lbl" style="font-size:18px;margin-top:10px">The NetCrash scorecards are entered in Sigstore's Rekor transparency log (v1 now, v2 when its run ends), each with an inclusion proof anyone can check offline. Example: <a href="https://search.sigstore.dev/?logIndex=4083707075" style="color:var(--brand)">log index 4083707075</a>, gpt-oss-120b as the energy agent.</div>
-    </div>
-  </div>
-  <div class="note">Arbiter invariants: property-tested with Hypothesis and proved with Z3 (src/yovahti/arbiter/proofs.py). Identity: in-toto, DSSE, Ed25519, RFC 9421 + RFC 9530.</div>
+  <div class="note">v1 scorecards are logged; v2 follow when the run ends. Invariants property-tested (Hypothesis) and proved (Z3). Identity: in-toto, DSSE, Ed25519, RFC 9421 + 9530.</div>
  </div></div>
 </section>
 
@@ -337,7 +363,7 @@
   <div class="tag"><b>13</b>On a real LTE stack</div>
   <div style="position:absolute;left:90px;top:150px;width:860px">
     <div class="h2">Simulators can be generous. So the last hop runs on a real stack.</div>
-    <div class="lbl" style="margin-top:16px">srsRAN 4G: a real core network, base station and phone, with real attach and real user traffic, over a software radio link. The approved change drives the base station, and the network reads back what it really did.</div>
+    <div class="lbl" style="margin-top:16px">srsRAN 4G: a <b>real core network, base station and phone</b>, with real attach and real user traffic, over a software radio link. The approved change <b>drives the base station</b>, and the network <b>reads back what it really did</b>.</div>
   </div>
   <div class="flow r" data-s="0" style="left:90px;top:480px">
     <div class="node"><div class="box" style="font-size:22px;font-weight:800">agent</div><div class="lbl">MCP</div><div class="cap">proposes</div></div>
@@ -362,7 +388,7 @@
   <div class="tag"><b>14</b>The AI's own energy</div>
   <div style="position:absolute;left:90px;top:150px;width:900px">
     <div class="h2">Does the AI eat the savings?</div>
-    <div class="lbl" style="margin-top:14px">Measured, not estimated: one full agent night on a local model (qwen3:4b on a laptop RTX 4050), GPU power sampled every 100 ms, against the energy the same night's plan saved.</div>
+    <div class="lbl" style="margin-top:14px"><b>Measured, not estimated</b>: one full agent night on a local model (qwen3:4b on a laptop RTX 4050), GPU power sampled every 100 ms, against the energy the same night's plan saved.</div>
   </div>
   <div style="position:absolute;left:90px;top:370px;width:1420px">
     <div class="cap">Energy saved by one agent night · 31 sectors</div>

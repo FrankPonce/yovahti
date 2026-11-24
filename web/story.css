@@ -210,3 +210,21 @@ body.dark .progress a.on { background: var(--brand-soft); }
 /* ---------- PDF capture (?at=scene:step) ---------- */
 body.capture .bar, body.capture .progress, body.capture .scroll-hint { display: none; }
 body.capture *, body.capture *::before, body.capture *::after { transition: none !important; animation: none !important; }
+
+/* ---------- keyword highlight + show-don't-tell pieces ---------- */
+.k { color: var(--brand); font-weight: 700; }
+.scene.dark .k { color: var(--brand-soft); }
+.lbl b.good, .lbl b.bad { font-weight: 700; }
+.yr { font-size: 64px; font-weight: 800; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.fp { display: flex; height: 92px; border-radius: 16px; overflow: hidden; }
+.fp div { display: flex; align-items: center; padding: 0 20px; font-size: 19px; font-weight: 700; color: #fff; white-space: nowrap; }
+.trend { display: flex; align-items: flex-end; gap: 46px; height: 300px; }
+.trend .col { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.trend .tb { width: 100%; border-radius: 14px 14px 4px 4px; background: var(--bad); transition: height 1.2s var(--ease); }
+.trend .v { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.code { font-family: "Cascadia Code", Consolas, ui-monospace, monospace; font-size: 15px; line-height: 1.55; background: var(--night); color: #E2E8F0; border-radius: 14px; padding: 16px 18px; white-space: pre; overflow: hidden; }
+.code .c { color: #94A3B8; } .code .g { color: var(--good-soft); } .code .x { color: var(--bad-soft); } .code .b { color: var(--brand-soft); }
+.chk { font-size: 19px; font-weight: 700; display: flex; flex-direction: column; gap: 8px; }
+.chk .good::before { content: "✓ "; } .chk .bad::before { content: "✗ "; }
+.lbl b:not(.good):not(.bad), .vs-steps b:not(.good):not(.bad) { color: var(--brand); font-weight: 700; }
+.scene.dark .lbl b:not(.good):not(.bad) { color: var(--brand-soft); }
