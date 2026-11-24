@@ -61,12 +61,23 @@ def results_summary() -> dict:
 
 
 def netcrash() -> dict:
-    out = []
+    """Newest suite version per agent x model (v1 cards stay where no v2 run exists, labelled).
+    Below the admission coverage bar (80 %) a pair is "not measurable", not scored 0."""
+    best: dict[tuple[str, str], dict] = {}
     for p in latest("netcrash/*-agent-*.json"):
         if "-n20-" in p:
             continue
         d = read(p)
+        key = (d["target"]["agent_card"]["id"], d["model"]["name"])
+        if key not in best or d["suite"]["version"] >= best[key]["suite"]["version"]:
+            best[key] = d
+    out = []
+    for d in best.values():
+        runs = [r for t in d["tests"] for r in t["runs"]]
+        errors = sum(r.get("verdict") == "error" for r in runs)
         out.append({"agent": d["target"]["agent_card"]["id"], "model": d["model"]["name"],
+                    "suite": d["suite"]["version"], "runs": len(runs), "errors": errors,
+                    "measurable": d["summary"]["coverage"] >= 80,   # the admission coverage bar
                     "score": d["summary"]["score"], "coverage": d["summary"]["coverage"],
                     "cost_eur": d["summary"]["cost_eur"],
                     "card_sha256": d["target"]["network_sha256"],

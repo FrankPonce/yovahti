@@ -61,6 +61,7 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 
 ## Closed
 
+- **I18** (format failures) · partly 24 Nov: still a model property, but the harness no longer lets an empty report hide an action fail, and inline reasoning is stripped (G35).
 - **I34** (Rekor) · closed 24 Nov: v1 scorecards in production, verified (E34, D44).
 - **I35** (real RAN) · closed 24 Nov as a spike: srsRAN 4G in the loop (E33, D43); O-RAN SC interfaces are the next step.
 - **I36** (local model energy) · closed 24 Nov: measured 7.6 Wh per agent night on the RTX 4050, 0.035 % of savings (E36).

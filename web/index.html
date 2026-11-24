@@ -294,7 +294,7 @@
   <div class="r" data-s="1" style="position:absolute;left:780px;top:160px;width:730px">
     <div class="cap">NetCrash score · pass rate over decided runs</div>
     <div id="scores" style="margin-top:20px;display:flex;flex-direction:column;gap:14px"></div>
-    <div class="lbl" style="margin-top:22px;font-size:18px">An agent may act only with <b>score ≥ 90 and no failed test</b>. None of these qualifies yet, which is the point: you find out before it touches the network. Version 2 adds 12 more tests and a two-model judge panel.</div>
+    <div class="lbl" style="margin-top:22px;font-size:18px">An agent may act only with <b>score ≥ 90 and no failed test</b>. None qualifies, which is the point: you find out before it touches the network. Scores are from <b>suite v2</b> (23 tests, two-model judge panel).</div>
   </div>
  </div></div>
 </section>
@@ -361,11 +361,11 @@ Signature: sig=:Mx4f…Q9w=:</div>
     <div class="card r" data-s="2" style="flex:1;padding:26px 28px">
       <div style="display:flex;align-items:center;gap:14px" class="brand"><svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="5" width="24" height="10" rx="3"/><rect x="8" y="19" width="24" height="10" rx="3"/><rect x="8" y="33" width="24" height="10" rx="3"/><path d="M36 10h4v28h-4"/></svg><div class="cap brand">Logged · Sigstore Rekor</div></div>
       <div class="h2" style="font-size:30px;margin-top:12px">Scorecards in a <span class="k">public, append-only log</span></div>
-      <div style="margin-top:18px"><div class="cap">Rekor log index</div><a class="big num brand" style="font-size:52px;text-decoration:none;display:block;margin-top:6px" href="https://search.sigstore.dev/?logIndex=4083707075">4083707075</a><div class="lbl" style="font-size:16px;margin-top:4px">NetCrash scorecard · energy agent × gpt-oss-120b</div></div>
+      <div style="margin-top:18px"><div class="cap">Rekor log index</div><a class="big num brand" style="font-size:52px;text-decoration:none;display:block;margin-top:6px" href="https://search.sigstore.dev/?logIndex=4083707075">4083707075</a><div class="lbl" style="font-size:16px;margin-top:4px">NetCrash v1 scorecard · energy agent × gpt-oss-120b</div></div>
       <div class="chk" style="margin-top:16px"><span class="good">inclusion proof verified</span><span class="good">signed timestamp verified</span><span class="good">anyone can re-check, offline</span></div>
     </div>
   </div>
-  <div class="note">v1 scorecards are logged; v2 follow when the run ends. Invariants property-tested (Hypothesis) and proved (Z3). Identity: in-toto, DSSE, Ed25519, RFC 9421 + 9530.</div>
+  <div class="note">v1 and v2 scorecards are logged (13 entries). Invariants property-tested (Hypothesis) and proved (Z3). Identity: in-toto, DSSE, Ed25519, RFC 9421 + 9530.</div>
  </div></div>
 </section>
 

@@ -27,7 +27,8 @@ def main() -> None:
     a = ap.parse_args()
     url = rekor.PRODUCTION if a.production else rekor.STAGING
     jwk = public_part(json.loads((ROOT / "trust/keys/tester.private.jwk.json").read_text()))
-    files = a.files or sorted((RESULTS / "netcrash/attestations").glob("*.dsse.json"))
+    files = ([f.resolve() for f in a.files]
+             or sorted((RESULTS / "netcrash/attestations").glob("*.dsse.json")))
     out = RESULTS / "netcrash" / ("rekor" if a.production else "rekor-staging")
     out.mkdir(parents=True, exist_ok=True)
     c = httpx.Client(timeout=30)
@@ -45,9 +46,13 @@ def main() -> None:
         (out / f"{name}.json").write_text(json.dumps(
             {"attestation": f.relative_to(ROOT).as_posix(), "check": res,
              "payload_hash_matches": same, "entry": e}, indent=1))
-        rows.append(f"| {name} | {e['logIndex']} | `{e['uuid'][-16:]}` | "
-                    f"{'ok' if ok else 'FAILED'} |")
         print(name, e["logIndex"], res["reason"], "payload ok" if same else "PAYLOAD MISMATCH")
+    # the index lists every entry logged so far, not only this call's files
+    for f in sorted(out.glob("2026-*.json")):
+        r = json.loads(f.read_text())
+        e, ok = r["entry"], r["check"]["ok"] and r["payload_hash_matches"]
+        rows.append(f"| {f.stem} | {e['logIndex']} | `{e['uuid'][-16:]}` | "
+                    f"{'ok' if ok else 'FAILED'} |")
     (out / "index.md").write_text(
         f"# NetCrash attestations in Rekor ({url})\n\nLook up an entry: "
         f"`{url}/api/v1/log/entries?logIndex=<index>` or search.sigstore.dev.\n\n"

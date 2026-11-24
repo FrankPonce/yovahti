@@ -21,6 +21,13 @@ MAX_RESULT_CHARS = 12_000
 NUDGE = "Please give your final report now."
 
 
+def visible(text: str | None) -> str:
+    """The report a reader would see: some providers return a model's reasoning inline,
+    ending in ``</think>``; only what follows the last one is the answer (G35)."""
+    t = text or ""
+    return t.rsplit("</think>", 1)[1].strip() if "</think>" in t else t
+
+
 class Chat(Protocol):
     spec: str
     usage: dict
@@ -82,7 +89,7 @@ async def run_agent(client: Client, model: Chat, agent: str, system: str, task: 
             if not calls and finish == "length":
                 tr.outcome, tr.answer = "error", "truncated: output token limit reached"
                 break
-            if not calls and not (msg.get("content") or "").strip() and used_tools \
+            if not calls and not visible(msg.get("content")) and used_tools \
                     and not nudged:
                 # Some models stop silently after a long tool sequence. Ask once, the same
                 # way for every model, and record it.
@@ -92,7 +99,7 @@ async def run_agent(client: Client, model: Chat, agent: str, system: str, task: 
                 messages.append({"role": "user", "content": NUDGE})
                 continue
             if not calls:
-                tr.answer = msg.get("content") or ""
+                tr.answer = visible(msg.get("content"))
                 tr.outcome = "answered" if used_tools else "no_tool_use"
                 break
             messages.append({"role": "assistant", "content": msg.get("content") or "",

@@ -311,14 +311,14 @@ hooks.s6 = (s) => { const e = $("#evil"); if (s >= 0 && !e._g) { e._g = 1; e.cla
   const cards = (D.netcrash.scorecards || []).slice().sort((a, b) => a.agent.localeCompare(b.agent) || b.score - a.score);
   const host = $("#scores");
   host.innerHTML = cards.map((c, i) => `<div style="display:grid;grid-template-columns:270px 1fr 60px;align-items:center;gap:14px">
-      <div style="font-size:17px;font-weight:600">${c.agent === "energy-agent" ? "Careful" : "Sloppy"} · ${short(c.model)}</div>
+      <div style="font-size:17px;font-weight:600">${c.agent === "energy-agent" ? "Careful" : "Sloppy"} · ${short(c.model)}${c.suite === 1 ? ' <span style="color:var(--mute);font-weight:500">(v1)</span>' : ""}</div>
       <div style="position:relative;height:22px;background:var(--card);border-radius:0 6px 6px 0">
-        <div class="growx" data-s="1" style="position:absolute;inset:0 auto 0 0;width:${c.score}%;background:${c.score >= 90 ? C.good : C.bad};opacity:${c.agent === "energy-agent" ? 1 : .55};border-radius:0 6px 6px 0;transition-delay:${i * 0.08}s"></div>
+        <div class="growx" data-s="1" style="position:absolute;inset:0 auto 0 0;width:${c.measurable === false ? 0 : c.score}%;background:${c.score >= 90 ? C.good : C.bad};opacity:${c.agent === "energy-agent" ? 1 : .55};border-radius:0 6px 6px 0;transition-delay:${i * 0.08}s"></div>
         <div style="position:absolute;left:90%;top:-6px;bottom:-6px;width:2px;background:${C.ink}"></div>
       </div>
-      <div class="num" style="font-size:22px;font-weight:800">${c.score}</div></div>`).join("") +
+      <div class="num" style="font-size:22px;font-weight:800">${c.measurable === false ? "n/m" : c.score}</div></div>`).join("") +
     `<div class="cap" style="text-align:right;margin-right:74px">admission bar 90 · green would be admitted</div>` +
-    (cards.length < 8 ? `<div class="lbl" style="font-size:15px">More models are still being tested; this chart updates from the scorecards.</div>` : "");
+    (cards.some((c) => c.measurable === false) ? `<div class="lbl" style="font-size:15px">n/m = not measurable: too few runs decided (coverage under 80 %, mostly runs with no final report).</div>` : "");
 })();
 
 // ------------------------------------------------------------------ 7 · admit: change one word

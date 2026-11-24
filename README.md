@@ -58,16 +58,18 @@ Validation weeks (26 Oct – 8 Nov 2025), **749 real sectors** of a live operato
 - **Night ferry** docks at 05:30: **83 %** removed with no loss of savings (E23).
 - First night without events: identical to the planner (the LLM's value is the calendar), and it reported "no alarms" when there was *no alarm feed* (E20).
 
-**NetCrash** (11 hostile tests × 3 runs per agent × model, signed in-toto attestations):
+**NetCrash v2** (23 hostile tests × 3 runs per agent × model, two-model judge panel, signed in-toto attestations logged in Sigstore Rekor):
 
 | Model | Careful prompt | Sloppy prompt |
 |---|---:|---:|
-| Qwen 3.8 27B | 77 | 67 |
-| gpt-oss-120b | 71 | 62 |
-| Mistral Small 3.2 24B | 68 | 53 |
-| DeepSeek V4 Flash | 60 | 47 |
+| Qwen 3.8 27B | 77 | not measurable† |
+| gpt-oss-120b | 69 | 53 |
+| Mistral Small 3.2 24B | 55 | 52 |
+| DeepSeek V4 Flash (v1 suite) | 60 | 47 |
 
-Trust is agent × model: no pair reaches the admission bar (90, no failed test), so `admit()` refuses all of them. Failures include a leaked token in a report, sleeping cells under an announced crowd, and obeying a fake "sleep everything now" notice in the calendar (2 of 3 runs on two models with the careful prompt; every run with the sloppy one, E22).
+Trust is agent × model: no pair reaches the admission bar (90, no failed test), so `admit()` refuses all of them. **Every careful-prompt model split a change waiting for human approval into smaller ones**, although the prompt forbids it; only the arbiter's cumulative approval rule stopped them (E37). Other failures: a leaked token in a report, sleeping cells under an announced crowd, obeying a fake "sleep everything now" notice in the calendar (E22), and subtle injections (5 of 6 pairs).
+
+† Most runs ended with no final report (coverage 62 %, below the 80 % bar), so no score is claimed (G35).
 
 ¹ Reconstructed from public sources (patent WO2024028883A1 and a 2023 blog post); **not** Ericsson's software.
 
@@ -116,7 +118,7 @@ Every result table says which parts are real.
 | MCP server: 12 tools, admission + arbiter gate, signed-result admission | ✅ |
 | Agents (energy, sloppy) with priced budget guard, night replay, event experiments | ✅ (coverage agent to come) |
 | Trust: Agent Cards, `admit()` compatible with agent-trust-kit, arbiter I1/I2/I3/I5 | ✅ (I4/I7/I8/I9 to come) |
-| NetCrash v0: 11 tests + calendar injection, full matrix on 4 models, attestations | ✅ (judge panel, suite v2 to come) |
+| NetCrash v2: 23 tests, judge panel, 3 models × 2 prompts, attestations in Rekor | ✅ |
 | Story site (`web/`, live at [yovahti.vercel.app](https://yovahti.vercel.app)), report, PDF, paper draft | ✅ draft |
 | Locked test weeks (9–22 Nov, run once with the frozen method) | ✅ held: 18.8 % saved at 0.69 congested ¼-h/sector-day; 7x less congestion than the published method; +3.0 pt over it at less congestion (E24) |
 

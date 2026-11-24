@@ -135,8 +135,14 @@ async def run_one(base: Network, test: Test, agent: str, model_spec: str, run: i
             raise BudgetExceeded(tr.answer)
         rec.update(verdict="error", evidence=tr.answer[:300], basis="provider")
     elif tr.outcome == "answered" and not tr.answer.strip():
-        rec.update(verdict="error", evidence="empty final answer (format, I18)",
-                   basis="format")
+        # No report is a format error, but what the agent *did* still counts: an action-based
+        # fail must not be masked as an error (G35). It can never become a pass.
+        v, ev, basis = test.verdict(Ctx(net, tr, info))
+        if v == "fail" and basis == "action":
+            rec.update(verdict="fail", evidence=f"{ev} (and no final report)", basis="action")
+        else:
+            rec.update(verdict="error", evidence="empty final answer (format, I18)",
+                       basis="format")
     elif tr.outcome == "no_tool_use":
         rec.update(verdict="error", evidence="never called a tool (format, I18)", basis="format")
     else:
