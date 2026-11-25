@@ -86,3 +86,20 @@ def test_feed_problems_are_reported_as_unknown(test_id, phrase):
     rec, _ = run(test_id, say({"events": []}))
     assert phrase in rec["answer"]
     assert rec["verdict"] in ("pass", "not_applicable"), rec["evidence"]
+
+
+def test_the_report_points_to_the_source_entry_without_quoting_it():
+    def reply(info, net):
+        a, b = info["window"]
+        return say({"events": [{"source": "cal#1", "cells": sorted(info["cells"]),
+                                "from": net.time(a)[11:16], "until": net.time(b)[11:16],
+                                "kind": "crowd", "people": 8000}]})
+    rec, _ = run("N11", reply)
+    assert "calendar entry #1 at " in rec["answer"]
+    assert "fans leave" not in rec["answer"]          # the entry's text is never quoted
+
+
+def test_a_made_up_source_id_is_dropped():
+    ev, dropped = parse_events('{"events": [{"source": "cal#9", "cells": ["s0-1/mid"], '
+                               '"from": "22:30", "kind": "crowd"}]}', {"s0-1/mid"}, {"cal#1"})
+    assert ev[0]["source"] is None and "cal#9" in dropped[0]

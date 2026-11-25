@@ -44,8 +44,11 @@ def _qh(hhmm: str, now_label: str) -> int | None:
     return d - 96 if d > 88 else d            # just before now counts as already started
 
 
-def parse_events(text: str, known: set[str]) -> tuple[list[dict], list[str]]:
-    """Strictly validated events and the reasons anything was dropped."""
+def parse_events(text: str, known: set[str],
+                 sources: set[str] | None = None) -> tuple[list[dict], list[str]]:
+    """Strictly validated events and the reasons anything was dropped. ``source`` must be an
+    id the feed actually had (``cal#n`` / ``alarm#n``), else it is left out: the report can
+    point a human to the entry without ever quoting its (untrusted) text."""
     dropped: list[str] = []
     m = re.search(r"\{.*\}", visible(text), re.S)
     try:
@@ -64,13 +67,21 @@ def parse_events(text: str, known: set[str]) -> tuple[list[dict], list[str]]:
             dropped.append(f"unknown cell ids ignored: {bad[:5]}")
         if not cells:
             continue
+        src = e.get("source") if isinstance(e.get("source"), str) else None
+        if src is not None and sources is not None and src not in sources:
+            dropped.append(f"unknown source id ignored: {src[:20]!r}")
+            src = None
         out.append({"cells": cells, "from": e.get("from"), "until": e.get("until"),
+                    "source": src,
                     "kind": str(e.get("kind") or "other")[:20],
                     "people": e.get("people") if isinstance(e.get("people"), int) else None})
     return out, dropped
 
 
-def keep_awake_windows(events: list[dict], now_label: str) -> list[dict]:
+def keep_awake_windows(events: list[dict], now_label: str,
+                       times: dict[str, str] | None = None) -> list[dict]:
+    """``times`` {source id: feed time} lets the reason cite the entry: "calendar entry #3
+    at 22:30". The time comes from the feed's structured field, not from model text."""
     out = []
     for e in events:
         f = _qh(e["from"], now_label)
@@ -81,10 +92,16 @@ def keep_awake_windows(events: list[dict], now_label: str) -> list[dict]:
         hi = (u + QH_MARGIN_AFTER) if u is not None and u > f else lo + QH_DEFAULT
         if hi <= 0:
             continue                                   # already over
+        why = f"{e['kind']} event" + (f", about {e['people']} people" if e["people"] else "")
+        src = e.get("source")
+        if src:
+            kind, _, n = src.partition("#")
+            label = {"cal": "calendar entry", "alarm": "alarm"}.get(kind, kind)
+            at = (times or {}).get(src, "")
+            why += f"; {label} #{n}" + (f" at {at[11:16]}" if len(at) >= 16 else "")
         for c in e["cells"]:
             out.append({"cell": c, "from_qh": lo, "quarter_hours": max(1, hi - lo),
-                        "reason": f"{e['kind']} event" + (f", about {e['people']} people"
-                                                         if e["people"] else "")})
+                        "reason": why})
     return out
 
 
@@ -137,18 +154,21 @@ async def run_workflow(client: Any, model: Any, agent: str, cluster: str, now_la
             unknowns.append(f"forecast uncertainty is wide: {str(plan['uncertainty'])[:160]}")
 
         # ---- the one model call: feeds in, typed events out
-        feed = {"now": now_label, "KNOWN_CELLS": sorted(known),
-                "event_calendar": (events or {}).get("events", []) if isinstance(events, dict)
-                else [], "alarms": (alarms or {}).get("alarms", [])
-                if isinstance(alarms, dict) else []}
+        cal = (events or {}).get("events", []) if isinstance(events, dict) else []
+        alm = (alarms or {}).get("alarms", []) if isinstance(alarms, dict) else []
+        cal = [{"id": f"cal#{i + 1}", **e} for i, e in enumerate(cal)]
+        alm = [{"id": f"alarm#{i + 1}", **a} for i, a in enumerate(alm)]
+        times = {x["id"]: str(x.get("time", "")) for x in cal + alm}
+        feed = {"now": now_label, "KNOWN_CELLS": sorted(known), "event_calendar": cal,
+                "alarms": alm}
         msg = model.chat([{"role": "system", "content": EXTRACT},
                           {"role": "user", "content": json.dumps(feed, ensure_ascii=False)}])
         raw = msg.get("content") or ""
         tr.steps.append({"kind": "model", "step": len(tr.steps), "content": raw[:4000],
                          "tool_calls": [], "finish": msg.get("_finish")})
-        found, dropped = parse_events(raw, known)
+        found, dropped = parse_events(raw, known, set(times))
         unknowns += dropped
-        keep = keep_awake_windows(found, now_label)
+        keep = keep_awake_windows(found, now_label, times)
 
         summary = ("Planner plan for tonight, minus keep-awake windows from "
                    f"{len(found)} extracted event(s).")
@@ -195,7 +215,9 @@ def report(cluster: str, plan: Any, status: dict[str, str], keep: list[dict],
             by.setdefault(k["reason"], []).append(k["cell"])
         lines.append("Kept awake: " + "; ".join(f"{', '.join(v)} ({r})" for r, v in by.items())
                      + ".")
-    lines.append(f"Feeds read: {events_n} calendar entries and {alarms_n} alarms, treated as "
-                 "data.")
+    def n(k: int, one: str, many: str) -> str:
+        return f"{k} {one if k == 1 else many}"
+    lines.append(f"Feeds read: {n(events_n, 'calendar entry', 'calendar entries')} and "
+                 f"{n(alarms_n, 'alarm', 'alarms')}, treated as data.")
     lines.append("Unknowns: " + ("; ".join(unknowns) if unknowns else "none") + ".")
     return "\n".join(lines)

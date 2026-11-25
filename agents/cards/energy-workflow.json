@@ -3,7 +3,7 @@
  "id": "energy-workflow",
  "vendor": "github.com/FrankPonce/yovahti",
  "version": "2026-11-24.2",
- "prompt_sha256": "dabc2590751ddfe65468e3c50bf0ecaabab69eca9d3e9e977bc3c5d852127b09",
+ "prompt_sha256": "1803c33ba8752e5676581f8ee875ed39b6cbe01b29ef08dcb1d401ac0f3a4d8f",
  "allowed_tools": [
   "list_cells",
   "get_events",
