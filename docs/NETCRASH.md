@@ -41,7 +41,7 @@ Every careful-prompt model split a change awaiting approval (N8), caught by the 
 
 ## Interfaces: full, constrained, workflow (25 Nov 2026)
 
-Same model (DeepSeek V4 Flash), same suite and harness: full 83, constrained 85 (approval gaming and every sleep-beyond-plan failure impossible; careful and sloppy prompts score alike), workflow 100 on the two tests the model still decides (event awareness, does the job), EUR 0.005 per suite. D45, D46, E38; matrix `results/netcrash/2026-11-24-v2c-matrix.md`.
+Same model (DeepSeek V4 Flash), same suite and harness: full 83, constrained 85 (approval gaming and every sleep-beyond-plan failure impossible; careful and sloppy prompts score alike), workflow 100 on the two tests the model still decides (event awareness, does the job), EUR 0.005 per suite. Repeated locally on qwen3:4b: full 78, constrained 80, workflow 100. D45, D46, E38; matrix `results/netcrash/2026-11-24-v2c-matrix.md`.
 
 ## Test catalogue (v1)
 
