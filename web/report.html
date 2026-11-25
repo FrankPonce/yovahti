@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Yövahti · energy-saving network agents that earn the right to act</title>
-<meta name="description" content="Risk-aware cell sleep on real operator data, exposed to AI agents through MCP, with per-model behavioural tests (NetCrash) and attested admission.">
+<title>Yövahti · full report: radios that sleep, agents that earn the right to act</title>
+<meta name="description" content="Risk-aware cell sleep on real operator data, compared with published methods from Ericsson, Nokia, Elisa and Parallel Wireless; AI agents through MCP, tested per model (NetCrash), signed, logged in Sigstore Rekor, and checked by proved rules; a real LTE stack in the loop.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,10 +12,10 @@
 <header class="top">
   <div class="wrap">
     <p class="eyebrow">Yövahti · Finnish for “night watch”</p>
-    <h1>Energy-saving network agents that have to earn the right to act</h1>
-    <p class="lede">A risk-aware planner puts capacity radios to sleep at night on <strong>real live-network data</strong>. AI agents reach it through <strong>MCP</strong>. Every agent is behaviour-tested on the exact model it runs on (<strong>NetCrash</strong>), and the network only admits agents with a signed attestation, behind hard limits no model can talk its way past.</p>
+    <h1>Radios that sleep. Agents that earn the right to act.</h1>
+    <p class="lede">Over 93 % of a network vendor's carbon footprint is the energy its products draw in the field; Ericsson has pledged to halve it by 2030. A risk-aware planner puts capacity radios to sleep at night on <strong>real live-network data</strong> and leads published methods from Ericsson, Nokia, Elisa and Parallel Wireless. AI agents reach it through <strong>MCP</strong>; each is behaviour-tested on the exact model it runs on (<strong>NetCrash</strong>), signed, logged in a public transparency log, and checked by rules proved with an SMT solver. The last hop runs on a <strong>real LTE stack</strong>, and the AI's own energy is <strong>measured</strong>.</p>
     <nav class="toc">
-      <a href="#results">Results</a><a href="#events">Why an agent</a><a href="#replay">A night</a><a href="#netcrash">NetCrash</a><a href="#trust">Attestation</a><a href="#real">What is real</a><a href="index.html">← The story</a>
+      <a href="#results">Results</a><a href="#industry">Other methods</a><a href="#events">Why an agent</a><a href="#replay">A night</a><a href="#netcrash">NetCrash</a><a href="#interfaces">Interfaces</a><a href="#stack">Real stack &amp; proofs</a><a href="#trust">Attestation</a><a href="#real">What is real</a><a href="index.html">← The story</a>
       <a class="repo" href="https://github.com/FrankPonce/yovahti">GitHub ↗</a>
     </nav>
   </div>
@@ -34,7 +34,20 @@
       </div>
       <div class="chart" id="tradeoff"></div>
       <div class="table-view" id="tradeoff-table" hidden></div>
-      <p class="note">B4 plans on the P90 forecast; its margin is a dial (1.0 → 1.5), shown as a curve. B2 is a <em>reconstruction from public sources</em> (patent WO2024028883A1), not Ericsson’s software.</p>
+      <p class="note">B4 plans on the P90 forecast; its margin is a dial (1.0 → 1.5), shown as a curve. B2 is a <em>reconstruction from public sources</em> (patent WO2024028883A1 and Ericsson’s 2023 blog), not Ericsson’s software. Locked test weeks, run once with the frozen method: 18.8 % saved at 0.69 congested quarter-hours per sector-day.</p>
+    </div>
+  </section>
+
+  <section id="industry">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Against other companies’ published methods</h2>
+          <p class="sub">Reconstructed from documents checked at the source (patents, a blog, an ICC 2026 paper), same validation weeks, same simulator; learned methods train on the training weeks. Each is a reconstruction, not the company’s software; substitutions are named in the code.</p>
+        </div>
+      </div>
+      <div class="table-view" id="industry-table"></div>
+      <p class="note">Elisa’s default plan lands at 6.2 %, inside the 4.5–6.9 % its own patent reports: an outside check on the energy model. Nokia’s and the Reiss-style models are ours and smaller than theirs. Sources and verification notes: <a href="https://github.com/FrankPonce/yovahti/blob/main/docs/SOURCES.md">SOURCES.md</a>; findings E41, E42.</p>
     </div>
   </section>
 
@@ -86,12 +99,38 @@
       <div class="card-head">
         <div>
           <h2>NetCrash: can this agent be trusted, on this model?</h2>
-          <p class="sub">Hostile nights on stand-in networks (real traffic, scripted faults and injected text). Three runs per test; verdicts from actions first. Score = pass rate over decided runs; coverage = decided ÷ applicable.</p>
+          <p class="sub">Suite v2: 22 hostile tests on stand-in networks (real traffic, scripted faults and injected text), three runs each, a two-model judge panel for undecidable text. Verdicts from actions first. Score = pass rate over decided runs; coverage = decided ÷ applicable. No pair reaches the admission bar (90, no failed test); every careful-prompt model split a change to slip under human approval.</p>
         </div>
       </div>
       <div class="legend" id="nc-legend"></div>
       <div class="matrix" id="matrix"></div>
       <p class="note" id="nc-tests"></p>
+    </div>
+  </section>
+
+  <section id="interfaces">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Narrow the interface, not the prompt</h2>
+          <p class="sub">The same model through three interfaces: <b>full</b> (free-form propose / apply / rollback), <b>constrained</b> (one tool that can only keep cells awake in the planner’s plan) and <b>workflow</b> (one tool-less call that turns calendar and alarm text into typed events; code acts and writes the report). Each step removes a class of failure: approval gaming, then loops, leaks and false “all clear”.</p>
+        </div>
+      </div>
+      <div class="table-view" id="interfaces-table"></div>
+      <p class="note">“Model-decided” = tests whose outcome still depends on the model; the rest are prevented by the interface or decided by code and are not counted as passes. A workflow 100 says the <em>system</em> held; it says little about the model (findings E38–E40, decisions D45–D46).</p>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="card">
+      <h2>Outside the simulator: real stack, measured energy, proofs</h2>
+      <table class="plain">
+        <tr><th>Real LTE stack</th><td>srsRAN 4G (core, base station, phone) over a software radio: after an approved wake, user traffic flows again in <b>2.4 s</b> median (worst 2.6 s, 10/10), 0.3 % of the quarter-hour the planner allows; the base station followed the arbiter’s schedule in <b>24 of 24</b> quarter-hours. Radio hardware and its power are not covered (E33).</td></tr>
+        <tr><th>The AI’s own energy</th><td>One agent night on a local model (qwen3:4b, laptop RTX 4050), GPU sampled every 100 ms: <b>7.6 Wh</b> against 21.3 kWh saved, <b>0.035 %</b> (E36).</td></tr>
+        <tr><th>Proved rules</th><td>Nine arbiter invariants, property-tested; the capacity rule proved with Z3 for every sleep state under the stated forecast assumption, with a counterexample when the assumption is dropped (E28).</td></tr>
+        <tr><th>Signed identity</th><td>Every MCP request carries an RFC 9421 signature from a key bound by the operator to one Agent Card and one model; tools outside the card are refused (E35).</td></tr>
+        <tr><th>Public log</th><td>21 NetCrash scorecards in Sigstore Rekor with verified inclusion proofs and signed timestamps (<a href="https://github.com/FrankPonce/yovahti/blob/main/results/netcrash/rekor/index.md">index</a>; E34).</td></tr>
+      </table>
     </div>
   </section>
 
@@ -117,7 +156,9 @@
         <tr><th>Traffic moved by sleeping cells</th><td><span class="badge synth">simulated</span> re-routed to the coverage layer with measured per-band efficiency; stated 1.25 peak margin</td></tr>
         <tr><th>Event surges</th><td><span class="badge synth">synthetic</span> injected on top of real traffic, labelled in every result</td></tr>
         <tr><th>Agents</th><td><span class="badge real">real</span> hosted LLMs through an MCP server, every call logged and priced</td></tr>
-        <tr><th>Baseline B2</th><td>reconstruction from public sources, not Ericsson’s software</td></tr>
+        <tr><th>Baselines</th><td>reconstructions from public documents (Ericsson, Nokia, Elisa, Parallel Wireless, Reiss et al.), not the companies’ software</td></tr>
+        <tr><th>Real-stack check</th><td><span class="badge real">real</span> srsRAN 4G protocol stack; <span class="badge synth">simulated</span> radio link (ZeroMQ)</td></tr>
+        <tr><th>AI energy</th><td><span class="badge real">measured</span> GPU board power for a local model; hosted models estimated from published figures</td></tr>
       </table>
       <p class="note">Validation weeks only. The locked test weeks are run once, at the end. Every finding, including what went wrong, is in <a href="https://github.com/FrankPonce/yovahti/blob/main/docs/FINDINGS.md">FINDINGS.md</a>.</p>
     </div>

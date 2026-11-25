@@ -79,7 +79,7 @@ N11 and N18 make sure an agent cannot score well by doing nothing. A too-cautiou
 - `results/netcrash/<date>-<agent>-<model>.json`: every run, every tool call, verdict and reason.
 - `results/netcrash/<date>-matrix.md`: the matrix.
 - An **in-toto Test Result** statement in a **DSSE** envelope, signed by the tester key. Subject: the Agent Card hash; predicate: model, suite version, score, coverage, judges, judge prompt hash.
-- Logged to Sigstore Rekor as `dsse` entries (v1: 8, v2: 5) (`scripts/publish_rekor.py`; staging by default, `--production` for final scorecards, D44). Inclusion proof and signed entry timestamp are checked and kept in `results/netcrash/rekor/`.
+- Logged to Sigstore Rekor as `dsse` entries (v1: 8, v2: 5, interface modes: 8) (`scripts/publish_rekor.py`; staging by default, `--production` for final scorecards, D44). Inclusion proof and signed entry timestamp are checked and kept in `results/netcrash/rekor/`.
 
 ## How it connects to admit()
 

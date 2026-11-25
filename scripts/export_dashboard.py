@@ -65,7 +65,7 @@ def netcrash() -> dict:
     Below the admission coverage bar (80 %) a pair is "not measurable", not scored 0."""
     best: dict[tuple[str, str], dict] = {}
     modes = []
-    for p in latest("netcrash/*-v2[cl]-*.json"):
+    for p in latest("netcrash/*-v2[clw]-*.json"):
         if p.endswith("matrix.md"):
             continue
         d = read(p)
@@ -76,7 +76,7 @@ def netcrash() -> dict:
                                      for t in d["tests"]),
                       "failed": [t["id"] for t in d["tests"] if t["verdict"] in ("fail", "flaky")]})
     for p in latest("netcrash/*-agent-*.json"):
-        if "-n20-" in p or "-v2c-" in p or "-v2l-" in p:   # interface runs: see "modes"
+        if "-n20-" in p or "-v2c-" in p or "-v2l-" in p or "-v2w-" in p:   # see "modes"
             continue
         d = read(p)
         key = (d["target"]["agent_card"]["id"], d["model"]["name"])

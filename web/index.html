@@ -299,10 +299,60 @@
  </div></div>
 </section>
 
+<!-- ===================== NARROW THE INTERFACE ===================== -->
+<section class="scene" id="si" data-steps="3">
+ <div class="sticky"><div class="stage">
+  <div class="tag"><b>11</b>Narrow the interface</div>
+  <div style="position:absolute;left:90px;top:150px;width:1420px">
+    <div class="h2">None passed. So change what the agent is <span class="k">allowed to do</span>.</div>
+    <div class="lbl" style="margin-top:12px">Same model (DeepSeek V4 Flash), same 22 hostile tests, three interfaces. A rule in the prompt didn’t stop the failures; <b>taking the tool away</b> did.</div>
+  </div>
+  <div style="position:absolute;left:90px;top:300px;right:90px;display:flex;gap:24px;align-items:stretch">
+    <div class="card iface r" data-s="0">
+      <div class="cap brand">Full agent</div>
+      <div class="lbl" style="font-size:17px;margin-top:4px">Free-form tools: propose any sleep, apply, roll back.</div>
+      <div class="chips" style="margin-top:14px"><span class="chip act">propose_change</span><span class="chip act">apply_change</span><span class="chip act">rollback</span><span class="chip act">simulate</span><span class="chip">read feeds</span></div>
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:18px">
+        <div class="big num " style="font-size:84px"><span data-count="83" data-s="0">0</span></div>
+        <div class="lbl" style="font-size:16px">NetCrash score<br><b>20</b> tests decided by the model</div>
+      </div>
+      <div class="cap" style="margin-top:14px">Still failed</div>
+      <div class="chips" style="margin-top:8px"><span class="chip bad">approval gaming</span><span class="chip bad">subtle injection</span><span class="chip bad">planner loop</span><span class="chip bad">“no alarms”</span></div>
+      <div class="lbl" style="font-size:14px;margin-top:14px;color:var(--mute)">Same test, 4B model on a laptop: <b>78</b></div>
+    </div>
+    <div class="card iface r" data-s="1">
+      <div class="cap brand">Constrained agent</div>
+      <div class="lbl" style="font-size:17px;margin-top:4px">One act tool: apply the planner’s plan, only keeping cells awake.</div>
+      <div class="chips" style="margin-top:14px"><span class="chip act">apply_plan(keep_awake)</span><span class="chip">read feeds</span></div>
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:18px">
+        <div class="big num " style="font-size:84px"><span data-count="85" data-s="1">0</span></div>
+        <div class="lbl" style="font-size:16px">NetCrash score<br><b>11</b> tests decided by the model</div>
+      </div>
+      <div class="cap" style="margin-top:14px">Still failed</div>
+      <div class="chips" style="margin-top:8px"><span class="chip bad">planner loop</span><span class="chip bad">leaked token</span><span class="chip bad">“no alarms”</span></div>
+      <div class="lbl" style="font-size:14px;margin-top:14px;color:var(--mute)">Same test, 4B model on a laptop: <b>80</b></div>
+    </div>
+    <div class="card iface r" data-s="2">
+      <div class="cap good">Workflow</div>
+      <div class="lbl" style="font-size:17px;margin-top:4px">One call, no tools: turn calendar text into typed events. Code does the rest.</div>
+      <div class="chips" style="margin-top:14px"><span class="chip act">extract events → JSON</span></div>
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:18px">
+        <div class="big num good" style="font-size:84px"><span data-count="100" data-s="2">0</span></div>
+        <div class="lbl" style="font-size:16px">NetCrash score<br><b>2</b> tests decided by the model</div>
+      </div>
+      <div class="cap" style="margin-top:14px">Still failed</div>
+      <div class="chips" style="margin-top:8px"><span class="chip ok">none</span></div>
+      <div class="lbl" style="font-size:14px;margin-top:14px;color:var(--mute)">Same test, 4B model on a laptop: <b>100</b></div>
+    </div>
+  </div>
+  <div class="note">Failures that the interface makes impossible are counted as “prevented”, never as passes. A workflow 100 says the system held, not that the model is trustworthy: the model still decides 2 tests (event awareness, doing the job) and got both right every run. All scorecards are in Sigstore Rekor.</div>
+ </div></div>
+</section>
+
 <!-- ===================== 8 · ADMIT ===================== -->
 <section class="scene" id="s8" data-steps="3">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>11</b>Admitted, not trusted</div>
+  <div class="tag"><b>12</b>Admitted, not trusted</div>
   <div style="position:absolute;left:90px;top:150px;width:1000px">
     <div class="h2">The network checks the agent's passport, then every action.</div>
   </div>
@@ -332,7 +382,7 @@
 <!-- ===================== PROVED, SIGNED, LOGGED ===================== -->
 <section class="scene" id="st" data-steps="3">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>12</b>Proved, signed, logged</div>
+  <div class="tag"><b>13</b>Proved, signed, logged</div>
   <div class="h2" style="position:absolute;left:90px;top:150px;width:1400px">Don't take the agent's word. <span class="k">Don't take ours either.</span></div>
   <div style="position:absolute;left:90px;top:260px;right:90px;display:flex;gap:26px">
 
@@ -365,14 +415,14 @@ Signature: sig=:Mx4f…Q9w=:</div>
       <div class="chk" style="margin-top:16px"><span class="good">inclusion proof verified</span><span class="good">signed timestamp verified</span><span class="good">anyone can re-check, offline</span></div>
     </div>
   </div>
-  <div class="note">v1 and v2 scorecards are logged (13 entries). Invariants property-tested (Hypothesis) and proved (Z3). Identity: in-toto, DSSE, Ed25519, RFC 9421 + 9530.</div>
+  <div class="note">v1, v2 and interface-mode scorecards are logged (21 entries). Invariants property-tested (Hypothesis) and proved (Z3). Identity: in-toto, DSSE, Ed25519, RFC 9421 + 9530.</div>
  </div></div>
 </section>
 
 <!-- ===================== A REAL LTE STACK ===================== -->
 <section class="scene" id="sr" data-steps="3">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>13</b>On a real LTE stack</div>
+  <div class="tag"><b>14</b>On a real LTE stack</div>
   <div style="position:absolute;left:90px;top:150px;width:860px">
     <div class="h2">Simulators can be generous. So the last hop runs on a real stack.</div>
     <div class="lbl" style="margin-top:16px">srsRAN 4G: a <b>real core network, base station and phone</b>, with real attach and real user traffic, over a software radio link. The approved change <b>drives the base station</b>, and the network <b>reads back what it really did</b>.</div>
@@ -397,16 +447,16 @@ Signature: sig=:Mx4f…Q9w=:</div>
 <!-- ===================== THE AI'S OWN ENERGY ===================== -->
 <section class="scene" id="se" data-steps="2">
  <div class="sticky"><div class="stage">
-  <div class="tag"><b>14</b>The AI's own energy</div>
+  <div class="tag"><b>15</b>The AI's own energy</div>
   <div style="position:absolute;left:90px;top:150px;width:900px">
     <div class="h2">Does the AI <span class="k">eat the savings</span>?</div>
     <div class="lbl" style="margin-top:14px"><b>Measured, not estimated</b>: one full agent night on a local model (qwen3:4b on a laptop RTX 4050), GPU power sampled every 100 ms, against the energy the same night's plan saved.</div>
   </div>
     <div style="position:absolute;left:90px;top:370px;width:1420px">
     <div class="cap">Energy saved by one agent night · 31 sectors</div>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="flex:1;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800"><span data-count="21.3" data-dec="1" data-s="0">0</span> kWh</div><img src="img/bolt.webp" alt="" style="height:110px;margin:-24px 0"></div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="flex:1;height:64px;border-radius:14px;background:var(--good);display:flex;align-items:center;padding-left:24px;color:#fff;font-size:26px;font-weight:800"><span data-count="21.3" data-dec="1" data-s="0">0</span>&nbsp;kWh</div><img src="img/bolt.webp" alt="" style="height:110px;margin:-24px 0"></div>
     <div class="cap r" data-s="1" style="margin-top:34px">Energy the agent&#39;s model used, same scale (true width: half a pixel)</div>
-    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad"><span data-count="7.6" data-dec="1" data-s="1">0</span> Wh</div><img src="img/bolt.webp" alt="" style="height:12px"></div>
+    <div class="r" data-s="1" style="margin-top:12px;display:flex;align-items:center;gap:18px"><div style="width:1px;height:64px;background:var(--bad)"></div><div style="font-size:26px;font-weight:800" class="bad"><span data-count="7.6" data-dec="1" data-s="1">0</span>&nbsp;Wh</div><img src="img/bolt.webp" alt="" style="height:12px"></div>
   </div>
   <div class="r" data-s="1" style="position:absolute;left:90px;top:640px;width:1300px">
     <div class="big num good" style="font-size:96px"><span data-count="0.035" data-dec="3" data-s="1">0</span> %</div>

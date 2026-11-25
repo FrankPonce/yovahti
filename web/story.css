@@ -235,3 +235,9 @@ body.capture *, body.capture *::before, body.capture *::after { transition: none
 .dial .dd { font-size: 17px; color: var(--ink2); line-height: 1.3; }
 .dial .dd b { color: var(--brand); }
 .arrow:after { transition: border-color .8s var(--ease); } .arrow.in:after { border-left-color: var(--brand); }
+.iface { flex: 1; padding: 24px 26px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 14px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #fff; color: var(--ink2); border: 1.5px solid var(--rule); font-family: "Cascadia Code", Consolas, ui-monospace, monospace; }
+.chip.act { border-color: var(--brand); color: var(--brand); }
+.chip.bad { border-color: var(--bad-soft); color: var(--bad-ink); background: var(--bad-tint); font-family: inherit; }
+.chip.ok { border-color: var(--good-soft); color: var(--good-ink); font-family: inherit; }

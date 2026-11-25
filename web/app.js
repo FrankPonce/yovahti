@@ -170,17 +170,47 @@ function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
   if (!cards.length) { $("#netcrash").hidden = true; return; }
   const ICON = { pass: ["✓", "--good", "pass"], fail: ["✕", "--critical", "fail"], flaky: ["~", "--warning", "flaky"], inconclusive: ["?", "--muted", "needs judge"], not_applicable: ["–", "--muted", "not applicable"], error: ["!", "--muted", "error"] };
   $("#nc-legend").innerHTML = Object.values(ICON).map(([i, v, t]) => `<span><span class="status-dot" style="background:var(${v})"></span>${i} ${t}</span>`).join("");
-  const tests = cards[0].tests.map((t) => t.id);
-  const n20 = Object.fromEntries((N.n20 || []).map((x) => [`${x.agent}|${x.model}`, x]));
-  const head = `<tr><th>Agent</th><th>Model</th><th class="num">Score</th><th class="num">Coverage</th>${tests.map((t) => `<th class="v">${t}</th>`).join("")}${N.n20?.length ? '<th class="v">N20</th>' : ""}<th class="num">Cost</th></tr>`;
+  // v1 and v2 cards side by side: one column per test id, blank where a suite lacks it
+  const byNum = (a, b) => +a.slice(1) - +b.slice(1);
+  const tests = [...new Set(cards.flatMap((c) => c.tests.map((t) => t.id)))].sort(byNum);
+  const titles = Object.fromEntries(cards.flatMap((c) => c.tests.map((t) => [t.id, t.title])));
+  const hasN20 = tests.includes("N20");
+  const n20 = hasN20 ? {} : Object.fromEntries((N.n20 || []).map((x) => [`${x.agent}|${x.model}`, x]));
+  const extraN20 = !hasN20 && N.n20?.length;
+  const head = `<tr><th>Agent</th><th>Model</th><th class="num">Suite</th><th class="num">Score</th><th class="num">Coverage</th>${tests.map((t) => `<th class="v">${t}</th>`).join("")}${extraN20 ? '<th class="v">N20</th>' : ""}<th class="num">Cost</th></tr>`;
   const cell = (v, ev, title) => { const [i, c, t] = ICON[v] || ["?", "--muted", v]; return `<td class="v v-${v}" data-tip="${esc(title + ": " + t + (ev ? " — " + ev : ""))}"><span class="status-dot" style="background:var(${c})"></span>${i}</td>`; };
-  const rows = cards.map((c) => `<tr><td>${c.agent}</td><td>${c.model}</td><td class="num"><b>${c.score}</b></td><td class="num">${c.coverage} %</td>` +
-    c.tests.map((t) => cell(t.verdict, t.evidence.filter(Boolean)[0], `${t.id} ${t.title}`)).join("") +
-    (N.n20?.length ? (n20[`${c.agent}|${c.model}`] ? cell(n20[`${c.agent}|${c.model}`].verdict, "", "N20 calendar_injection") : "<td></td>") : "") +
-    `<td class="num">€${fmt(c.cost_eur, 2)}</td></tr>`).join("");
+  const rows = cards.map((c) => { const by = Object.fromEntries(c.tests.map((t) => [t.id, t]));
+    return `<tr><td>${c.agent}</td><td>${c.model}</td><td class="num">v${c.suite || 1}</td><td class="num"><b>${c.measurable === false ? "n/m" : c.score}</b></td><td class="num">${c.coverage} %</td>` +
+    tests.map((id) => by[id] ? cell(by[id].verdict, by[id].evidence.filter(Boolean)[0], `${id} ${by[id].title}`) : "<td></td>").join("") +
+    (extraN20 ? (n20[`${c.agent}|${c.model}`] ? cell(n20[`${c.agent}|${c.model}`].verdict, "", "N20 calendar_injection") : "<td></td>") : "") +
+    `<td class="num">€${fmt(c.cost_eur, 2)}</td></tr>`; }).join("");
   $("#matrix").innerHTML = `<table><thead>${head}</thead><tbody>${rows}</tbody></table>`;
   $("#matrix").querySelectorAll("[data-tip]").forEach((n) => hover(n, esc(n.dataset.tip)));
-  $("#nc-tests").textContent = "Tests: " + cards[0].tests.map((t) => `${t.id} ${t.title.replaceAll("_", " ")}`).join(" · ") + (N.n20?.length ? " · N20 calendar injection" : "");
+  $("#nc-tests").textContent = "Tests: " + tests.map((id) => `${id} ${titles[id].replaceAll("_", " ")}`).join(" · ") + (extraN20 ? " · N20 calendar injection" : "") + ". n/m = not measurable (coverage under 80 %).";
+})();
+
+// ------------------------------------------------------------------ other companies' methods
+(function industry() {
+  const I = D.industry;
+  if (!I) { $("#industry").hidden = true; return; }
+  const rows = Object.entries(I).filter(([k]) => !k.startsWith("B0")).map(([k, v]) => [
+    /Yovahti/.test(k) ? `<b>${esc(k.replace("Yovahti", "Yövahti"))}</b>` : esc(k),
+    `${fmt(v.kwh_saved_pct)} %`, fmt(v.congested_qh_per_sector_day, 2),
+    v.share_of_oracle_pct == null ? "" : `${fmt(v.share_of_oracle_pct, 0)} %`,
+    fmt(v.toggles_per_sector_day, 1)]);
+  table($("#industry-table"), ["Method", "Energy saved", "Congested ¼-h / sector-day", "Share of oracle", "Toggles / sector-day"], rows);
+})();
+
+// ------------------------------------------------------------------ interfaces (full / constrained / workflow)
+(function interfaces() {
+  const Mo = D.netcrash.modes || [];
+  if (!Mo.length) { $("#interfaces").hidden = true; return; }
+  const mode = (a) => a.endsWith("-workflow") ? "workflow" : a.endsWith("-c") ? "constrained" : "full";
+  const order = { full: 0, constrained: 1, workflow: 2 };
+  const short = (m) => m.includes("DeepSeek") ? "DeepSeek V4 Flash" : m;
+  const rows = Mo.slice().sort((a, b) => short(a.model).localeCompare(short(b.model)) || a.agent.startsWith("sloppy") - b.agent.startsWith("sloppy") || order[mode(a.agent)] - order[mode(b.agent)])
+    .map((m) => [`${short(m.model)} · ${m.agent.startsWith("sloppy") ? "sloppy" : "careful"} prompt`, mode(m.agent), `<b>${m.score}</b>`, m.decided, m.failed.length ? m.failed.join(", ") : "none", `€${fmt(m.cost_eur, 3)}`]);
+  table($("#interfaces-table"), ["Model · prompt", "Interface", "Score", "Model-decided tests", "Failed or flaky", "Cost"], rows);
 })();
 
 // ------------------------------------------------------------------ attestation + in-browser verification

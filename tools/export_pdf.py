@@ -6,6 +6,7 @@ Run:  uv run --no-project --with pillow python tools/export_pdf.py
 Writes Yovahti_story.pdf and results/story_contact_sheet.png.
 """
 
+import os
 import re
 import subprocess
 import tempfile
@@ -15,7 +16,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-URL = "http://localhost:8777/index.html"
+URL = f"http://localhost:{os.environ.get('YV_PORT', '8777')}/index.html"  # YV_PORT overrides
 OUT = ROOT / "Yovahti_story.pdf"
 
 html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")

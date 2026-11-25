@@ -2,7 +2,7 @@
 
 Frank Ponce · Åbo Akademi University · November 2026 · draft · code and data: https://github.com/FrankPonce/yovahti
 
-> Draft. Numbers marked ⟨pending⟩ are being measured; every other number is from the repository's results and can be regenerated with the scripts named next to it.
+> Draft. Every number is from the repository's results and can be regenerated with the scripts named next to it.
 
 ## Abstract
 
