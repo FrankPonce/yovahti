@@ -372,3 +372,8 @@ update();
     }
   }
 }
+
+document.querySelectorAll(".tryit-copy").forEach((b) => b.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; } catch { b.textContent = "Select and copy"; }
+  setTimeout(() => (b.textContent = "Copy"), 1800);
+}));

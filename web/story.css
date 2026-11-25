@@ -143,6 +143,15 @@ body.dark .progress a.on { background: var(--brand-soft); }
 .btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 26px; border-radius: 999px; font-size: 20px; font-weight: 700; text-decoration: none; }
 .btn.dark { background: var(--ink); color: #fff; }
 .btn.line { border: 2px solid var(--ink); color: var(--ink); }
+.tryit { flex: 1; border: 2px solid var(--brand-soft); border-radius: 18px; background: #0A1020; padding: 12px 20px; box-shadow: 0 0 0 6px rgba(165, 180, 252, .08), 0 18px 50px rgba(0, 0, 0, .35); }
+.tryit-head { display: flex; align-items: center; justify-content: space-between; }
+.tryit-copy { font: 600 14px/1 inherit; font-family: inherit; color: #E2E8F0; background: #1E293B; border: 1.5px solid #334155; border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.tryit-copy:hover { border-color: var(--brand-soft); }
+.tryit-term { margin: 6px 0 8px; font-family: 'Cascadia Code', Consolas, ui-monospace, monospace; font-size: 18px; line-height: 1.5; color: #CBD5E1; white-space: pre; }
+.tryit-term .pr { color: #64748B; user-select: none; }
+.tryit-term b { color: #fff; font-size: 24px; }
+.tryit-steps { display: flex; gap: 18px; font-size: 15px; color: #94A3B8; border-top: 1px solid #1E293B; padding-top: 8px; }
+.tryit-steps span + span::before { content: "→"; margin-right: 18px; color: #475569; }
 .scroll-hint { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--sleep-ink); animation: hint 2s ease-in-out infinite; }
 @keyframes hint { 50% { transform: translate(-50%, 8px); } }
 .particles { position: absolute; inset: 0; pointer-events: none; }
