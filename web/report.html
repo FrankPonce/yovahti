@@ -160,6 +160,7 @@
         <tr><th>Real-stack check</th><td><span class="badge real">real</span> srsRAN 4G protocol stack; <span class="badge synth">simulated</span> radio link (ZeroMQ)</td></tr>
         <tr><th>AI energy</th><td><span class="badge real">measured</span> GPU board power for a local model; hosted models estimated from published figures</td></tr>
       </table>
+      <p class="note"><b>Try it yourself:</b> <code>docker compose up</code> starts this site, the MCP server with the arbiter on a small synthetic network, and a scripted agent that tries an injected instruction (refused), a busy sector (refused) and the planner’s plan (applied, signed receipts). No operator data or API keys needed; the full pipeline on the real data is in the <a href="https://github.com/FrankPonce/yovahti#try-it-in-one-command">README</a>.</p>
       <p class="note">Validation weeks only. The locked test weeks are run once, at the end. Every finding, including what went wrong, is in <a href="https://github.com/FrankPonce/yovahti/blob/main/docs/FINDINGS.md">FINDINGS.md</a>.</p>
     </div>
   </section>
