@@ -204,8 +204,16 @@ def main() -> None:
     ap.add_argument("--signed", action="store_true",
                     help="require RFC 9421 request signatures from operator-bound agent keys "
                          "(trust/operator.jwks.json, trust/bindings/*.jws); --agent is ignored")
+    ap.add_argument("--demo", action="store_true",
+                    help="small synthetic network (no operator data needed); see mcp_server.demo")
+    ap.add_argument("--mode", choices=["full", "constrained"], default="full",
+                    help="tool surface: full, or read tools + apply_plan (D45)")
     a = ap.parse_args()
-    net = load_validation_network(a.start, a.clusters)
+    if a.demo:
+        from yovahti.mcp_server.demo import demo_network
+        net = demo_network()
+    else:
+        net = load_validation_network(a.start, a.clusters)
     if a.admission == "attested":
         from yovahti.paths import RESULTS, ROOT
         from yovahti.trust.attestation import AttestedAdmission
@@ -215,7 +223,7 @@ def main() -> None:
           f"now {net.time(net.now)}; serving http://{a.host}:{a.port}/mcp", flush=True)
     import anyio
     if not a.signed:
-        server = build_server(net, AgentIdentity(a.agent, model=a.model))
+        server = build_server(net, AgentIdentity(a.agent, model=a.model), a.mode)
         anyio.run(lambda: server.run_streamable_http_async(host=a.host, port=a.port))
         return
     # I20: every request must carry an RFC 9421 signature from a key the operator bound
@@ -239,3 +247,7 @@ def main() -> None:
           flush=True)
     app = SignedAgents(build_server(net, None).streamable_http_app(host=a.host), reg, cards)
     uvicorn.run(app, host=a.host, port=a.port)
+
+
+if __name__ == "__main__":
+    main()

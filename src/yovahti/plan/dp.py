@@ -38,16 +38,30 @@ class PlannerConfig:
     switch_cost_wh: float = 8.0  # discourages flapping (hardware wear, signalling)
     replan_every: int = 4        # quarter-hours between plans (hourly)
     margin: float = 1.0          # extra multiplier on the risk quantile
+    # adaptive per-sector margin (E42, Samsung US20240422667A1's idea): a sector the watchdog
+    # had to wake gets its margin multiplied by adaptive_step (capped), decaying daily to 1.0.
+    # 1.0 = off, the published method (D36).
+    adaptive_step: float = 1.0
+    adaptive_cap: float = 2.0
+    adaptive_decay: float = 0.97
+    # per-user throughput floor (E44; Ericsson's 2023 blog and Reiss et al. constrain a KPI
+    # directly): a sleep state is feasible only if the layer receiving the users would still
+    # give each active user at least this many Mbit/s (users forecast = same quarter-hour a
+    # week earlier). 0 = off, the published method (D36).
+    min_user_mbps: float = 0.0
 
 
 class DPPlanner:
     """Policy for the world: re-plans hourly from forecasts issued at that time."""
 
     def __init__(self, world: WorldData, forecasts: dict[str, dict], cfg: PlannerConfig,
-                 world_cfg: WorldConfig, issue_offset: int = 0):
+                 world_cfg: WorldConfig, issue_offset: int = 0, users: dict | None = None,
+                 user_offset: int = 0):
         """``forecasts[target]`` = {"issues": [n], 0.1/0.5/0.9: [n, H, S]} indexed in the
         world this planner runs on (``issue_offset`` maps world index -> issue index)."""
         self.w, self.f, self.c, self.wc = world, forecasts, cfg, world_cfg
+        self.issue_offset = issue_offset
+        self.users, self.user_offset = users, user_offset   # carrier -> [T_users, S] active
         self.issue_pos = {int(i) - issue_offset: k
                           for k, i in enumerate(forecasts["mid"]["issues"])}
         self.cap_low = sum(world.present[c] * EFFICIENCY[c] * BANDWIDTH[c] for c in LOW)
@@ -65,6 +79,9 @@ class DPPlanner:
                       / tr38864.power("micro_sleep", cat, 2))
         self.r_nr = (tr38864.power(world_cfg.sleep_state, cat, 1)
                      / tr38864.power("micro_sleep", cat, 1))
+        self.margin_s = np.ones(world.S)      # per-sector factor (adaptive margin)
+        self._was_forced = np.zeros(world.S, dtype=bool)
+        self._noon = world.times.tz_convert("Europe/Bratislava").hour.to_numpy() == 12
         self.plan: np.ndarray | None = None   # [H, S] state index
         self.plan_t0 = 0
         self.last_state = np.zeros(world.S, dtype=np.int64)
@@ -82,7 +99,8 @@ class DPPlanner:
         """[H, S, 4] expected Wh per state, inf where infeasible at the risk quantile."""
         w, c, wc = self.w, self.c, self.wc
         p50 = {t: self.f[t][0.5][k].astype(float) for t in ("mid", "nr", "low")}
-        risk = {t: self.f[t][c.risk_q][k].astype(float) * c.margin for t in ("mid", "nr", "low")}
+        m = c.margin * self.margin_s
+        risk = {t: self.f[t][c.risk_q][k].astype(float) * m for t in ("mid", "nr", "low")}
         idle_m, idle_n = w.idle["mid"][None], w.idle["nr3500"][None]
         has_nr = w.present["NR_3500"][None]
         nr_mb = np.where(has_nr, p50["nr"], 0.0)
@@ -106,10 +124,32 @@ class DPPlanner:
         ok2 = util(risk["low"] + risk["mid"], self.cap_low) * wc.peak_margin <= wc.rho_max_low
         ok3 = util(risk["low"] + risk["mid"] + r_nr, self.cap_low) * wc.peak_margin \
             <= wc.rho_max_low
+        if c.min_user_mbps > 0 and self.users is not None:
+            f1, f2, f3 = self._rate_ok(k, p50["mid"].shape[0])
+            ok1, ok2, ok3 = ok1 & f1, ok2 & f2, ok3 & f3
         cost[..., 1] = np.where(ok1 & has_nr, cost[..., 1], np.inf)
         cost[..., 2] = np.where(ok2, cost[..., 2], np.inf)
         cost[..., 3] = np.where(ok3 & has_nr, cost[..., 3], np.inf)
         return cost * self._weights(self.issue_t(k))[:, None, None]
+
+    def _rate_ok(self, k: int, H: int):  # noqa: N803
+        """Per-user rate on the receiving layer >= the floor, for NR asleep / mid asleep /
+        both asleep. Users forecast: the same quarter-hours one week earlier."""
+        u = self.users
+        t0 = self.issue_t(k) - self.issue_offset
+        idx = np.clip(np.arange(t0, t0 + H) + self.user_offset - 672, 0,
+                      len(u["LTE_700"]) - 1)
+        u_low = u["LTE_700"][idx] + u["LTE_800"][idx]
+        u_mid = u["LTE_1800"][idx] + u["NR_2100"][idx]
+        u_nr = u["NR_3500"][idx]
+        mbps_low = (self.cap_low * 100 * 8 / 900)[None]
+        mbps_mid = (self.cap_mid * 100 * 8 / 900)[None]
+        floor = self.c.min_user_mbps
+
+        def ok(mbps, users, moved):
+            return (moved < 0.05) | (mbps / np.maximum(users, 1e-3) >= floor)
+        return (ok(mbps_mid, u_mid + u_nr, u_nr), ok(mbps_low, u_low + u_mid, u_mid),
+                ok(mbps_low, u_low + u_mid + u_nr, u_mid + u_nr))
 
     def issue_t(self, k: int) -> int:
         return int(self.f["mid"]["issues"][k])
@@ -130,8 +170,19 @@ class DPPlanner:
             path[h - 1] = back[h, np.arange(S), path[h]]
         return path
 
+    def _adapt(self, obs: Observation) -> None:
+        c = self.c
+        new = obs.forced_awake & ~self._was_forced
+        self._was_forced = obs.forced_awake.copy()
+        if new.any():
+            self.margin_s[new] = np.minimum(self.margin_s[new] * c.adaptive_step, c.adaptive_cap)
+        if self._noon[obs.t] and obs.t % 4 == 0:
+            self.margin_s[:] = np.maximum(1.0, self.margin_s * c.adaptive_decay)
+
     def __call__(self, obs: Observation) -> tuple[np.ndarray, np.ndarray]:
         t = obs.t
+        if self.c.adaptive_step > 1.0:
+            self._adapt(obs)
         cur = np.where(obs.mid_state == ASLEEP, 2, 0) + np.where(obs.nr_state == ASLEEP, 1, 0)
         if t in self.issue_pos and (self.plan is None or t - self.plan_t0 >= self.c.replan_every
                                     or obs.forced_awake.any()):

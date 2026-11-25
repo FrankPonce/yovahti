@@ -1,0 +1,106 @@
+{
+ "0": {
+  "kwh_saved_pct": 18.139591073281526,
+  "congested_qh_per_sector_day": 0.5925996566851038,
+  "throughput": {
+   "moved_user_qh": 1192914.3641319275,
+   "after_mbps_median": 12.49,
+   "after_mbps_p10": 10.02,
+   "before_mbps_median": 60.44,
+   "ratio_median": 0.199,
+   "ratio_p10": 0.116,
+   "share_below_5mbps": 0.0006
+  }
+ },
+ "10": {
+  "kwh_saved_pct": 17.41709171860225,
+  "congested_qh_per_sector_day": 0.5511157734121686,
+  "throughput": {
+   "moved_user_qh": 1115523.4242472872,
+   "after_mbps_median": 12.66,
+   "after_mbps_p10": 10.74,
+   "before_mbps_median": 60.44,
+   "ratio_median": 0.201,
+   "ratio_p10": 0.114,
+   "share_below_5mbps": 0.0005
+  }
+ },
+ "11": {
+  "kwh_saved_pct": 16.66607206152365,
+  "congested_qh_per_sector_day": 0.5100133511348465,
+  "throughput": {
+   "moved_user_qh": 1033414.3145082891,
+   "after_mbps_median": 12.87,
+   "after_mbps_p10": 11.57,
+   "before_mbps_median": 60.74,
+   "ratio_median": 0.203,
+   "ratio_p10": 0.112,
+   "share_below_5mbps": 0.0005
+  }
+ },
+ "12": {
+  "kwh_saved_pct": 15.331451370352067,
+  "congested_qh_per_sector_day": 0.43505626549685295,
+  "throughput": {
+   "moved_user_qh": 900867.9753569849,
+   "after_mbps_median": 13.11,
+   "after_mbps_p10": 11.72,
+   "before_mbps_median": 61.34,
+   "ratio_median": 0.201,
+   "ratio_p10": 0.111,
+   "share_below_5mbps": 0.0005
+  }
+ },
+ "13": {
+  "kwh_saved_pct": 11.069711974888541,
+  "congested_qh_per_sector_day": 0.20169750143047874,
+  "throughput": {
+   "moved_user_qh": 466354.4781917762,
+   "after_mbps_median": 36.23,
+   "after_mbps_p10": 12.52,
+   "before_mbps_median": 301.94,
+   "ratio_median": 0.121,
+   "ratio_p10": 0.108,
+   "share_below_5mbps": 0.0002
+  }
+ },
+ "14": {
+  "kwh_saved_pct": 10.195363222606646,
+  "congested_qh_per_sector_day": 0.15678046919702462,
+  "throughput": {
+   "moved_user_qh": 375677.7487929836,
+   "after_mbps_median": 37.44,
+   "after_mbps_p10": 30.6,
+   "before_mbps_median": 322.41,
+   "ratio_median": 0.117,
+   "ratio_p10": 0.108,
+   "share_below_5mbps": 0.0001
+  }
+ },
+ "15": {
+  "kwh_saved_pct": 10.057562092735306,
+  "congested_qh_per_sector_day": 0.14943734503147055,
+  "throughput": {
+   "moved_user_qh": 361448.74889549613,
+   "after_mbps_median": 37.55,
+   "after_mbps_p10": 32.18,
+   "before_mbps_median": 325.17,
+   "ratio_median": 0.116,
+   "ratio_p10": 0.108,
+   "share_below_5mbps": 0.0
+  }
+ },
+ "20": {
+  "kwh_saved_pct": 9.89908861382437,
+  "congested_qh_per_sector_day": 0.14485981308411214,
+  "throughput": {
+   "moved_user_qh": 348876.5689776689,
+   "after_mbps_median": 37.78,
+   "after_mbps_p10": 33.04,
+   "before_mbps_median": 327.97,
+   "ratio_median": 0.116,
+   "ratio_p10": 0.107,
+   "share_below_5mbps": 0.0
+  }
+ }
+}

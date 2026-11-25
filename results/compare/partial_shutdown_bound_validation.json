@@ -1,0 +1,17 @@
+{
+ "5.0": {
+  "extra_pct_of_b0_low_tr38864": 0.44,
+  "extra_pct_of_b0_high_elisa": 1.67,
+  "b4_saved_pct": 18.14
+ },
+ "10.0": {
+  "extra_pct_of_b0_low_tr38864": 1.04,
+  "extra_pct_of_b0_high_elisa": 3.95,
+  "b4_saved_pct": 18.14
+ },
+ "20.0": {
+  "extra_pct_of_b0_low_tr38864": 1.85,
+  "extra_pct_of_b0_high_elisa": 6.74,
+  "b4_saved_pct": 18.14
+ }
+}

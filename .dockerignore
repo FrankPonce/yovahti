@@ -1,0 +1,14 @@
+.git
+.venv
+.claude
+.impeccable
+.vercel
+.env
+data
+private
+trust/keys
+results
+web
+tests
+*.pdf
+**/__pycache__

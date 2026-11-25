@@ -20,24 +20,13 @@ from yovahti.world.sim import AWAKE, Observation
 TZ = "Europe/Bratislava"
 
 
-class AdaptiveMarginPlanner(DPPlanner):
-    def __init__(self, *a, step: float = 1.15, cap: float = 2.0, decay: float = 0.97, **kw):
-        super().__init__(*a, **kw)
-        self.margin = np.ones(self.w.S)
-        self.step, self.cap, self.decay = step, cap, decay
-        self.was_forced = np.zeros(self.w.S, dtype=bool)
-        self.hour = self.w.times.tz_convert(TZ).hour.to_numpy()
-        self.c.margin = self.margin                    # costs() multiplies by c.margin
-
-    def __call__(self, obs: Observation) -> tuple[np.ndarray, np.ndarray]:
-        new = obs.forced_awake & ~self.was_forced
-        self.was_forced = obs.forced_awake.copy()
-        if new.any():
-            self.margin[new] = np.minimum(self.margin[new] * self.step, self.cap)
-        if self.hour[obs.t] == 12 and obs.t % 4 == 0:
-            self.margin[:] = np.maximum(1.0, self.margin * self.decay)
-        self.c.margin = self.margin
-        return super().__call__(obs)
+def AdaptiveMarginPlanner(world, forecasts, cfg, world_cfg, issue_offset=0,  # noqa: N802
+                          step: float = 1.15, cap: float = 2.0, decay: float = 0.97):
+    """Kept for scripts/borrowed_ideas.py: the adaptive margin now lives in the planner
+    (``PlannerConfig.adaptive_step``)."""
+    from dataclasses import replace
+    return DPPlanner(world, forecasts, replace(cfg, adaptive_step=step, adaptive_cap=cap,
+                                               adaptive_decay=decay), world_cfg, issue_offset)
 
 
 class NightRollback:

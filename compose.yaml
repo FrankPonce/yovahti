@@ -1,0 +1,22 @@
+# One command: docker compose up
+#   site  http://localhost:8080        the story and the full report (static)
+#   mcp   http://localhost:8765/mcp    the MCP server on a synthetic demo network
+#   demo  a scripted agent that tries an injection, a busy sector and the real plan (logs)
+services:
+  site:
+    image: nginx:alpine
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+
+  mcp:
+    build: .
+    ports:
+      - "8765:8765"
+
+  demo:
+    build: .
+    depends_on:
+      - mcp
+    command: ["python", "scripts/demo_agent.py", "--url", "http://mcp:8765/mcp"]
