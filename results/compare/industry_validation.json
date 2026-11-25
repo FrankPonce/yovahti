@@ -1,0 +1,205 @@
+{
+ "split": "validation",
+ "methods": {
+  "B0 always-on": {
+   "kwh_saved_pct": 0.0,
+   "congested_qh_per_sector_day": 0.0,
+   "unserved_gb": 0.0,
+   "watchdog_wakes": 0,
+   "toggles_per_sector_day": 0.0,
+   "sleep_share_mid": 0.0,
+   "sleep_share_nr": 0.0,
+   "share_of_oracle_pct": 0.0
+  },
+  "B1 static thresholds": {
+   "kwh_saved_pct": 18.10317299164651,
+   "congested_qh_per_sector_day": 3.66879649055884,
+   "unserved_gb": 6162.117150686877,
+   "watchdog_wakes": 38471,
+   "toggles_per_sector_day": 13.527465191684149,
+   "sleep_share_mid": 0.6384951761078264,
+   "sleep_share_nr": 0.40020079093281147,
+   "share_of_oracle_pct": 80.2
+  },
+  "B2 Ericsson published (patent + blog)": {
+   "kwh_saved_pct": 17.22681779956866,
+   "congested_qh_per_sector_day": 4.887755102040816,
+   "unserved_gb": 36973.038128712455,
+   "watchdog_wakes": 51253,
+   "toggles_per_sector_day": 17.971199694831203,
+   "sleep_share_mid": 0.5866701236569394,
+   "sleep_share_nr": 0.5003745719178082,
+   "share_of_oracle_pct": 76.3
+  },
+  "B2b Ericsson as in the 2023 blog (PRB + users, daily)": {
+   "kwh_saved_pct": 16.03370063561289,
+   "congested_qh_per_sector_day": 3.492275414838833,
+   "unserved_gb": 20702.58116652552,
+   "watchdog_wakes": 36620,
+   "toggles_per_sector_day": 13.050352851420941,
+   "sleep_share_mid": 0.5446686852311018,
+   "sleep_share_nr": 0.4432867539138943,
+   "share_of_oracle_pct": 71.0
+  },
+  "B2+ Ericsson + our predictive wake": {
+   "kwh_saved_pct": 16.476009378285195,
+   "congested_qh_per_sector_day": 0.621590692351707,
+   "unserved_gb": 1786.720079083744,
+   "watchdog_wakes": 6518,
+   "toggles_per_sector_day": 11.546347510967005,
+   "sleep_share_mid": 0.5012635895479687,
+   "sleep_share_nr": 0.48739450831702547,
+   "share_of_oracle_pct": 73.0
+  },
+  "Elisa default plan (01-06, load <= 10 %)": {
+   "kwh_saved_pct": 6.205538037736824,
+   "congested_qh_per_sector_day": 0.5860194545107762,
+   "unserved_gb": 1947.0911836083937,
+   "watchdog_wakes": 6145,
+   "toggles_per_sector_day": 4.335494945641808,
+   "sleep_share_mid": 0.17872143016084938,
+   "sleep_share_nr": 0.15781963470319635,
+   "share_of_oracle_pct": 27.5
+  },
+  "Parallel Wireless 2-h near-zero rule + rollback": {
+   "kwh_saved_pct": 2.0258175117128685,
+   "congested_qh_per_sector_day": 0.0053404539385847796,
+   "unserved_gb": 38.44523613225334,
+   "watchdog_wakes": 56,
+   "toggles_per_sector_day": 1.601182529086401,
+   "sleep_share_mid": 0.057772466463220803,
+   "sleep_share_nr": 0.04473458904109589,
+   "share_of_oracle_pct": 9.0
+  },
+  "Nokia Q-learning (weight 1)": {
+   "kwh_saved_pct": 14.78118502505017,
+   "congested_qh_per_sector_day": 7.487602517642571,
+   "unserved_gb": 143156.19765981127,
+   "watchdog_wakes": 78515,
+   "toggles_per_sector_day": 25.857047491893955,
+   "sleep_share_mid": 0.5810018516752495,
+   "sleep_share_nr": 0.40368405495759946,
+   "share_of_oracle_pct": 65.5
+  },
+  "Nokia Q-learning (weight 10)": {
+   "kwh_saved_pct": 15.039324607477312,
+   "congested_qh_per_sector_day": 5.017261110051497,
+   "unserved_gb": 39716.01139719618,
+   "watchdog_wakes": 52611,
+   "toggles_per_sector_day": 24.755006675567422,
+   "sleep_share_mid": 0.49291515671689234,
+   "sleep_share_nr": 0.4506176614481409,
+   "share_of_oracle_pct": 66.6
+  },
+  "Nokia Q-learning (weight 30)": {
+   "kwh_saved_pct": 14.578263559083027,
+   "congested_qh_per_sector_day": 3.6049971390425326,
+   "unserved_gb": 26705.941453083673,
+   "watchdog_wakes": 37802,
+   "toggles_per_sector_day": 23.60604615678047,
+   "sleep_share_mid": 0.44386265020026705,
+   "sleep_share_nr": 0.46941250815394653,
+   "share_of_oracle_pct": 64.6
+  },
+  "Nokia Q-learning (weight 100)": {
+   "kwh_saved_pct": 13.370911884416081,
+   "congested_qh_per_sector_day": 2.0971771886324624,
+   "unserved_gb": 10826.128482904667,
+   "watchdog_wakes": 21991,
+   "toggles_per_sector_day": 19.00495899294297,
+   "sleep_share_mid": 0.3484149500921864,
+   "sleep_share_nr": 0.4913491723744292,
+   "share_of_oracle_pct": 59.2
+  },
+  "Reiss-style classifier (tau 0.5)": {
+   "kwh_saved_pct": 16.793046371151156,
+   "congested_qh_per_sector_day": 5.948693496090025,
+   "unserved_gb": 52323.925063491224,
+   "watchdog_wakes": 62378,
+   "toggles_per_sector_day": 20.02250619874118,
+   "sleep_share_mid": 0.5990318440460296,
+   "sleep_share_nr": 0.46304478555120676,
+   "share_of_oracle_pct": 74.4
+  },
+  "Reiss-style classifier (tau 0.9)": {
+   "kwh_saved_pct": 16.7479482794496,
+   "congested_qh_per_sector_day": 3.652679763494183,
+   "unserved_gb": 26197.08891328762,
+   "watchdog_wakes": 38302,
+   "toggles_per_sector_day": 17.75863055502575,
+   "sleep_share_mid": 0.539427570093458,
+   "sleep_share_nr": 0.4997681221461187,
+   "share_of_oracle_pct": 74.2
+  },
+  "Reiss-style classifier (tau 0.97)": {
+   "kwh_saved_pct": 16.07204310426108,
+   "congested_qh_per_sector_day": 2.5349036810986076,
+   "unserved_gb": 13818.599389669247,
+   "watchdog_wakes": 26581,
+   "toggles_per_sector_day": 15.876215906923518,
+   "sleep_share_mid": 0.4689188759615996,
+   "sleep_share_nr": 0.5173908390410958,
+   "share_of_oracle_pct": 71.2
+  },
+  "Reiss-style classifier (tau 0.99)": {
+   "kwh_saved_pct": 14.920727661695931,
+   "congested_qh_per_sector_day": 1.6453366393286288,
+   "unserved_gb": 5988.94709020525,
+   "watchdog_wakes": 17253,
+   "toggles_per_sector_day": 14.101754720579821,
+   "sleep_share_mid": 0.3915766657130142,
+   "sleep_share_nr": 0.5133444430854534,
+   "share_of_oracle_pct": 66.1
+  },
+  "Reiss-style classifier (tau 0.995)": {
+   "kwh_saved_pct": 13.763308737888913,
+   "congested_qh_per_sector_day": 1.099561319855045,
+   "unserved_gb": 3063.8754269498213,
+   "watchdog_wakes": 11530,
+   "toggles_per_sector_day": 13.086973106999809,
+   "sleep_share_mid": 0.32794817693432515,
+   "sleep_share_nr": 0.5055268468688845,
+   "share_of_oracle_pct": 61.0
+  },
+  "B4 Yovahti (P90, default)": {
+   "kwh_saved_pct": 18.139591073281526,
+   "congested_qh_per_sector_day": 0.5925996566851038,
+   "unserved_gb": 1834.1911277938104,
+   "watchdog_wakes": 6214,
+   "toggles_per_sector_day": 7.729734884608049,
+   "sleep_share_mid": 0.4370023126072859,
+   "sleep_share_nr": 0.6915209148727984,
+   "share_of_oracle_pct": 80.3
+  },
+  "B4 Yovahti on P50": {
+   "kwh_saved_pct": 19.99057735681482,
+   "congested_qh_per_sector_day": 3.155445355712378,
+   "unserved_gb": 5432.909164184835,
+   "watchdog_wakes": 33088,
+   "toggles_per_sector_day": 9.752908640091551,
+   "sleep_share_mid": 0.5998186073494819,
+   "sleep_share_nr": 0.6409842832681018,
+   "share_of_oracle_pct": 88.5
+  },
+  "B4 Yovahti careful (margin 1.5)": {
+   "kwh_saved_pct": 14.085661415124983,
+   "congested_qh_per_sector_day": 0.1377074194163647,
+   "unserved_gb": 905.4694654882726,
+   "watchdog_wakes": 1444,
+   "toggles_per_sector_day": 7.178428380698073,
+   "sleep_share_mid": 0.2960713491003878,
+   "sleep_share_nr": 0.5531560869210698,
+   "share_of_oracle_pct": 62.4
+  },
+  "Oracle (perfect foresight)": {
+   "kwh_saved_pct": 22.580393402287925,
+   "congested_qh_per_sector_day": 0.0,
+   "unserved_gb": 0.0,
+   "watchdog_wakes": 0,
+   "toggles_per_sector_day": 10.314228495136373,
+   "sleep_share_mid": 0.6243006548413758,
+   "sleep_share_nr": 0.8744062907697325,
+   "share_of_oracle_pct": 100.0
+  }
+ }
+}

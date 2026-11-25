@@ -241,8 +241,15 @@ hooks.s3b = (() => {
   el("text", { x: m.l + 14, y: m.t - 18, "font-size": 22, "font-weight": 800, fill: C.goodInk }, svg).textContent = "Energy saved · better ↑";
   el("text", { x: W - m.r, y: H - 18, "text-anchor": "end", "font-size": 22, "font-weight": 800, fill: C.badInk }, svg).textContent = "Congested quarter-hours per sector-day · worse →";
   const g0 = el("g", { opacity: 0, style: "transition:opacity .8s" }, svg);
-  const pts = [["Static thresholds", b1], ["Published method (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Oracle (perfect foresight)", M["Oracle (perfect foresight)"]],
+  const pts = [["Static thresholds", b1], ["Ericsson patent (recon.)", b2], ["O-RAN SC rApp logic", b3], ["Oracle (perfect foresight)", M["Oracle (perfect foresight)"]],
     ["Published + predictive wake (our fix)", { congested_qh_per_sector_day: 0.62, kwh_saved_pct: 16.5 }]];
+  // other companies' published methods, reconstructed (E41): the safest setting of each dial
+  const I = D.industry || {};
+  for (const [label, key] of [["Nokia RL (safest)", "Nokia Q-learning (weight 100)"],
+    ["Reiss-style (safest)", "Reiss-style classifier (tau 0.995)"],
+    ["Ericsson 2023 blog", "B2b Ericsson as in the 2023 blog (PRB + users, daily)"]]) {
+    if (I[key]) pts.push([label, I[key]]);
+  }
   for (const [n, mm] of pts) {
     el("circle", { cx: X(mm.congested_qh_per_sector_day), cy: Y(mm.kwh_saved_pct), r: 7, fill: "#7C8597", stroke: "#F6F7F4", "stroke-width": 2 }, g0);
     const left = mm.congested_qh_per_sector_day > 4;

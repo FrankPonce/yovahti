@@ -206,6 +206,9 @@ def main() -> None:
     logging.getLogger("httpx").setLevel(logging.CRITICAL)
     WEB.mkdir(parents=True, exist_ok=True)
     data = {"results": results_summary(), "netcrash": netcrash(), "events": events()}
+    ind = RESULTS / "compare" / "industry_validation.json"
+    if ind.exists():                                   # other companies' methods (E41, D47)
+        data["industry"] = json.loads(ind.read_text())["methods"]
     if a.how:
         data["how"] = how_it_works()
         data["split"] = energy_split()

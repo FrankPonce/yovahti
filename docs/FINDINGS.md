@@ -443,3 +443,24 @@ Full mode fails N3 and N8 (it splits a change waiting for approval into smaller 
 **Why it matters:** "Let the model explain itself" is also a channel for leaks and confident errors. A trail of typed extraction, deterministic mapping and signed receipts can be checked step by step; prose can only be read.
 **Action:** Source pointers are validated against the ids the feed actually had (a made-up id is dropped); the workflow card changed, so its scorecard was re-run and re-signed (the superseded one was never published).
 
+### E41 · 2026-11-25 · Against five more published methods, the risk-aware planner still sets the frontier
+**What:** `scripts/industry_baselines.py`, validation weeks, 749 sectors, same simulator (`results/compare/industry_validation.json`). Energy saved / congested quarter-hours per sector-day:
+
+| Method (reconstruction) | Saved | Congested | Share of oracle |
+|---|---:|---:|---:|
+| Elisa default plan (01-06, load <= 10 %) | 6.2 % | 0.59 | 28 % |
+| Parallel Wireless near-zero rule + rollback | 2.0 % | 0.005 | 9 % |
+| Ericsson B2 (patent) / B2b (as in the blog) | 17.2 % / 16.0 % | 4.89 / 3.49 | 76 / 71 % |
+| Ericsson B2+ (our predictive wake) | 16.5 % | 0.62 | 73 % |
+| Nokia Q-learning, weight 1 ... 100 | 14.8 ... 13.4 % | 7.49 ... 2.10 | 66 ... 59 % |
+| Reiss-style classifier, tau 0.5 ... 0.995 | 16.8 ... 13.8 % | 5.95 ... 1.10 | 74 ... 61 % |
+| **Yövahti B4 (default / careful)** | **18.1 / 14.1 %** | **0.59 / 0.14** | **80 / 62 %** |
+
+At the same congestion (0.59) Yövahti saves 18.1 % against Elisa's 6.2 % and B2+'s 16.5 %; its careful setting saves more than the best dial settings of Nokia's RL and the Reiss-style classifier (14.1 % vs 13.4-13.8 %) at 8-15x less congestion. Elisa's default plan lands at 6.2 %, inside the 4.5-6.9 % its own patent reports: an outside check on the energy model.
+**Why it matters:** The claim is no longer "beats a patent reconstruction": the planner leads published methods from Ericsson, Nokia, Elisa and Parallel Wireless and the closest academic approach, on one dataset and simulator. The learned methods fail the same way: reacting to past load cannot see the morning rise a forecast sees.
+**Action:** Labelled reconstructions with named substitutions (D47); the Nokia and Reiss models are ours, smaller than theirs (tabular Q-learning, gradient boosting), and could do better with their full models. Elisa's partial (MIMO-branch) shutdown is not modelled: by the patent's own figures it needs 9-12 h of low load to match a 5 h full shutdown.
+
+### E42 · 2026-11-25 · Borrowed ideas: the uniform dial is hard to beat; an adaptive margin cuts lost traffic
+**What:** `scripts/borrowed_ideas.py`. Samsung-style adaptive margin (a sector's margin rises x1.15 or x1.3 when the watchdog fires there, decays daily) and Parallel-Wireless-style night rollback, against the uniform margin dial at matched congestion. On congested quarter-hours none beats the dial (adaptive x1.3: 14.8 % at 0.21 vs the dial's ~15.4 %; night rollback: 14.1 % at 0.42 vs ~17 %). On unserved traffic the adaptive margin wins: 14.8 % saved at 903 GB unserved, against 14.1 % at 905 GB for margin 1.5.
+**Why it matters:** Caution placed where overloads actually happen reduces how *bad* congestion is, not how *often*; the hourly re-plan plus the one-hour watchdog already does what a night-long rollback does, cheaper.
+**Action:** Kept as an option, not the default (the test weeks are frozen to the published method, D36). Strongest idea from each, for the record: Elisa, predictability (4 toggles a day); Parallel Wireless, rollback; Ericsson and ZTE, counting users; Nokia, freeze time (we have switch cost and I4); Reiss, a run-time dial (we have margin and alpha); Samsung, adaptive QoS thresholds (tried here).

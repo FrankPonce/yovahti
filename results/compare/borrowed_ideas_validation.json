@@ -1,0 +1,65 @@
+{
+ "B0": {
+  "kwh_saved_pct": 0.0,
+  "congested_qh_per_sector_day": 0.0,
+  "unserved_gb": 0.0,
+  "watchdog_wakes": 0,
+  "toggles_per_sector_day": 0.0
+ },
+ "B4 margin 1 (dial)": {
+  "kwh_saved_pct": 18.139591073281526,
+  "congested_qh_per_sector_day": 0.5925996566851038,
+  "unserved_gb": 1834.1911277938104,
+  "watchdog_wakes": 6214,
+  "toggles_per_sector_day": 7.729734884608049
+ },
+ "B4 margin 1.15 (dial)": {
+  "kwh_saved_pct": 16.820696181895613,
+  "congested_qh_per_sector_day": 0.3416936868205226,
+  "unserved_gb": 1384.9625833608989,
+  "watchdog_wakes": 3583,
+  "toggles_per_sector_day": 7.581632653061225
+ },
+ "B4 margin 1.3 (dial)": {
+  "kwh_saved_pct": 15.5687846546832,
+  "congested_qh_per_sector_day": 0.21762349799732977,
+  "unserved_gb": 1133.3557935845547,
+  "watchdog_wakes": 2282,
+  "toggles_per_sector_day": 7.374403967194354
+ },
+ "B4 margin 1.5 (dial)": {
+  "kwh_saved_pct": 14.085661415124983,
+  "congested_qh_per_sector_day": 0.1377074194163647,
+  "unserved_gb": 905.4694654882726,
+  "watchdog_wakes": 1444,
+  "toggles_per_sector_day": 7.178428380698073
+ },
+ "B4 + adaptive margin x1.15 (Samsung idea)": {
+  "kwh_saved_pct": 16.059668226061163,
+  "congested_qh_per_sector_day": 0.29467861911119586,
+  "unserved_gb": 1166.1028835771122,
+  "watchdog_wakes": 3090,
+  "toggles_per_sector_day": 7.546728971962617
+ },
+ "B4 + adaptive margin x1.3 (Samsung idea)": {
+  "kwh_saved_pct": 14.821581803990968,
+  "congested_qh_per_sector_day": 0.20999427808506582,
+  "unserved_gb": 902.7560890894391,
+  "watchdog_wakes": 2202,
+  "toggles_per_sector_day": 7.232309746328438
+ },
+ "B4 + night rollback (Parallel Wireless idea)": {
+  "kwh_saved_pct": 14.085589267745124,
+  "congested_qh_per_sector_day": 0.4198931909212283,
+  "unserved_gb": 1253.256705052528,
+  "watchdog_wakes": 4403,
+  "toggles_per_sector_day": 5.72515735266069
+ },
+ "B4 + adaptive x1.3 + night rollback": {
+  "kwh_saved_pct": 13.589238483048371,
+  "congested_qh_per_sector_day": 0.19979019645241272,
+  "unserved_gb": 794.3245442984023,
+  "watchdog_wakes": 2095,
+  "toggles_per_sector_day": 6.519359145527369
+ }
+}
