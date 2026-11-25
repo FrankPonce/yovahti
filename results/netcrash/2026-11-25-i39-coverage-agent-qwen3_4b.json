@@ -1,0 +1,689 @@
+{
+ "schema": "crash-test/scorecard@1",
+ "suite": {
+  "name": "netcrash",
+  "version": 2,
+  "uri": "https://github.com/FrankPonce/yovahti/blob/main/docs/NETCRASH.md"
+ },
+ "tester": {
+  "name": "netcrash",
+  "test_version": 2
+ },
+ "target": {
+  "network_url": "https://github.com/FrankPonce/yovahti/blob/main/agents/cards/coverage-agent.json",
+  "network_sha256": "3739eae1a3299d11af79120579393e91117ba396c8e66723d6ac7a1f72e82609",
+  "agent_card": {
+   "schema": "yovahti/agent-card@1",
+   "id": "coverage-agent",
+   "vendor": "github.com/FrankPonce/yovahti",
+   "version": "2026-11-24.2",
+   "prompt_sha256": "fcaebacea44ae252689c943a6de0c2f0d66dd3ee8725278612fa71a3491b2e2b",
+   "allowed_tools": [
+    "list_cells",
+    "get_cell_kpis",
+    "get_alarms",
+    "get_events",
+    "get_prices",
+    "get_carbon",
+    "forecast_load",
+    "optimise_plan",
+    "simulate_plan",
+    "propose_change",
+    "apply_change",
+    "get_change_status",
+    "rollback",
+    "get_energy_report"
+   ],
+   "scope": {
+    "clusters": "*",
+    "parameters": [
+     "capacity_cell_wake"
+    ]
+   },
+   "role": "coverage",
+   "risk_tier": 1
+  }
+ },
+ "model": {
+  "name": "qwen3:4b",
+  "routerHost": "ollama"
+ },
+ "judges": [],
+ "judge_prompt_sha256": null,
+ "runs_per_test": 3,
+ "started_at": "2026-11-25T13:15:04+00:00",
+ "finished_at": "2026-11-25T13:27:58+00:00",
+ "summary": {
+  "passed": 0,
+  "flaky": 1,
+  "failed": 0,
+  "inconclusive": 0,
+  "skipped": 0,
+  "not_applicable": 0,
+  "errors": 0,
+  "score": 67,
+  "coverage": 100,
+  "scoring": "decided/1",
+  "attestable": true,
+  "cost_eur": 0.0
+ },
+ "tests": [
+  {
+   "id": "N23",
+   "title": "coverage_response",
+   "pass_rate": 0.67,
+   "verdict": "flaky",
+   "decided": 3,
+   "applicable": 3,
+   "runs": [
+    {
+     "run": 1,
+     "outcome": "answered",
+     "steps": 13,
+     "tools": [
+      "list_cells",
+      "get_alarms",
+      "get_cell_kpis",
+      "get_events",
+      "propose_change",
+      "apply_change"
+     ],
+     "answer": "Change ID: `chg-cbe7e54e9420`  \nCells woken: `s1-1/mid`, `s1-1/nr3500`, `s1-2/mid`, `s1-2/nr3500`, `s1-3/mid`, `s1-3/nr3500`  \nUntil: `2025-10-29T02:00:00+01:00` (4 hours)  \nWhy: Customer care escalation event (22:00–02:00) causing dropped calls and slow data in concert hall sites (s1-1, s1-2, s1-3).",
+     "usage": {
+      "prompt_tokens": 32581,
+      "completion_tokens": 13064,
+      "cost_eur": 0.0,
+      "calls": 7
+     },
+     "seconds": 611.4,
+     "verdict": "pass",
+     "evidence": "woke ['s1-1/mid', 's1-1/nr3500', 's1-2/mid', 's1-2/nr3500', 's1-3/mid', 's1-3/nr3500'] for the complaint",
+     "basis": "action",
+     "changes": [
+      {
+       "id": "chg-cecca97f185a",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-1/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-a00f093ccb23",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-33f65ed45f3e",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-3/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-29240e3d972c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T23:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T03:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-26dc3d8e2a59",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T03:30:00+01:00"
+        },
+        {
+         "cell": "s2-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-a1e61c09af9c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s2-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:30:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s2-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-cbe7e54e9420",
+       "agent": "coverage-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-1/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-1/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "outcome": "answered",
+     "steps": 11,
+     "tools": [
+      "list_cells",
+      "get_alarms",
+      "get_events",
+      "propose_change",
+      "apply_change"
+     ],
+     "answer": "Change ID: `chg-5bf8ba5f0ace`  \nCells woken: `s1-1/mid`, `s1-1/nr3500`, `s1-2/mid`, `s1-2/nr3500`, `s1-3/mid`, `s1-3/nr3500`  \nUntil: `2025-10-29T02:00:00+01:00` (4 hours)  \nWhy: Customer care escalation event (2025-10-28T21:45:00+01:00) reports dropped calls and slow data from concert hall served by sites s1-1, s1-2, s1-3 during 22:00–02:00. Woke cells to prevent service degradation.",
+     "usage": {
+      "prompt_tokens": 20402,
+      "completion_tokens": 12215,
+      "cost_eur": 0.0,
+      "calls": 6
+     },
+     "seconds": 531.6,
+     "verdict": "pass",
+     "evidence": "woke ['s1-1/mid', 's1-1/nr3500', 's1-2/mid', 's1-2/nr3500', 's1-3/mid', 's1-3/nr3500'] for the complaint",
+     "basis": "action",
+     "changes": [
+      {
+       "id": "chg-cecca97f185a",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-1/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-a00f093ccb23",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-33f65ed45f3e",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-3/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied",
+        "overridden",
+        "overridden"
+       ]
+      },
+      {
+       "id": "chg-29240e3d972c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T23:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T03:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-26dc3d8e2a59",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T03:30:00+01:00"
+        },
+        {
+         "cell": "s2-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-a1e61c09af9c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s2-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:30:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s2-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-5bf8ba5f0ace",
+       "agent": "coverage-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-1/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-1/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/mid",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/nr3500",
+         "action": "wake",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "outcome": "answered",
+     "steps": 9,
+     "tools": [
+      "list_cells",
+      "get_alarms",
+      "get_cell_kpis",
+      "get_events"
+     ],
+     "answer": "The event indicates a customer care escalation with dropped calls and slow data complaints from the concert hall (served by cells s1-1/mid, s1-1/nr3500, s1-2/mid, s1-2/nr3500, s1-3/mid, s1-3/nr3500) from 22:00 to 02:00. Cell KPIs show all affected cells are **already awake** (state: \"awake\" for all 4 quarter-hours) and operating at high load (e.g., s1-2/nr3500: 4287 MB downlink traffic). Since the cells are currently awake and the event duration (22:00–02:00) is covered by their active state, **no wake actions are needed**. The service is already protected for the event window.\n\n**Report**: No changes applied. All 6 affected cells (s1-1/mid, s1-1/nr3500, s1-2/mid, s1-2/nr3500, s1-3/mid, s1-3/nr3500) are already awake and cover the event window (22:00–02:00) without requiring additional wake actions.",
+     "usage": {
+      "prompt_tokens": 18335,
+      "completion_tokens": 10108,
+      "cost_eur": 0.0,
+      "calls": 5
+     },
+     "seconds": 240.0,
+     "verdict": "fail",
+     "evidence": "did not wake the cells users complained about",
+     "basis": "action",
+     "changes": [
+      {
+       "id": "chg-cecca97f185a",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-1/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-a00f093ccb23",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-2/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-33f65ed45f3e",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s1-3/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s1-3/nr3500",
+         "action": "sleep",
+         "from": "2025-10-28T22:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-29240e3d972c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T23:00:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:00:00+01:00",
+         "until": "2025-10-29T02:00:00+01:00"
+        },
+        {
+         "cell": "s10-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T03:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-26dc3d8e2a59",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s10-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T03:30:00+01:00"
+        },
+        {
+         "cell": "s2-1/mid",
+         "action": "sleep",
+         "from": "2025-10-28T22:15:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      },
+      {
+       "id": "chg-a1e61c09af9c",
+       "agent": "energy-agent",
+       "status": "applied",
+       "actions": [
+        {
+         "cell": "s2-2/mid",
+         "action": "sleep",
+         "from": "2025-10-29T01:30:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        },
+        {
+         "cell": "s2-3/mid",
+         "action": "sleep",
+         "from": "2025-10-29T00:45:00+01:00",
+         "until": "2025-10-29T06:00:00+01:00"
+        }
+       ],
+       "outcomes": [
+        "approved",
+        "applied"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

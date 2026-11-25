@@ -51,7 +51,6 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 | # | Issue | Plan | When |
 |---|---|---|---|
 | I38 | Site, README and paper say "7–8x less congestion than the published method" | Qualify: vs the plain reconstruction; vs B2+ about +1.6 points at matched congestion (E26) | Done in README, site, paper, video script (24 Nov); live site needs a redeploy |
-| I39 | Real-model runs of N22 (twin gaming), N23 (coverage agent) and an hourly night | Run after the v2 matrix, within the caps | Next |
 
 ## Questions to revisit
 
@@ -61,6 +60,7 @@ Things to address later. Each says when it must be settled. Close an issue by mo
 
 ## Closed
 
+- **I39** (last open runs) · closed 25 Nov: N22 ran in the v2 matrix (no twin gaming, E37); N23 and an hourly night on qwen3:4b (E43).
 - **I18** (format failures) · partly 24 Nov: still a model property, but the harness no longer lets an empty report hide an action fail, and inline reasoning is stripped (G35).
 - **I34** (Rekor) · closed 24 Nov: v1 scorecards in production, verified (E34, D44).
 - **I35** (real RAN) · closed 24 Nov as a spike: srsRAN 4G in the loop (E33, D43); O-RAN SC interfaces are the next step.
